@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { KeytipLayer } from '@fluentui/react/lib/Keytips';
+import type { Decorator } from '@storybook/react';
 
 export const KeytipLayerWrapper: React.FunctionComponent<{}> = props => {
   return (
@@ -10,6 +11,6 @@ export const KeytipLayerWrapper: React.FunctionComponent<{}> = props => {
   );
 };
 
-export const withKeytipLayer = (storyFn: () => React.ReactNode) => {
-  return <KeytipLayerWrapper>{storyFn()}</KeytipLayerWrapper>;
+export const withKeytipLayer: Decorator = (storyFn, context) => {
+  return <KeytipLayerWrapper>{storyFn(context)}</KeytipLayerWrapper>;
 };

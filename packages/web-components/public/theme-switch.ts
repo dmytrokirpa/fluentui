@@ -8,6 +8,8 @@ const themes = {
   'teams-dark': teamsDarkTheme,
 };
 
-export function switchTheme(themeName: keyof typeof themes) {
+export type ThemeName = keyof typeof themes;
+
+export function switchTheme(themeName: ThemeName) {
   setTheme(themes[themeName]);
 }

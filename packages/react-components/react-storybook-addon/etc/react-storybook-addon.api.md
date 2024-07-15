@@ -4,10 +4,9 @@
 
 ```ts
 
-import { Args } from '@storybook/api';
-import { OptionsParameter } from '@storybook/addons';
-import { Parameters as Parameters_2 } from '@storybook/addons';
-import { StoryContext } from '@storybook/addons';
+import type { Args } from '@storybook/react';
+import type { Parameters as Parameters_2 } from '@storybook/react';
+import type { StoryContext } from '@storybook/react';
 import type { Theme } from '@fluentui/react-theme';
 
 // @public (undocumented)
@@ -46,10 +45,6 @@ export function parameters(options?: FluentParameters): {
     dir: string;
     fluentTheme: string;
     mode: string;
-    fileName?: string | undefined;
-    options?: OptionsParameter | undefined;
-    layout?: "centered" | "fullscreen" | "padded" | "none" | undefined;
-    docsOnly?: boolean | undefined;
 };
 
 // @public (undocumented)

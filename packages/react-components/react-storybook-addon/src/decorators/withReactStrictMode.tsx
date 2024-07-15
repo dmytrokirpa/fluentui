@@ -1,12 +1,12 @@
 import * as React from 'react';
+import { Decorator } from '@storybook/react';
 
 import { STRICT_MODE_ID } from '../constants';
-import { FluentStoryContext } from '../hooks';
 
-export const withReactStrictMode = (StoryFn: () => JSX.Element, context: FluentStoryContext) => {
+export const withReactStrictMode: Decorator = (storyFn, context) => {
   const isActive = context.globals[STRICT_MODE_ID] ?? false;
 
-  return <StrictModeWrapper strictMode={isActive}>{StoryFn()}</StrictModeWrapper>;
+  return <StrictModeWrapper strictMode={isActive}>{storyFn(context)}</StrictModeWrapper>;
 };
 
 const StrictModeWrapper = (props: { strictMode: boolean; children: React.ReactElement }) => {

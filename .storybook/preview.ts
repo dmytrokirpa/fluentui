@@ -1,0 +1,36 @@
+import type { Preview } from '@storybook/react';
+import { withLinks } from '@storybook/addon-links';
+import './docs-root.css';
+import '../packages/react-components/react-storybook-addon-export-to-sandbox/src/styles.css';
+
+export default {
+  decorators: [withLinks],
+
+  parameters: {
+    viewMode: 'docs',
+    controls: {
+      disable: true,
+      expanded: true,
+    },
+    docs: {
+      source: {
+        excludeDecorators: true,
+        type: 'source',
+      },
+    },
+    exportToSandbox: {
+      provider: 'stackblitz-cloud',
+      bundler: 'vite',
+      requiredDependencies: {
+        // for React
+        react: '^18',
+        'react-dom': '^18',
+        // necessary for FluentProvider:
+        '@fluentui/react-components': '^9.0.0',
+      },
+      optionalDependencies: {
+        '@fluentui/react-icons': 'latest',
+      },
+    },
+  },
+} satisfies Preview;

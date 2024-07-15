@@ -6,5 +6,5 @@
     "checkJs": true,
     "types": ["static-assets", "environment", "storybook__addons"]
   },
-  "include": ["*.js"]
+  "include": ["*.js", "preview.ts", "main.ts"]
 }

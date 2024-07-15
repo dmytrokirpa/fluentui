@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
-import { configure, addParameters, addDecorator } from '@storybook/react';
+import { configure } from '@storybook/react';
 import 'cypress-storybook/react';
 import { withPerformance } from 'storybook-addon-performance';
 import { withKeytipLayer, withStrictMode } from '@fluentui/storybook';
@@ -9,16 +9,16 @@ initializeIcons();
 
 // This API is deprecated (in favor of `export const decorators = []`) but the new way appears not
 // to work when using the legacy configure() API
-addDecorator(withPerformance);
-addDecorator(withStrictMode);
-addDecorator(withKeytipLayer);
+// addDecorator(withPerformance);
+// addDecorator(withStrictMode);
+// addDecorator(withKeytipLayer);
 
-// This API is deprecated (in favor of `export const parameters = {}`) but same issue as above
-addParameters({
-  a11y: /** @type {import('@storybook/addon-a11y').A11yParameters} */ ({
-    manual: true,
-  }),
-});
+// // This API is deprecated (in favor of `export const parameters = {}`) but same issue as above
+// addParameters({
+//   a11y: /** @type {import('@storybook/addon-a11y').A11yParameters} */ ({
+//     manual: true,
+//   }),
+// });
 
 // This API is deprecated and will no longer work in storybook 7 or with storyStoreV7.
 // https://github.com/storybookjs/storybook/blob/next/MIGRATION.md#deprecated-configure
@@ -123,3 +123,13 @@ function generateStoriesForExampleFile(key, stories, req) {
     }
   }
 }
+
+/** @type {import('@storybook/react').Preview} */
+export default {
+  decorators: [withPerformance, withStrictMode, withKeytipLayer],
+  parameters: {
+    a11y: {
+      manual: true,
+    },
+  },
+};

@@ -1,6 +1,6 @@
 import type { PresetConfig } from './types';
 
-type WebpackFinalFn = NonNullable<import('@storybook/core-common').StorybookConfig['webpackFinal']>;
+type WebpackFinalFn = NonNullable<import('@storybook/react-webpack5').StorybookConfig['webpackFinal']>;
 export type WebpackFinalConfig = Parameters<WebpackFinalFn>[0];
 export type WebpackFinalOptions = Parameters<WebpackFinalFn>[1];
 

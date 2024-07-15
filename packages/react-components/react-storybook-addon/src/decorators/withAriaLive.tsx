@@ -1,9 +1,9 @@
 import * as React from 'react';
-
+import type { Decorator } from '@storybook/react';
 import { AriaLiveAnnouncer } from '@fluentui/react-aria';
 
-export const withAriaLive = (StoryFn: () => JSX.Element) => {
-  return <AriaLiveWrapper>{StoryFn()}</AriaLiveWrapper>;
+export const withAriaLive: Decorator = (storyFn, context) => {
+  return <AriaLiveWrapper>{storyFn(context)}</AriaLiveWrapper>;
 };
 
 const AriaLiveWrapper: React.FC<{ children: React.ReactNode }> = props => {

@@ -1,6 +1,7 @@
 /* remove the docs wrapper bg to let page bg show through */
 /* remove unnecessary padding now that theme switcher is not taking up space */
-#docs-root .sbdocs-wrapper {
+#storybook-preview-iframe,
+#storybook-docs .sbdocs-wrapper {
   background: transparent !important;
   padding-top: 0;
 }

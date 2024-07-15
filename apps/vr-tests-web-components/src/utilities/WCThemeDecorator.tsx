@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { StoryContext } from '@storybook/addons';
-import { ComponentStory } from '@storybook/react';
+import type { StoryContext, ComponentStory } from '@storybook/react';
 import { FASTElement, customElement, html, attr } from '@microsoft/fast-element';
 import { teamsLightTheme, teamsDarkTheme, webLightTheme, webDarkTheme } from '@fluentui/tokens';
 import { setThemeFor } from '@fluentui/web-components';

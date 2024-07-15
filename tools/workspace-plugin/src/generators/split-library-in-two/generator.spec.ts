@@ -304,36 +304,31 @@ describe('split-library-in-two generator', () => {
         ],
       }
     `);
-    expect(tree.read(`${storiesConfig.root}/.storybook/main.js`, 'utf-8')).toMatchInlineSnapshot(`
-      "const rootMain = require('../../../../../.storybook/main');
+    expect(tree.read(`${storiesConfig.root}/.storybook/main.ts`, 'utf-8')).toMatchInlineSnapshot(`
+      "import type { StorybookConfig } from '@storybook/react-webpack5';
 
-      module.exports =
-        /** @type {Omit<import('../../../../../.storybook/main'), 'typescript'|'babel'>} */ ({
-          ...rootMain,
-          stories: [
-            ...rootMain.stories,
-            '../src/**/*.stories.mdx',
-            '../src/**/index.stories.@(ts|tsx)',
-          ],
-          addons: [...rootMain.addons],
-          webpackFinal: (config, options) => {
-            const localConfig = { ...rootMain.webpackFinal(config, options) };
+      import rootMain from '../../../../../.storybook/main';
 
-            // add your own webpack tweaks if needed
+      export default {
+        ...rootMain,
+        stories: [...rootMain.stories, '../src/**/*.stories.mdx', '../src/**/index.stories.@(ts|tsx)'],
+        addons: [...rootMain.addons],
+        webpackFinal: (config, options) => {
+          const localConfig = { ...rootMain.webpackFinal(config, options) };
 
-            return localConfig;
-          },
-        });
+          // add your own webpack tweaks if needed
+
+          return localConfig;
+        },
+      } satisfies StorybookConfig;
       "
     `);
-    expect(tree.read(`${storiesConfig.root}/.storybook/preview.js`, 'utf-8')).toMatchInlineSnapshot(`
-      "import * as rootPreview from '../../../../../.storybook/preview';
+    expect(tree.read(`${storiesConfig.root}/.storybook/preview.ts`, 'utf-8')).toMatchInlineSnapshot(`
+      "import type { Preview } from '@storybook/react';
 
-      /** @type {typeof rootPreview.decorators} */
-      export const decorators = [...rootPreview.decorators];
+      import rootPreview from '../../../../.storybook/preview';
 
-      /** @type {typeof rootPreview.parameters} */
-      export const parameters = { ...rootPreview.parameters };
+      export default { ...rootPreview } satisfies Preview;
       "
     `);
   });
@@ -474,7 +469,7 @@ function setupDummyPackage(tree: Tree, options: { projectName: string }) {
 
       `,
       preview: stripIndents`
-      import * as rootPreview from '../../../../.storybook/preview';
+      import rootPreview from '../../../../.storybook/preview';
 
       /** @type {typeof rootPreview.decorators} */
       export const decorators = [...rootPreview.decorators];

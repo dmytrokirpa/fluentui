@@ -1,10 +1,10 @@
 import * as React from 'react';
-
+import type { Decorator } from '@storybook/react';
 import { FluentProvider } from '@fluentui/react-provider';
 import { Theme } from '@fluentui/react-theme';
 import { themes, defaultTheme, ThemeIds } from '../theme';
 import { DIR_ID, THEME_ID } from '../constants';
-import { FluentGlobals, FluentStoryContext } from '../hooks';
+import type { FluentGlobals } from '../hooks';
 
 const findTheme = (themeId?: ThemeIds) => {
   if (!themeId) {
@@ -20,7 +20,7 @@ const getActiveFluentTheme = (globals: FluentGlobals) => {
   return { theme };
 };
 
-export const withFluentProvider = (StoryFn: () => JSX.Element, context: FluentStoryContext) => {
+export const withFluentProvider: Decorator = (storyFn, context) => {
   const { globals, parameters } = context;
   const { mode } = parameters;
   const isVrTest = mode === 'vr-test';
@@ -32,7 +32,7 @@ export const withFluentProvider = (StoryFn: () => JSX.Element, context: FluentSt
 
   return (
     <FluentProvider theme={theme} dir={dir}>
-      {isVrTest ? StoryFn() : <FluentExampleContainer theme={theme}>{StoryFn()}</FluentExampleContainer>}
+      {isVrTest ? storyFn(context) : <FluentExampleContainer theme={theme}>{storyFn(context)}</FluentExampleContainer>}
     </FluentProvider>
   );
 };

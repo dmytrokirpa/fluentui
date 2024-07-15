@@ -1,4 +1,4 @@
-import type { Parameters } from '@storybook/addons';
+import type { Parameters } from '@storybook/react';
 import type { StoryContextForEnhancers } from '@storybook/csf';
 
 import { withExportToSandboxButton } from '../decorators/with-export-to-sandbox-button';

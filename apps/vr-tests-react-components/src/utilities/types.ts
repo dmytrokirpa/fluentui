@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { StoryApi, StoryName, LegacyStoryFn, ClientApiReturnFn } from '@storybook/addons';
+import type { StoryApi, StoryName, LegacyStoryFn, ClientApiReturnFn } from '@storybook/react';
 
 /** Extra parameters provided by our addon (see `.storybook/preview.js`) */
 export interface AddStoryConfig {

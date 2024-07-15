@@ -6,5 +6,5 @@
     "jsx": "react",
     "types": ["node", "static-assets", "storybook__addons"]
   },
-  "include": ["*.js"]
+  "include": ["*.js", "theme.ts", "preview.ts", "manager.ts", "main.ts"]
 }

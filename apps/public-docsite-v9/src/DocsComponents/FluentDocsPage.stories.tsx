@@ -11,7 +11,7 @@ import {
   Stories,
 } from '@storybook/addon-docs';
 import type { SBEnumType } from '@storybook/csf';
-import { makeStyles, shorthands, tokens, Link, Text } from '@fluentui/react-components';
+import { makeStyles, shorthands, tokens, Link, Text, FluentProvider } from '@fluentui/react-components';
 import { InfoFilled } from '@fluentui/react-icons';
 import { DIR_ID, THEME_ID, themes } from '@fluentui/react-storybook-addon';
 import { DirSwitch } from './DirSwitch.stories';
@@ -132,11 +132,13 @@ const getNativeElementsList = (elements: SBEnumType['value']): JSX.Element => {
 export const FluentDocsPage = () => {
   const context = React.useContext(DocsContext);
 
-  const dir = context.parameters?.dir ?? context.globals?.[DIR_ID] ?? 'ltr';
-  const selectedTheme = themes.find(theme => theme.id === context.globals![THEME_ID]);
   const stories = context.componentStories();
   const primaryStory = stories[0];
-  const videos = context.parameters?.videos ?? null;
+
+  const dir = primaryStory.parameters?.dir ?? context.store.globals?.globals?.[DIR_ID] ?? 'ltr';
+  const selectedTheme = themes.find(theme => theme.id === context.store.globals!.globals![THEME_ID]);
+
+  const videos = primaryStory.parameters?.videos ?? null;
   const styles = useStyles();
   // DEBUG
   // console.log('FluentDocsPage', context);
@@ -151,7 +153,7 @@ export const FluentDocsPage = () => {
   // );
 
   return (
-    <div>
+    <FluentProvider>
       <Title />
       <div className={styles.wrapper}>
         <div className={styles.container}>
@@ -191,6 +193,6 @@ export const FluentDocsPage = () => {
           <Toc stories={stories} />
         </div>
       </div>
-    </div>
+    </FluentProvider>
   );
 };

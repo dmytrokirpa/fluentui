@@ -20,7 +20,7 @@
     "test": "jest --passWithNoTests",
     "type-check": "just-scripts type-check",
     "generate-api": "just-scripts generate-api",
-    "storybook": "start-storybook",
+    "storybook": "storybook dev",
     "start": "yarn storybook"
   },
   "devDependencies": {

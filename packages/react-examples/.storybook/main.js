@@ -2,7 +2,7 @@ import { createStorybookWebpackConfig } from '@fluentui/scripts-webpack';
 import * as path from 'path';
 import { merge } from 'webpack-merge';
 
-/** @type {Partial<import('@storybook/core-common').StorybookConfig>} */
+/** @type {Partial<import('@storybook/react-webpack5').StorybookConfig>} */
 const config = {
   addons: [
     '@storybook/addon-a11y',
@@ -42,8 +42,12 @@ const config = {
     });
   },
 
+  framework: {
+    name: '@storybook/react-webpack5',
+    options: {},
+  },
+
   core: {
-    builder: 'webpack5',
     disableTelemetry: true,
   },
 };
