@@ -1,9 +1,11 @@
+import { dirname, join } from 'path';
 const path = require('path');
 const fs = require('fs');
 
 const {
   loadWorkspaceAddon,
   registerTsPaths,
+  registerRules,
   processBabelLoaderOptions,
   getImportMappingsForExportToSandboxAddon,
 } = require('@fluentui/scripts-storybook');
@@ -15,14 +17,11 @@ const previewHeadTemplate = fs.readFileSync(path.resolve(__dirname, 'preview-hea
 module.exports = /** @type {import('./types').StorybookConfig} */ ({
   stories: [],
   addons: [
-    // external custom addons
-
-    '@storybook/addon-essentials',
-    '@storybook/addon-a11y',
-    '@storybook/addon-links',
-    'storybook-addon-performance',
-    // https://storybook.js.org/docs/writing-docs/mdx#markdown-tables-arent-rendering-correctly
-    '@storybook/addon-mdx-gfm',
+    getAbsolutePath('@storybook/addon-essentials'),
+    getAbsolutePath('@storybook/addon-a11y'),
+    getAbsolutePath('@storybook/addon-links'),
+    // getAbsolutePath('storybook-addon-performance'),
+    getAbsolutePath('@storybook/addon-mdx-gfm'),
 
     // internal monorepo custom addons
 
@@ -42,7 +41,24 @@ module.exports = /** @type {import('./types').StorybookConfig} */ ({
       },
     }),
   ],
-  webpackFinal: config => {
+  webpackFinal(config, options) {
+    registerRules({
+      config,
+      rules: [
+        {
+          test: /\.((c|m)?(j|t)sx?)$/,
+          use: [
+            {
+              loader: require.resolve('swc-loader'),
+              options: this.swc?.({}, options),
+            },
+          ],
+          // include: [getProjectRoot()],
+          // exclude: [/node_modules/, ...virtualModuleFiles],
+        },
+      ],
+    });
+
     registerTsPaths({ config, configFile: tsConfigPath });
 
     if ((process.env.CI || process.env.TF_BUILD) && config.plugins) {
@@ -56,11 +72,10 @@ module.exports = /** @type {import('./types').StorybookConfig} */ ({
     disableTelemetry: true,
   },
   framework: {
-    name: '@storybook/react-webpack5',
+    name: getAbsolutePath('@storybook/react-webpack5'),
     options: {
       builder: {
         lazyCompilation: true,
-        useSWC: true,
       },
     },
   },
@@ -101,3 +116,10 @@ module.exports = /** @type {import('./types').StorybookConfig} */ ({
     };
   },
 });
+
+/**
+ * @param {string} value
+ */
+function getAbsolutePath(value) {
+  return dirname(require.resolve(join(value, 'package.json')));
+}

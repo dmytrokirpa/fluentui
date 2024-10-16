@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   DocsContext,
-  ArgsTable,
+  ArgTypes,
   Title,
   Subtitle,
   Description,
@@ -10,7 +10,6 @@ import {
   Stories,
   type DocsContextProps,
 } from '@storybook/addon-docs';
-import type { PreparedStory, Renderer } from '@storybook/types';
 import type { SBEnumType } from '@storybook/csf';
 import { makeStyles, shorthands, tokens, Link, Text } from '@fluentui/react-components';
 import { InfoFilled } from '@fluentui/react-icons';
@@ -18,6 +17,7 @@ import { DIR_ID, THEME_ID, themes } from '@fluentui/react-storybook-addon';
 import { DirSwitch } from './DirSwitch.stories';
 import { ThemePicker } from './ThemePicker.stories';
 import { Toc, nameToHash } from './Toc.stories';
+import { PreparedStory, Renderer } from 'storybook/internal/types';
 
 type PrimaryStory = PreparedStory<Renderer>;
 
@@ -137,7 +137,7 @@ const RenderArgsTable = ({ hideArgsTable, primaryStory }: { primaryStory: Primar
   const styles = useStyles();
   return hideArgsTable ? null : (
     <>
-      <ArgsTable of={primaryStory.component} />
+      <ArgTypes of={primaryStory.component} />
       {primaryStory.argTypes.as && primaryStory.argTypes.as?.type?.name === 'enum' && (
         <div className={styles.nativeProps}>
           <InfoFilled className={styles.nativePropsIcon} />
