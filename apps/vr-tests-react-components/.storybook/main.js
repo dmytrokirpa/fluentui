@@ -24,7 +24,24 @@ module.exports = /** @type {import('@storybook/react-webpack5').StorybookConfig}
     // disable react-docgen-typescript (totally not needed here, slows things down a lot)
     reactDocgen: false,
   },
-  webpackFinal: config => {
+  webpackFinal(config, options) {
+    registerRules({
+      config,
+      rules: [
+        {
+          test: /\.((c|m)?(j|t)sx?)$/,
+          use: [
+            {
+              loader: require.resolve('swc-loader'),
+              options: this.swc?.({}, options),
+            },
+          ],
+          // include: [getProjectRoot()],
+          // exclude: [/node_modules/, ...virtualModuleFiles],
+        },
+      ],
+    });
+
     registerTsPaths({ config, configFile: tsConfigPath });
     registerRules({ config, rules: [rules.griffelRule] });
 

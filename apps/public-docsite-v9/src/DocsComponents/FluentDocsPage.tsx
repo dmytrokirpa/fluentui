@@ -14,9 +14,9 @@ import type { SBEnumType } from '@storybook/csf';
 import { makeStyles, shorthands, tokens, Link, Text } from '@fluentui/react-components';
 import { InfoFilled } from '@fluentui/react-icons';
 import { DIR_ID, THEME_ID, themes } from '@fluentui/react-storybook-addon';
-import { DirSwitch } from './DirSwitch.stories';
-import { ThemePicker } from './ThemePicker.stories';
-import { Toc, nameToHash } from './Toc.stories';
+import { DirSwitch } from './DirSwitch';
+import { ThemePicker } from './ThemePicker';
+import { Toc, nameToHash } from './Toc';
 import { PreparedStory, Renderer } from 'storybook/internal/types';
 
 type PrimaryStory = PreparedStory<Renderer>;

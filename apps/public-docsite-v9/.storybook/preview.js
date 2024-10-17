@@ -1,12 +1,12 @@
 import * as rootPreview from '../../../.storybook/preview';
 
 // TODO: These custom Docs implementations should be part of custom SB addon/storybook components package
-import { FluentDocsContainer } from '../src/DocsComponents/FluentDocsContainer.stories';
-import { FluentDocsPage } from '../src/DocsComponents/FluentDocsPage.stories';
+import { FluentDocsContainer } from '../src/DocsComponents/FluentDocsContainer';
+import { FluentDocsPage } from '../src/DocsComponents/FluentDocsPage';
 
 import './docs-root-v9.css';
 
-/** @type {NonNullable<import('@storybook/react').Story['decorators']>} */
+/** @type {NonNullable<import('@storybook/react').Decorator[]>} */
 export const decorators = rootPreview.decorators;
 
 /** @type {typeof rootPreview.parameters} */
@@ -59,3 +59,5 @@ export const parameters = {
     },
   },
 };
+
+export const tags = ['autodocs'];

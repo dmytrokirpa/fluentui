@@ -35,4 +35,4 @@ export const parameters = {
     },
   },
 };
-export const tags = ['autodocs', 'autodocs', 'autodocs'];
+export const tags = ['autodocs'];

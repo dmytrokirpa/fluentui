@@ -28,7 +28,7 @@ export interface FluentParameters extends Parameters {
   reactStorybookAddon?: { disabledDecorators: ['AriaLive' | 'FluentProvider' | 'ReactStrictMode'] };
 }
 
-export function useGlobals(): [FluentGlobals, (newGlobals: FluentGlobals) => void] {
+export function useGlobals(): [FluentGlobals, (newGlobals: FluentGlobals) => void, FluentGlobals, FluentGlobals] {
   return useStorybookGlobals();
 }
 

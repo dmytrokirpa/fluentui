@@ -79,9 +79,6 @@ module.exports = /** @type {import('./types').StorybookConfig} */ ({
       },
     },
   },
-  docs: {
-    autodocs: true,
-  },
   /**
    * Programmatically enhance previewHead as inheriting just static file `preview-head.html` doesn't work in monorepo
    * @see https://storybook.js.org/docs/addons/writing-presets#ui-configuration

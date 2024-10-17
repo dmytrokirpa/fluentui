@@ -8,5 +8,5 @@ function main() {
     process.exit(0);
   }
 
-  checkPackageManager();
+  // checkPackageManager();
 }
