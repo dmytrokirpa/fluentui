@@ -152,9 +152,38 @@ export const useColorArea_unstable = (props: ColorAreaProps, ref: React.Ref<HTML
   state.root.onMouseDown = useEventCallback(mergeCallbacks(state.root.onMouseDown, handleOnMouseDown));
   state.inputX.onChange = useEventCallback(mergeCallbacks(state.inputX.onChange, handleOnChange));
   state.inputY.onChange = useEventCallback(mergeCallbacks(state.inputY.onChange, handleOnChange));
-  state.inputX.onKeyDown = useEventCallback(mergeCallbacks(state.inputX.onKeyDown, handleOnKeyDown));
+  // state.inputX.onKeyDown = useEventCallback(mergeCallbacks(state.inputX.onKeyDown, handleOnKeyDown));
   state.inputX.value = saturation;
   state.inputY.value = value;
+
+  React.useEffect(() => {
+    const element = focusWithinRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.stopPropagation();
+
+        yRef.current?.removeAttribute('tabindex');
+        xRef.current?.setAttribute('tabindex', '1');
+        xRef.current?.focus();
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.stopPropagation();
+        xRef.current?.removeAttribute('tabindex');
+        yRef.current?.setAttribute('tabindex', '1');
+        yRef.current?.focus();
+      }
+    };
+
+    element.addEventListener('keydown', onKeyDown, true);
+
+    return () => {
+      element.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [focusWithinRef]);
 
   return state;
 };
