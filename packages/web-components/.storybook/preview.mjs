@@ -26,45 +26,49 @@ Object.defineProperty(window, 'setTheme', { value: setTheme });
 document.getElementById('theme-switch')?.addEventListener('change', changeTheme, false);
 setTheme(themes['web-light']);
 
-export const parameters = {
-  layout: 'fullscreen',
-  controls: { expanded: true },
-  viewMode: 'docs',
-  previewTabs: {
-    canvas: { hidden: true },
-  },
-  options: {
-    storySort: {
-      method: 'alphabetical',
-      order: ['Concepts', ['Introduction', 'Developer', ['Quick Start']], 'Components', 'Theme'],
+export default /** @type {import('@storybook/html').Preview} */ ({
+  parameters: {
+    layout: 'fullscreen',
+    controls: { expanded: true },
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
     },
-  },
-  docs: {
-    source: {
-      // To get around the inability to change Prettier options in the source addon, this transform function
-      // imports the standalone Prettier and uses it to format the source with the desired options.
-      transform(/** @type {string} */ src, /** @type {import('@storybook/html').StoryContext} */ storyContext) {
-        if (!src) {
-          const fragment = storyContext.originalStoryFn(storyContext.allArgs, storyContext);
-          if (!(fragment instanceof DocumentFragment) && !(fragment instanceof HTMLElement)) {
-            return;
-          }
-
-          const div = document.createElement('div');
-          div.append(fragment);
-          src = div.innerHTML;
-        }
-
-        src = src.replace(FAST_EXPRESSION_COMMENTS, ''); // remove comments
-        src = src.replace(/=""/g, ''); // remove values for boolean attributes
-        src = prettier.format(src, {
-          htmlWhitespaceSensitivity: 'ignore',
-          parser: 'html',
-          plugins: [prettierPluginHTML],
-        });
-        return src;
+    options: {
+      storySort: {
+        method: 'alphabetical',
+        order: ['Concepts', ['Introduction', 'Developer', ['Quick Start']], 'Components', 'Theme'],
       },
     },
-    theme: webcomponentsTheme, // override the default Storybook theme with a custom fluent theme
+    docs: {
+      source: {
+        // To get around the inability to change Prettier options in the source addon, this transform function
+        // imports the standalone Prettier and uses it to format the source with the desired options.
+        transform(/** @type {string} */ src, /** @type {import('@storybook/html').StoryContext} */ storyContext) {
+          if (!src) {
+            const fragment = storyContext.originalStoryFn(storyContext.allArgs, storyContext);
+            if (!(fragment instanceof DocumentFragment) && !(fragment instanceof HTMLElement)) {
+              return;
+            }
+
+            const div = document.createElement('div');
+            div.append(fragment);
+            src = div.innerHTML;
+          }
+
+          src = src.replace(FAST_EXPRESSION_COMMENTS, ''); // remove comments
+          src = src.replace(/=""/g, ''); // remove values for boolean attributes
+          src = prettier.format(src, {
+            htmlWhitespaceSensitivity: 'ignore',
+            parser: 'html',
+            plugins: [prettierPluginHTML],
+          });
+          return src;
+        },
+      },
+      theme: webcomponentsTheme, // override the default Storybook theme with a custom fluent theme
+    },
   },
-};
+
+  tags: ['autodocs'],
+});
