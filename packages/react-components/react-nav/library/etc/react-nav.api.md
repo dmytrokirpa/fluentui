@@ -29,6 +29,7 @@ import type { EventData } from '@fluentui/react-utilities';
 import { EventHandler } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { InlineDrawerSlots } from '@fluentui/react-drawer';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { MenuButtonProps } from '@fluentui/react-button';
 import { PresenceMotionSlotProps } from '@fluentui/react-motion';
@@ -377,37 +378,37 @@ export type OnNavItemSelectData = EventData<'click', React_2.MouseEvent<HTMLButt
 export type RegisterNavItemEventHandler = (data: NavItemRegisterData) => void;
 
 // @public
-export const renderAppItem_unstable: (state: AppItemState) => JSX.Element;
+export const renderAppItem_unstable: (state: AppItemState) => JSX_2.Element;
 
 // @public
-export const renderAppItemStatic_unstable: (state: AppItemStaticState) => JSX.Element;
+export const renderAppItemStatic_unstable: (state: AppItemStaticState) => JSX_2.Element;
 
 // @public (undocumented)
-export const renderNav_unstable: (state: NavState, contextValues: NavContextValues) => JSX.Element;
+export const renderNav_unstable: (state: NavState, contextValues: NavContextValues) => JSX_2.Element;
 
 // @public
 export const renderNavCategory_unstable: (state: NavCategoryState, contextValues: NavCategoryContextValues) => JSXElement;
 
 // @public
-export const renderNavCategoryItem_unstable: (state: NavCategoryItemState, contextValues: NavCategoryItemContextValues) => JSX.Element;
+export const renderNavCategoryItem_unstable: (state: NavCategoryItemState, contextValues: NavCategoryItemContextValues) => JSX_2.Element;
 
 // @public (undocumented)
-export const renderNavDrawer_unstable: (state: NavDrawerState, contextValues: NavContextValues) => JSX.Element;
+export const renderNavDrawer_unstable: (state: NavDrawerState, contextValues: NavContextValues) => JSX_2.Element;
 
 // @public
-export const renderNavItem_unstable: (state: NavItemState) => JSX.Element;
+export const renderNavItem_unstable: (state: NavItemState) => JSX_2.Element;
 
 // @public
-export const renderNavSectionHeader_unstable: (state: NavSectionHeaderState) => JSX.Element;
+export const renderNavSectionHeader_unstable: (state: NavSectionHeaderState) => JSX_2.Element;
 
 // @public
-export const renderNavSubItem_unstable: (state: NavSubItemState) => JSX.Element;
+export const renderNavSubItem_unstable: (state: NavSubItemState) => JSX_2.Element;
 
 // @public
-export const renderNavSubItemGroup_unstable: (state: NavSubItemGroupState) => JSX.Element;
+export const renderNavSubItemGroup_unstable: (state: NavSubItemGroupState) => JSX_2.Element;
 
 // @public
-export const renderSplitNavItem_unstable: (state: SplitNavItemState) => JSX.Element;
+export const renderSplitNavItem_unstable: (state: SplitNavItemState) => JSX_2.Element;
 
 // @public
 export const SplitNavItem: ForwardRefComponent<SplitNavItemProps>;

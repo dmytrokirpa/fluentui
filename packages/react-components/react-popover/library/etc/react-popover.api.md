@@ -11,6 +11,7 @@ import type { ComponentState } from '@fluentui/react-utilities';
 import type { ContextSelector } from '@fluentui/react-context-selector';
 import { FC } from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { JSXElementConstructor } from 'react';
 import type { PortalProps } from '@fluentui/react-portal';
@@ -129,7 +130,7 @@ export type PopoverTriggerState = {
 export const renderPopover_unstable: (state: PopoverState) => JSXElement;
 
 // @public
-export const renderPopoverSurface_unstable: (state: PopoverSurfaceState) => JSX.Element;
+export const renderPopoverSurface_unstable: (state: PopoverSurfaceState) => JSX_2.Element;
 
 // @public
 export const renderPopoverTrigger_unstable: (state: PopoverTriggerState) => ReactElement<any, string | JSXElementConstructor<any>> | null;

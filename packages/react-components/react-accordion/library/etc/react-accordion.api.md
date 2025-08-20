@@ -10,6 +10,7 @@ import type { ComponentState } from '@fluentui/react-utilities';
 import { ContextSelector } from '@fluentui/react-context-selector';
 import { FC } from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import type { PresenceMotionSlotProps } from '@fluentui/react-motion';
 import { Provider } from 'react';
@@ -180,16 +181,16 @@ export type AccordionToggleEvent<E = HTMLElement> = React_2.MouseEvent<E> | Reac
 export type AccordionToggleEventHandler<Value = AccordionItemValue> = (event: AccordionToggleEvent, data: AccordionToggleData<Value>) => void;
 
 // @public
-export const renderAccordion_unstable: (state: AccordionState, contextValues: AccordionContextValues) => JSX.Element;
+export const renderAccordion_unstable: (state: AccordionState, contextValues: AccordionContextValues) => JSX_2.Element;
 
 // @public
-export const renderAccordionHeader_unstable: (state: AccordionHeaderState, contextValues: AccordionHeaderContextValues) => JSX.Element;
+export const renderAccordionHeader_unstable: (state: AccordionHeaderState, contextValues: AccordionHeaderContextValues) => JSX_2.Element;
 
 // @public
-export const renderAccordionItem_unstable: (state: AccordionItemState, contextValues: AccordionItemContextValues) => JSX.Element;
+export const renderAccordionItem_unstable: (state: AccordionItemState, contextValues: AccordionItemContextValues) => JSX_2.Element;
 
 // @public
-export const renderAccordionPanel_unstable: (state: AccordionPanelState) => JSX.Element;
+export const renderAccordionPanel_unstable: (state: AccordionPanelState) => JSX_2.Element;
 
 // @public
 export const useAccordion_unstable: <Value = unknown>(props: AccordionProps<Value>, ref: React_2.Ref<HTMLElement>) => AccordionState<Value>;

@@ -13,6 +13,7 @@ import type { ComponentState } from '@fluentui/react-utilities';
 import type { ContextSelector } from '@fluentui/react-context-selector';
 import { FC } from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { Provider } from 'react';
 import { ProviderProps } from 'react';
@@ -208,52 +209,52 @@ export type DataGridState = TableState & {
 export const renderDataGrid_unstable: (state: DataGridState, contextValues: DataGridContextValues) => JSXElement;
 
 // @public
-export const renderDataGridBody_unstable: (state: DataGridBodyState) => JSX.Element;
+export const renderDataGridBody_unstable: (state: DataGridBodyState) => JSX_2.Element;
 
 // @public
-export const renderDataGridCell_unstable: (state: DataGridCellState) => JSX.Element;
+export const renderDataGridCell_unstable: (state: DataGridCellState) => JSX_2.Element;
 
 // @public
-export const renderDataGridHeader_unstable: (state: DataGridHeaderState) => JSX.Element;
+export const renderDataGridHeader_unstable: (state: DataGridHeaderState) => JSX_2.Element;
 
 // @public
-export const renderDataGridHeaderCell_unstable: (state: DataGridHeaderCellState) => JSX.Element;
+export const renderDataGridHeaderCell_unstable: (state: DataGridHeaderCellState) => JSX_2.Element;
 
 // @public
-export const renderDataGridRow_unstable: (state: DataGridRowState) => JSX.Element;
+export const renderDataGridRow_unstable: (state: DataGridRowState) => JSX_2.Element;
 
 // @public
-export const renderDataGridSelectionCell_unstable: (state: DataGridSelectionCellState) => JSX.Element;
+export const renderDataGridSelectionCell_unstable: (state: DataGridSelectionCellState) => JSX_2.Element;
 
 // @public
-export const renderTable_unstable: (state: TableState, contextValues: TableContextValues) => JSX.Element;
+export const renderTable_unstable: (state: TableState, contextValues: TableContextValues) => JSX_2.Element;
 
 // @public
-export const renderTableBody_unstable: (state: TableBodyState) => JSX.Element;
+export const renderTableBody_unstable: (state: TableBodyState) => JSX_2.Element;
 
 // @public
-export const renderTableCell_unstable: (state: TableCellState) => JSX.Element;
+export const renderTableCell_unstable: (state: TableCellState) => JSX_2.Element;
 
 // @public
-export const renderTableCellActions_unstable: (state: TableCellActionsState) => JSX.Element;
+export const renderTableCellActions_unstable: (state: TableCellActionsState) => JSX_2.Element;
 
 // @public
-export const renderTableCellLayout_unstable: (state: TableCellLayoutState, contextValues: TableCellLayoutContextValues) => JSX.Element;
+export const renderTableCellLayout_unstable: (state: TableCellLayoutState, contextValues: TableCellLayoutContextValues) => JSX_2.Element;
 
 // @public
-export const renderTableHeader_unstable: (state: TableHeaderState) => JSX.Element;
+export const renderTableHeader_unstable: (state: TableHeaderState) => JSX_2.Element;
 
 // @public
-export const renderTableHeaderCell_unstable: (state: TableHeaderCellState) => JSX.Element;
+export const renderTableHeaderCell_unstable: (state: TableHeaderCellState) => JSX_2.Element;
 
 // @public
-export const renderTableResizeHandle_unstable: (state: TableResizeHandleState) => JSX.Element;
+export const renderTableResizeHandle_unstable: (state: TableResizeHandleState) => JSX_2.Element;
 
 // @public
-export const renderTableRow_unstable: (state: TableRowState) => JSX.Element;
+export const renderTableRow_unstable: (state: TableRowState) => JSX_2.Element;
 
 // @public
-export const renderTableSelectionCell_unstable: (state: TableSelectionCellState) => JSX.Element;
+export const renderTableSelectionCell_unstable: (state: TableSelectionCellState) => JSX_2.Element;
 
 // @public (undocumented)
 export type RowRenderFunction<TItem = unknown> = (row: TableRowData<TItem>, ...rest: unknown[]) => React_2.ReactNode;

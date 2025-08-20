@@ -10,6 +10,7 @@ import type { DialogProps } from '@fluentui/react-dialog';
 import type { DialogSurfaceProps } from '@fluentui/react-dialog';
 import type { DialogSurfaceSlots } from '@fluentui/react-dialog';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { PresenceMotionSlotProps } from '@fluentui/react-motion';
 import { ProviderContextValue_unstable } from '@fluentui/react-shared-contexts';
 import * as React_2 from 'react';
@@ -174,28 +175,28 @@ export type OverlayDrawerState = ComponentState<OverlayDrawerInternalSlots> & Re
 };
 
 // @public
-export const renderDrawer_unstable: (state: DrawerState, contextValue: DrawerContextValue) => JSX.Element;
+export const renderDrawer_unstable: (state: DrawerState, contextValue: DrawerContextValue) => JSX_2.Element;
 
 // @public
-export const renderDrawerBody_unstable: (state: DrawerBodyState) => JSX.Element;
+export const renderDrawerBody_unstable: (state: DrawerBodyState) => JSX_2.Element;
 
 // @public
-export const renderDrawerFooter_unstable: (state: DrawerFooterState) => JSX.Element;
+export const renderDrawerFooter_unstable: (state: DrawerFooterState) => JSX_2.Element;
 
 // @public
-export const renderDrawerHeader_unstable: (state: DrawerHeaderState) => JSX.Element;
+export const renderDrawerHeader_unstable: (state: DrawerHeaderState) => JSX_2.Element;
 
 // @public
-export const renderDrawerHeaderNavigation_unstable: (state: DrawerHeaderNavigationState) => JSX.Element;
+export const renderDrawerHeaderNavigation_unstable: (state: DrawerHeaderNavigationState) => JSX_2.Element;
 
 // @public
-export const renderDrawerHeaderTitle_unstable: (state: DrawerHeaderTitleState) => JSX.Element;
+export const renderDrawerHeaderTitle_unstable: (state: DrawerHeaderTitleState) => JSX_2.Element;
 
 // @public
-export const renderInlineDrawer_unstable: (state: InlineDrawerState, contextValue: DrawerContextValue) => JSX.Element;
+export const renderInlineDrawer_unstable: (state: InlineDrawerState, contextValue: DrawerContextValue) => JSX_2.Element;
 
 // @public
-export const renderOverlayDrawer_unstable: (state: OverlayDrawerState, contextValue: DrawerContextValue) => JSX.Element;
+export const renderOverlayDrawer_unstable: (state: OverlayDrawerState, contextValue: DrawerContextValue) => JSX_2.Element;
 
 // @public
 export const useDrawer_unstable: (props: DrawerProps, ref: React_2.Ref<HTMLElement>) => DrawerState;

@@ -9,6 +9,7 @@ import type { ComponentState } from '@fluentui/react-utilities';
 import type { CustomStyleHooksContextValue_unstable } from '@fluentui/react-shared-contexts';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { IconDirectionContextValue } from '@fluentui/react-icons/lib/providers';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { OverridesContextValue_unstable } from '@fluentui/react-shared-contexts';
 import type { PartialTheme } from '@fluentui/react-theme';
 import type { ProviderContextValue_unstable } from '@fluentui/react-shared-contexts';
@@ -66,7 +67,7 @@ export type FluentProviderState = ComponentState<FluentProviderSlots> & Pick<Flu
 };
 
 // @public
-export const renderFluentProvider_unstable: (state: FluentProviderState, contextValues: FluentProviderContextValues) => JSX.Element;
+export const renderFluentProvider_unstable: (state: FluentProviderState, contextValues: FluentProviderContextValues) => JSX_2.Element;
 
 // @public
 export const useFluentProvider_unstable: (props: FluentProviderProps, ref: React_2.Ref<HTMLElement>) => FluentProviderState;

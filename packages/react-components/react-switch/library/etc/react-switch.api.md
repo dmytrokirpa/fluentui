@@ -7,13 +7,14 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { Label } from '@fluentui/react-label';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import type { SlotClassNames } from '@fluentui/react-utilities';
 
 // @public
-export const renderSwitch_unstable: (state: SwitchState) => JSX.Element;
+export const renderSwitch_unstable: (state: SwitchState) => JSX_2.Element;
 
 // @public
 export const Switch: ForwardRefComponent<SwitchProps>;

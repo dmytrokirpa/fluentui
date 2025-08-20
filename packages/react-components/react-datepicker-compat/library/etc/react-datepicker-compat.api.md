@@ -13,6 +13,7 @@ import { DayOfWeek } from '@fluentui/react-calendar-compat';
 import { FirstWeekOfYear } from '@fluentui/react-calendar-compat';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { Input } from '@fluentui/react-input';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { PortalProps } from '@fluentui/react-portal';
 import type { PositioningProps } from '@fluentui/react-positioning';
 import * as React_2 from 'react';
@@ -80,7 +81,7 @@ export const defaultDatePickerErrorStrings: Record<DatePickerErrorType, string>;
 export const defaultDatePickerStrings: CalendarStrings;
 
 // @public
-export const renderDatePicker_unstable: (state: DatePickerState) => JSX.Element;
+export const renderDatePicker_unstable: (state: DatePickerState) => JSX_2.Element;
 
 // @public
 export const useDatePicker_unstable: (props: DatePickerProps, ref: React_2.Ref<HTMLInputElement>) => DatePickerState;

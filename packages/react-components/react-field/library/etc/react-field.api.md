@@ -7,6 +7,7 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { Label } from '@fluentui/react-label';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
@@ -73,7 +74,7 @@ export type FieldState = ComponentState<Required<FieldSlots>> & Required<Pick<Fi
 };
 
 // @public
-export const renderField_unstable: (state: FieldState, contextValues: FieldContextValues) => JSX.Element;
+export const renderField_unstable: (state: FieldState, contextValues: FieldContextValues) => JSX_2.Element;
 
 // @public
 export const useField_unstable: (props: FieldProps, ref: React_2.Ref<HTMLDivElement>) => FieldState;

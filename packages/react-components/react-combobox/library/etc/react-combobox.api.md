@@ -15,6 +15,7 @@ import { EventHandler } from '@fluentui/react-utilities';
 import type { ExtractSlotProps } from '@fluentui/react-utilities';
 import { FC } from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { PortalProps } from '@fluentui/react-portal';
 import type { PositioningShorthand } from '@fluentui/react-positioning';
@@ -238,19 +239,19 @@ export type OptionState = ComponentState<OptionSlots> & Pick<OptionProps, 'disab
 };
 
 // @public
-export const renderCombobox_unstable: (state: ComboboxState, contextValues: ComboboxContextValues) => JSX.Element;
+export const renderCombobox_unstable: (state: ComboboxState, contextValues: ComboboxContextValues) => JSX_2.Element;
 
 // @public
-export const renderDropdown_unstable: (state: DropdownState, contextValues: DropdownContextValues) => JSX.Element;
+export const renderDropdown_unstable: (state: DropdownState, contextValues: DropdownContextValues) => JSX_2.Element;
 
 // @public
-export const renderListbox_unstable: (state: ListboxState, contextValues: ListboxContextValues) => JSX.Element;
+export const renderListbox_unstable: (state: ListboxState, contextValues: ListboxContextValues) => JSX_2.Element;
 
 // @public
-export const renderOption_unstable: (state: OptionState) => JSX.Element;
+export const renderOption_unstable: (state: OptionState) => JSX_2.Element;
 
 // @public
-export const renderOptionGroup_unstable: (state: OptionGroupState) => JSX.Element;
+export const renderOptionGroup_unstable: (state: OptionGroupState) => JSX_2.Element;
 
 // @public
 export type SelectionEvents = React_2.ChangeEvent<HTMLElement> | React_2.KeyboardEvent<HTMLElement> | React_2.MouseEvent<HTMLElement>;

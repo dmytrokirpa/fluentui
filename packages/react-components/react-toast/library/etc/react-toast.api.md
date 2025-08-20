@@ -10,6 +10,7 @@ import { BackgroundAppearanceContextValue } from '@fluentui/react-shared-context
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { JSXElementConstructor } from 'react';
 import type { PortalProps } from '@fluentui/react-portal';
 import * as React_2 from 'react';
@@ -19,19 +20,19 @@ import type { SlotClassNames } from '@fluentui/react-utilities';
 import type { TriggerProps } from '@fluentui/react-utilities';
 
 // @public
-export const renderToast_unstable: (state: ToastState, contextValues: ToastContextValues) => JSX.Element;
+export const renderToast_unstable: (state: ToastState, contextValues: ToastContextValues) => JSX_2.Element;
 
 // @public
-export const renderToastBody_unstable: (state: ToastBodyState) => JSX.Element;
+export const renderToastBody_unstable: (state: ToastBodyState) => JSX_2.Element;
 
 // @public
-export const renderToaster_unstable: (state: ToasterState) => JSX.Element;
+export const renderToaster_unstable: (state: ToasterState) => JSX_2.Element;
 
 // @public
-export const renderToastFooter_unstable: (state: ToastFooterState) => JSX.Element;
+export const renderToastFooter_unstable: (state: ToastFooterState) => JSX_2.Element;
 
 // @public
-export const renderToastTitle_unstable: (state: ToastTitleState) => JSX.Element;
+export const renderToastTitle_unstable: (state: ToastTitleState) => JSX_2.Element;
 
 // @public
 export const renderToastTrigger_unstable: (state: ToastTriggerState) => ReactElement<any, string | JSXElementConstructor<any>> | null;

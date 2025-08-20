@@ -10,6 +10,7 @@ import type { ContextSelector } from '@fluentui/react-context-selector';
 import type { EventData } from '@fluentui/react-utilities';
 import type { EventHandler } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
@@ -81,22 +82,22 @@ export type ImageSwatchState = ComponentState<ImageSwatchSlots> & Pick<ImageSwat
 };
 
 // @public
-export const renderColorSwatch_unstable: (state: ColorSwatchState) => JSX.Element;
+export const renderColorSwatch_unstable: (state: ColorSwatchState) => JSX_2.Element;
 
 // @public
-export const renderEmptySwatch_unstable: (state: EmptySwatchState) => JSX.Element;
+export const renderEmptySwatch_unstable: (state: EmptySwatchState) => JSX_2.Element;
 
 // @public
-export const renderImageSwatch_unstable: (state: ImageSwatchState) => JSX.Element;
+export const renderImageSwatch_unstable: (state: ImageSwatchState) => JSX_2.Element;
 
 // @public
-export const renderSwatchPicker_unstable: (state: SwatchPickerState, contextValues: SwatchPickerContextValues) => JSX.Element;
+export const renderSwatchPicker_unstable: (state: SwatchPickerState, contextValues: SwatchPickerContextValues) => JSX_2.Element;
 
 // @public (undocumented)
 export const renderSwatchPickerGrid: (props: SwatchPickerGridProps) => JSXElement[];
 
 // @public
-export const renderSwatchPickerRow_unstable: (state: SwatchPickerRowState) => JSX.Element;
+export const renderSwatchPickerRow_unstable: (state: SwatchPickerRowState) => JSX_2.Element;
 
 // @public (undocumented)
 export const swatchCSSVars: {

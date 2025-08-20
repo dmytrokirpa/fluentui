@@ -7,6 +7,7 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import type { SlotClassNames } from '@fluentui/react-utilities';
@@ -36,7 +37,7 @@ export type ImageSlots = {
 export type ImageState = ComponentState<ImageSlots> & Required<Pick<ImageProps, 'block' | 'bordered' | 'fit' | 'shadow' | 'shape'>>;
 
 // @public
-export const renderImage_unstable: (state: ImageState) => JSX.Element;
+export const renderImage_unstable: (state: ImageState) => JSX_2.Element;
 
 // @public
 export const useImage_unstable: (props: ImageProps, ref: React_2.Ref<HTMLImageElement>) => ImageState;

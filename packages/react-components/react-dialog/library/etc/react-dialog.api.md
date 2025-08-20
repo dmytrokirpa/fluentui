@@ -10,6 +10,7 @@ import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import { ContextSelector } from '@fluentui/react-context-selector';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { JSXElementConstructor } from 'react';
 import type { PortalProps } from '@fluentui/react-portal';
@@ -232,22 +233,22 @@ export type DialogTriggerState = {
 };
 
 // @public
-export const renderDialog_unstable: (state: DialogState, contextValues: DialogContextValues) => JSX.Element;
+export const renderDialog_unstable: (state: DialogState, contextValues: DialogContextValues) => JSX_2.Element;
 
 // @public
-export const renderDialogActions_unstable: (state: DialogActionsState) => JSX.Element;
+export const renderDialogActions_unstable: (state: DialogActionsState) => JSX_2.Element;
 
 // @public
-export const renderDialogBody_unstable: (state: DialogBodyState) => JSX.Element;
+export const renderDialogBody_unstable: (state: DialogBodyState) => JSX_2.Element;
 
 // @public
-export const renderDialogContent_unstable: (state: DialogContentState) => JSX.Element;
+export const renderDialogContent_unstable: (state: DialogContentState) => JSX_2.Element;
 
 // @public
-export const renderDialogSurface_unstable: (state: DialogSurfaceState, contextValues: DialogSurfaceContextValues) => JSX.Element;
+export const renderDialogSurface_unstable: (state: DialogSurfaceState, contextValues: DialogSurfaceContextValues) => JSX_2.Element;
 
 // @public
-export const renderDialogTitle_unstable: (state: DialogTitleState) => JSX.Element;
+export const renderDialogTitle_unstable: (state: DialogTitleState) => JSX_2.Element;
 
 // @public
 export const renderDialogTrigger_unstable: (state: DialogTriggerState) => ReactElement<any, string | JSXElementConstructor<any>> | null;

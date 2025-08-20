@@ -17,6 +17,7 @@ import type { EventData } from '@fluentui/react-utilities';
 import type { EventHandler } from '@fluentui/react-utilities';
 import type { ExtractSlotProps } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import type { Listbox } from '@fluentui/react-combobox';
 import type { ListboxContextValue } from '@fluentui/react-combobox';
@@ -36,22 +37,22 @@ import type { TagGroupState } from '@fluentui/react-tags';
 export const renderTagPicker_unstable: (state: TagPickerState, contexts: TagPickerContextValues) => JSXElement;
 
 // @public
-export const renderTagPickerButton_unstable: (state: TagPickerButtonState) => JSX.Element;
+export const renderTagPickerButton_unstable: (state: TagPickerButtonState) => JSX_2.Element;
 
 // @public
-export const renderTagPickerControl_unstable: (state: TagPickerControlState) => JSX.Element;
+export const renderTagPickerControl_unstable: (state: TagPickerControlState) => JSX_2.Element;
 
 // @public (undocumented)
-export function renderTagPickerGroup_unstable(state: TagPickerGroupState, contexts: TagGroupContextValues): JSX.Element | null;
+export function renderTagPickerGroup_unstable(state: TagPickerGroupState, contexts: TagGroupContextValues): JSX_2.Element | null;
 
 // @public
-export const renderTagPickerInput_unstable: (state: TagPickerInputState) => JSX.Element;
+export const renderTagPickerInput_unstable: (state: TagPickerInputState) => JSX_2.Element;
 
 // @public
-export const renderTagPickerList_unstable: (state: TagPickerListState) => JSX.Element;
+export const renderTagPickerList_unstable: (state: TagPickerListState) => JSX_2.Element;
 
 // @public
-export const renderTagPickerOption_unstable: (state: TagPickerOptionState) => JSX.Element;
+export const renderTagPickerOption_unstable: (state: TagPickerOptionState) => JSX_2.Element;
 
 // @public
 export const renderTagPickerOptionGroup: (state: TagPickerOptionGroupState) => JSXElement;

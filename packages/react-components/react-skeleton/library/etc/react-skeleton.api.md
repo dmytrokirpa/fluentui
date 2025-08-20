@@ -7,15 +7,16 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import type { SlotClassNames } from '@fluentui/react-utilities';
 
 // @public
-export const renderSkeleton_unstable: (state: SkeletonState, contextValues: SkeletonContextValues) => JSX.Element;
+export const renderSkeleton_unstable: (state: SkeletonState, contextValues: SkeletonContextValues) => JSX_2.Element;
 
 // @public
-export const renderSkeletonItem_unstable: (state: SkeletonItemState) => JSX.Element;
+export const renderSkeletonItem_unstable: (state: SkeletonItemState) => JSX_2.Element;
 
 // @public
 export const Skeleton: ForwardRefComponent<SkeletonProps>;

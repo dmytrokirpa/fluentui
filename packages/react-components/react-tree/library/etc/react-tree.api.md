@@ -24,6 +24,7 @@ import type { EventHandler } from '@fluentui/react-utilities';
 import type { ExtractSlotProps } from '@fluentui/react-utilities';
 import { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { Home } from '@fluentui/keyboard-keys';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { JSXElement } from '@fluentui/react-utilities';
 import type { PresenceMotionSlotProps } from '@fluentui/react-motion';
 import { Radio } from '@fluentui/react-radio';
@@ -107,16 +108,16 @@ export type HeadlessFlatTreeOptions = Pick<FlatTreeProps, 'onOpenChange' | 'onNa
 export const renderFlatTree_unstable: (state: FlatTreeState, contextValues: FlatTreeContextValues) => JSXElement;
 
 // @public (undocumented)
-export const renderTree_unstable: (state: TreeState, contextValues: TreeContextValues) => JSX.Element;
+export const renderTree_unstable: (state: TreeState, contextValues: TreeContextValues) => JSX_2.Element;
 
 // @public
-export const renderTreeItem_unstable: (state: TreeItemState, contextValues: TreeItemContextValues) => JSX.Element;
+export const renderTreeItem_unstable: (state: TreeItemState, contextValues: TreeItemContextValues) => JSX_2.Element;
 
 // @public
-export const renderTreeItemLayout_unstable: (state: TreeItemLayoutState) => JSX.Element;
+export const renderTreeItemLayout_unstable: (state: TreeItemLayoutState) => JSX_2.Element;
 
 // @public
-export const renderTreeItemPersonaLayout_unstable: (state: TreeItemPersonaLayoutState, contextValues: TreeItemPersonaLayoutContextValues) => JSX.Element;
+export const renderTreeItemPersonaLayout_unstable: (state: TreeItemPersonaLayoutState, contextValues: TreeItemPersonaLayoutContextValues) => JSX_2.Element;
 
 // @public (undocumented)
 export type SubtreeContextValue = {

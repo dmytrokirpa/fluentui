@@ -9,6 +9,7 @@ import type { ComponentState } from '@fluentui/react-utilities';
 import type { ContextSelector } from '@fluentui/react-context-selector';
 import { FC } from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { Provider } from 'react';
 import { ProviderProps } from 'react';
 import * as React_2 from 'react';
@@ -19,10 +20,10 @@ import { SlotClassNames } from '@fluentui/react-utilities';
 export type RegisterTabEventHandler = (data: TabRegisterData) => void;
 
 // @public
-export const renderTab_unstable: (state: TabState) => JSX.Element;
+export const renderTab_unstable: (state: TabState) => JSX_2.Element;
 
 // @public
-export const renderTabList_unstable: (state: TabListState, contextValues: TabListContextValues) => JSX.Element;
+export const renderTabList_unstable: (state: TabListState, contextValues: TabListContextValues) => JSX_2.Element;
 
 // @public (undocumented)
 export type SelectTabData = {

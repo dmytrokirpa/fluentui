@@ -7,6 +7,7 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import type { SlotClassNames } from '@fluentui/react-utilities';
@@ -107,7 +108,7 @@ export const presenceOofRegular: Record<PresenceBadgeState['size'], React_2.Func
 export const presenceUnknownRegular: Record<PresenceBadgeState['size'], React_2.FunctionComponent>;
 
 // @public (undocumented)
-export const renderBadge_unstable: (state: BadgeState) => JSX.Element;
+export const renderBadge_unstable: (state: BadgeState) => JSX_2.Element;
 
 // @public
 export const useBadge_unstable: (props: BadgeProps, ref: React_2.Ref<HTMLElement>) => BadgeState;

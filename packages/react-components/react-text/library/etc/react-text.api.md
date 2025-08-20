@@ -7,6 +7,7 @@
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import { SlotClassNames } from '@fluentui/react-utilities';
@@ -78,7 +79,7 @@ export const LargeTitle: React_2.FunctionComponent<TextPresetProps>;
 export const largeTitleClassNames: SlotClassNames<TextSlots>;
 
 // @public
-export const renderText_unstable: (state: TextState) => JSX.Element;
+export const renderText_unstable: (state: TextState) => JSX_2.Element;
 
 // @public
 export const Subtitle1: React_2.FunctionComponent<TextPresetProps>;

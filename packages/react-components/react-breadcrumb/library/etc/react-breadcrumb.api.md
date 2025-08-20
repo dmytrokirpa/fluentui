@@ -10,6 +10,7 @@ import { ButtonState } from '@fluentui/react-button';
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
 import * as React_2 from 'react';
 import type { Slot } from '@fluentui/react-utilities';
 import type { SlotClassNames } from '@fluentui/react-utilities';
@@ -113,16 +114,16 @@ export type PartitionBreadcrumbItemsOptions<T> = {
 };
 
 // @public
-export const renderBreadcrumb_unstable: (state: BreadcrumbState, contextValues: BreadcrumbContextValues) => JSX.Element;
+export const renderBreadcrumb_unstable: (state: BreadcrumbState, contextValues: BreadcrumbContextValues) => JSX_2.Element;
 
 // @public
-export const renderBreadcrumbButton_unstable: (state: BreadcrumbButtonState) => JSX.Element;
+export const renderBreadcrumbButton_unstable: (state: BreadcrumbButtonState) => JSX_2.Element;
 
 // @public
-export const renderBreadcrumbDivider_unstable: (state: BreadcrumbDividerState) => JSX.Element;
+export const renderBreadcrumbDivider_unstable: (state: BreadcrumbDividerState) => JSX_2.Element;
 
 // @public
-export const renderBreadcrumbItem_unstable: (state: BreadcrumbItemState) => JSX.Element;
+export const renderBreadcrumbItem_unstable: (state: BreadcrumbItemState) => JSX_2.Element;
 
 // @public (undocumented)
 export const truncateBreadcrumbLongName: (content: string, maxLength?: number) => string;
