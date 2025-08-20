@@ -6,7 +6,7 @@ import { treeItemFilter } from '../utils/treeItemFilter';
 export function useHTMLElementWalkerRef() {
   const { targetDocument } = useFluent_unstable();
 
-  const walkerRef = React.useRef<HTMLElementWalker>();
+  const walkerRef = React.useRef<HTMLElementWalker>(undefined);
 
   const rootRef: React.Ref<HTMLElement> = React.useCallback(
     (root: HTMLElement) => {
