@@ -14,6 +14,9 @@ import {
   scaleUtc as d3ScaleUtc,
   scaleTime as d3ScaleTime,
   NumberValue,
+  type ScaleLinear,
+  type ScaleBand,
+  type ScaleTime,
 } from 'd3-scale';
 import { select as d3Select, selectAll as d3SelectAll } from 'd3-selection';
 import { format as d3Format } from 'd3-format';
@@ -231,7 +234,10 @@ export function createNumericXAxis(
   tickParams: ITickParams,
   chartType: ChartTypes,
   culture?: string,
-) {
+): {
+  xScale: ScaleLinear<number, number>;
+  tickValues: string[];
+} {
   const {
     domainNRangeValues,
     showRoundOffXTickValues = false,
@@ -358,7 +364,7 @@ function getMultiLevelD3DateFormatter(
   return formatter;
 }
 
-export function getDateFormatLevel(date: Date, useUTC?: boolean) {
+export function getDateFormatLevel(date: Date, useUTC?: boolean): number {
   const timeSecond = useUTC ? d3UtcSecond : d3TimeSecond;
   const timeMinute = useUTC ? d3UtcMinute : d3TimeMinute;
   const timeHour = useUTC ? d3UtcHour : d3TimeHour;
@@ -398,7 +404,7 @@ export function createDateXAxis(
   customDateTimeFormatter?: (dateTime: Date) => string,
   useUTC?: string | boolean,
   chartType?: ChartTypes,
-) {
+): { xScale: ScaleTime<number, number>; tickValues: string[] } {
   const {
     domainNRangeValues,
     xAxisElement,
@@ -497,7 +503,10 @@ export function createStringXAxis(
   tickParams: ITickParams,
   dataset: string[],
   culture?: string,
-) {
+): {
+  xScale: ScaleBand<string>;
+  tickValues: string[];
+} {
   const {
     domainNRangeValues,
     xAxistickSize = 6,
@@ -559,7 +568,7 @@ export function createStringXAxis(
   return { xScale: xAxisScale, tickValues: tickValues.map(xAxis.tickFormat()!) };
 }
 
-export function useRtl() {
+export function useRtl(): boolean {
   const { dir } = useFluent(); // "dir" returns "ltr" or "rtl"
   return dir === 'rtl';
 }
@@ -644,7 +653,10 @@ export function prepareDatapoints(
   return dataPointsArray;
 }
 
-export function createYAxisForHorizontalBarChartWithAxis(yAxisParams: IYAxisParams, isRtl: boolean) {
+export function createYAxisForHorizontalBarChartWithAxis(
+  yAxisParams: IYAxisParams,
+  isRtl: boolean,
+): ScaleLinear<number, number> {
   const {
     yMinMaxValues = { startValue: 0, endValue: 0 },
     yAxisElement = null,
@@ -680,7 +692,7 @@ export function createNumericYAxis(
   chartType: ChartTypes,
   useSecondaryYScale: boolean = false,
   roundedTicks: boolean = false,
-) {
+): ScaleLinear<number, number> {
   const {
     yMinMaxValues = { startValue: 0, endValue: 0 },
     yAxisElement = null,
@@ -736,7 +748,7 @@ export const createStringYAxisForHorizontalBarChartWithAxis = (
   dataPoints: string[],
   isRtl: boolean,
   barWidth: number,
-) => {
+): ScaleBand<string> => {
   const { containerHeight, tickPadding = 12, margins, yAxisTickFormat, yAxisElement, yAxisPadding } = yAxisParams;
 
   let yAxisPaddingValue = yAxisPadding ?? 0.5;
@@ -766,7 +778,7 @@ export const createStringYAxis = (
   isRtl: boolean,
   barWidth?: number,
   chartType?: ChartTypes,
-) => {
+): ScaleBand<string> => {
   const {
     containerHeight,
     tickPadding = 12,
@@ -803,7 +815,22 @@ export const createStringYAxis = (
 
 // changing the type to any as it is used by multiple charts with different data types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function calloutData(values: ((LineChartPoints | ScatterChartPoints) & { index?: number })[]) {
+export function calloutData(values: ((LineChartPoints | ScatterChartPoints) & { index?: number })[]): {
+  x: string | number;
+  values: {
+    legend: string;
+    y: number;
+    color: string;
+    xAxisCalloutData?: string;
+    yAxisCalloutData?:
+      | string
+      | {
+          [id: string]: number;
+        };
+    callOutAccessibilityData?: AccessibilityProps;
+    index?: number;
+  }[];
+}[] {
   let combinedResult: ((LineChartDataPoint | ScatterChartDataPoint) & {
     legend: string;
     color?: string;
@@ -877,7 +904,10 @@ export function calloutData(values: ((LineChartPoints | ScatterChartPoints) & { 
 export function getUnique(
   arr: { x: number | Date | string; values: { legend: string; y: number }[] }[],
   comp: string | number,
-) {
+): {
+  x: number | Date | string;
+  values: { legend: string; y: number }[];
+}[] {
   const unique = arr
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .map((e: { [x: string]: any }) => e[comp])
@@ -921,7 +951,7 @@ export const DEFAULT_WRAP_WIDTH = 10;
  * @param {IWrapLabelProps} wrapLabelProps
  * @returns
  */
-export function createWrapOfXLabels(wrapLabelProps: IWrapLabelProps) {
+export function createWrapOfXLabels(wrapLabelProps: IWrapLabelProps): number | undefined {
   const { node, xAxis, noOfCharsToTruncate, showXAxisLablesTooltip, width = DEFAULT_WRAP_WIDTH } = wrapLabelProps;
   if (node === null) {
     return;
@@ -1011,7 +1041,7 @@ export function createYAxisLabels(
   noOfCharsToTruncate: number,
   truncateLabel: boolean,
   isRtl: boolean,
-) {
+): void {
   if (node === null) {
     return;
   }
@@ -1060,7 +1090,7 @@ export function createYAxisLabels(
   });
 }
 
-export const wrapContent = (content: string, id: string, maxWidth: number) => {
+export const wrapContent = (content: string, id: string, maxWidth: number): boolean => {
   const textElement = d3Select<SVGTextElement, {}>(`#${id}`);
   textElement.text(content);
   if (!textElement.node()) {
@@ -1112,7 +1142,7 @@ export const calculateLongestLabelWidth = (labels: (string | number)[], query: s
  * On hover of the truncated word(at x axis labels tick), a tooltip will be appeared.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function tooltipOfAxislabels(axistooltipProps: any) {
+export function tooltipOfAxislabels(axistooltipProps: any): null | undefined {
   const { tooltipCls, axis, id } = axistooltipProps;
   if (axis === null) {
     return null;
@@ -1688,7 +1718,13 @@ export const getAccessibleDataObject = (
   accessibleData?: AccessibilityProps,
   role: string = 'text',
   isDataFocusable: boolean = true,
-) => {
+): {
+  role: string;
+  'data-is-focusable': boolean;
+  'aria-label': string | undefined;
+  'aria-labelledby': string | undefined;
+  'aria-describedby': string | undefined;
+} => {
   accessibleData = accessibleData ?? {};
   return {
     role,
@@ -1699,7 +1735,7 @@ export const getAccessibleDataObject = (
   };
 };
 
-export function rotateXAxisLabels(rotateLabelProps: IRotateLabelProps) {
+export function rotateXAxisLabels(rotateLabelProps: IRotateLabelProps): number | void {
   const { node, xAxis } = rotateLabelProps;
   if (node === null || xAxis === null) {
     return;
@@ -1746,7 +1782,7 @@ export function rotateXAxisLabels(rotateLabelProps: IRotateLabelProps) {
   return Math.floor(maxHeight / 1.414); // Compute maxHeight/tanInverse(45) to get the vertical height of labels.
 }
 
-export function wrapTextInsideDonut(selectorClass: string, maxWidth: number) {
+export function wrapTextInsideDonut(selectorClass: string, maxWidth: number): void {
   let idx: number = 0;
   d3SelectAll(`.${selectorClass}`).each(function () {
     const text = d3Select(this);
@@ -1785,7 +1821,7 @@ export function wrapTextInsideDonut(selectorClass: string, maxWidth: number) {
   });
 }
 
-export function formatScientificLimitWidth(value: number) {
+export function formatScientificLimitWidth(value: number): string {
   return yAxisTickFormatterInternal(value, true);
 }
 
@@ -1877,7 +1913,7 @@ export interface RenderFunction<P> {
   (props?: P, defaultRender?: (props?: P) => JSXElement | null): JSXElement | null;
 }
 
-export const formatDate = (date: Date, useUTC?: string | boolean) => {
+export const formatDate = (date: Date, useUTC?: string | boolean): string => {
   const timeFormat = useUTC ? d3UtcFormat : d3TimeFormat;
   return timeFormat('%-e %b %Y, %H:%M')(date) + (useUTC ? ' GMT' : '');
 };
@@ -1899,7 +1935,7 @@ export function areArraysEqual(arr1?: string[], arr2?: string[]): boolean {
 
 const cssVarRegExp = /var\((--[a-zA-Z0-9\-]+)\)/g;
 
-export function resolveCSSVariables(chartContainer: HTMLElement, styleRules: string) {
+export function resolveCSSVariables(chartContainer: HTMLElement, styleRules: string): string {
   const containerStyles = getComputedStyle(chartContainer);
   return styleRules.replace(cssVarRegExp, (match, group1) => {
     return containerStyles.getPropertyValue(group1);
@@ -2013,7 +2049,7 @@ export const sortAxisCategories = (
   return Object.keys(categoryToValues);
 };
 
-export function copyStyle(properties: string[] | Record<string, string>, fromEl: Element, toEl: Element) {
+export function copyStyle(properties: string[] | Record<string, string>, fromEl: Element, toEl: Element): void {
   const styles = getComputedStyle(fromEl);
   if (Array.isArray(properties)) {
     properties.forEach(prop => {
@@ -2043,7 +2079,11 @@ const MEASUREMENT_SPAN_STYLE = {
   whiteSpace: 'pre',
 };
 
-export const createMeasurementSpan = (text: string | number, className: string, parentElement?: HTMLElement | null) => {
+export const createMeasurementSpan = (
+  text: string | number,
+  className: string,
+  parentElement?: HTMLElement | null,
+): HTMLSpanElement => {
   const MEASUREMENT_SPAN_ID = getUniqueMeasurementSpanId();
   let measurementSpan = document.getElementById(MEASUREMENT_SPAN_ID);
   if (!measurementSpan) {
