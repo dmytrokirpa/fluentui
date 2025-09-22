@@ -1903,6 +1903,21 @@
     "@uifabric/set-version" "^7.0.23"
     tslib "^1.10.0"
 
+"@fluentui/react-alert@9.0.0-beta.124":
+  version "9.0.0-beta.124"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-alert/-/react-alert-9.0.0-beta.124.tgz#b408971fd5b1e76bdca20fcae280a527858ad2f5"
+  integrity sha512-yFBo3B5H9hnoaXxlkuz8wRz04DEyQ+ElYA/p5p+Vojf19Zuta8DmFZZ6JtWdtxcdnnQ4LvAfC5OYYlzdReozPA==
+  dependencies:
+    "@fluentui/react-avatar" "^9.6.29"
+    "@fluentui/react-button" "^9.3.83"
+    "@fluentui/react-icons" "^2.0.239"
+    "@fluentui/react-jsx-runtime" "^9.0.39"
+    "@fluentui/react-tabster" "^9.21.5"
+    "@fluentui/react-theme" "^9.1.19"
+    "@fluentui/react-utilities" "^9.18.10"
+    "@griffel/react" "^1.5.22"
+    "@swc/helpers" "^0.5.1"
+
 "@fluentui/react-bindings@^0.66.5":
   version "0.66.5"
   resolved "https://registry.yarnpkg.com/@fluentui/react-bindings/-/react-bindings-0.66.5.tgz#ffe6d2c9df5b2f9bb0d51e49635a77f18f5a79e5"
@@ -1956,6 +1971,14 @@
     "@fluentui/styles" "^0.66.5"
     classnames "^2.2.6"
 
+"@fluentui/react-icons@^2.0.237", "@fluentui/react-icons@^2.0.239":
+  version "2.0.310"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-icons/-/react-icons-2.0.310.tgz#f8a2a3c6b469d165005049636ae5df7cb58a4686"
+  integrity sha512-w6HlXYg2DXTMP94TC3dc2ij9XFUiz7WiZeSNVX2ZvDBrIrLJXKSC3iza+ig0DGqHIgV6zbfwr8cuVgRqp6c+zg==
+  dependencies:
+    "@griffel/react" "^1.0.0"
+    tslib "^2.1.0"
+
 "@fluentui/react-icons@^2.0.245", "@fluentui/react-icons@^2.0.306":
   version "2.0.306"
   resolved "https://registry.yarnpkg.com/@fluentui/react-icons/-/react-icons-2.0.306.tgz#bf4a57e78947f2ee13895485cbca7ffa81a34bb8"
@@ -1963,6 +1986,21 @@
   dependencies:
     "@griffel/react" "^1.0.0"
     tslib "^2.1.0"
+
+"@fluentui/react-infobutton@9.0.0-beta.102":
+  version "9.0.0-beta.102"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-infobutton/-/react-infobutton-9.0.0-beta.102.tgz#c0473275141999455fae4388f47d4f77b98c0f89"
+  integrity sha512-3kA4F0Vga8Ds6JGlBajLCCDOo/LmPuS786Wg7ui4ZTDYVIMzy1yp2XuVcZniifBFvEp0HQCUoDPWUV0VI3FfzQ==
+  dependencies:
+    "@fluentui/react-icons" "^2.0.237"
+    "@fluentui/react-jsx-runtime" "^9.0.36"
+    "@fluentui/react-label" "^9.1.68"
+    "@fluentui/react-popover" "^9.9.6"
+    "@fluentui/react-tabster" "^9.21.0"
+    "@fluentui/react-theme" "^9.1.19"
+    "@fluentui/react-utilities" "^9.18.7"
+    "@griffel/react" "^1.5.14"
+    "@swc/helpers" "^0.5.1"
 
 "@fluentui/react-northstar-fela-renderer@^0.66.5":
   version "0.66.5"
@@ -2030,6 +2068,17 @@
     lodash "^4.17.15"
     prop-types "^15.7.2"
 
+"@fluentui/react-virtualizer@9.0.0-alpha.102":
+  version "9.0.0-alpha.102"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-virtualizer/-/react-virtualizer-9.0.0-alpha.102.tgz#a39217269e2bedc1c04da42bdd194f86436024e2"
+  integrity sha512-kt/kuAMTKTTY/00ToUlgUwUCty2HGj4Tnr+fxKRmr7Ziy5VWhi1YoNJ8vcgmxog5J90t4tS29LB0LP0KztQUVg==
+  dependencies:
+    "@fluentui/react-jsx-runtime" "^9.1.4"
+    "@fluentui/react-shared-contexts" "^9.24.1"
+    "@fluentui/react-utilities" "^9.23.1"
+    "@griffel/react" "^1.5.22"
+    "@swc/helpers" "^0.5.1"
+
 "@fluentui/state@^0.66.5":
   version "0.66.5"
   resolved "https://registry.yarnpkg.com/@fluentui/state/-/state-0.66.5.tgz#e7abc25d52610736b598e375d2078fec8ab1de29"
@@ -2080,6 +2129,18 @@
     stylis "^4.2.0"
     tslib "^2.1.0"
 
+"@griffel/core@^1.19.2":
+  version "1.19.2"
+  resolved "https://registry.yarnpkg.com/@griffel/core/-/core-1.19.2.tgz#994070585bb49795d882355fc0787eb9878db71c"
+  integrity sha512-WkB/QQkjy9dE4vrNYGhQvRRUHFkYVOuaznVOMNTDT4pS9aTJ9XPrMTXXlkpcwaf0D3vNKoerj4zAwnU2lBzbOg==
+  dependencies:
+    "@emotion/hash" "^0.9.0"
+    "@griffel/style-types" "^1.3.0"
+    csstype "^3.1.3"
+    rtl-css-js "^1.16.1"
+    stylis "^4.2.0"
+    tslib "^2.1.0"
+
 "@griffel/eslint-plugin@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@griffel/eslint-plugin/-/eslint-plugin-2.0.0.tgz#5cca14639d376abc49b7804624ac3b6e87b5e56c"
@@ -2105,6 +2166,14 @@
     "@griffel/core" "^1.16.0"
     tslib "^2.1.0"
 
+"@griffel/react@^1.5.14":
+  version "1.5.30"
+  resolved "https://registry.yarnpkg.com/@griffel/react/-/react-1.5.30.tgz#6638e79d88573e5a71651a909326428cac2ce9c3"
+  integrity sha512-1q4ojbEVFY5YA0j1NamP0WWF4BKh+GHsVugltDYeEgEaVbH3odJ7tJabuhQgY+7Nhka0pyEFWSiHJev0K3FSew==
+  dependencies:
+    "@griffel/core" "^1.19.2"
+    tslib "^2.1.0"
+
 "@griffel/shadow-dom@0.2.2":
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/@griffel/shadow-dom/-/shadow-dom-0.2.2.tgz#f78bd59a3e8124cd63a6616441e80e218142ae73"
@@ -2117,6 +2186,13 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@griffel/style-types/-/style-types-1.1.0.tgz#b7e8d8f03d32162c81ab539fe59886ea0aa1dea2"
   integrity sha512-cINLeC14/YUHlrtL96vzCrsFr19WUO0i9DuljBtX5S7B8pMyiNf6Pw0htjroLojvfD2okhdsr9CHwpUxz1u4kw==
+  dependencies:
+    csstype "^3.1.3"
+
+"@griffel/style-types@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@griffel/style-types/-/style-types-1.3.0.tgz#42b4f1902a0221a9a8334fda12a2fe88f13d65ee"
+  integrity sha512-bHwD3sUE84Xwv4dH011gOKe1jul77M1S6ZFN9Tnq8pvZ48UMdY//vtES6fv7GRS5wXYT4iqxQPBluAiYAfkpmw==
   dependencies:
     csstype "^3.1.3"
 
