@@ -48,23 +48,12 @@ export function getPositionTransform(
 /**
  * @internal
  */
-export function getPositionProperty(
-  position: DrawerBaseProps['position'],
-  dir: FluentProviderContextValue['dir'],
-): string {
-  if (position === 'start') {
-    return dir === 'ltr' ? 'marginLeft' : 'marginRight';
-  }
-
-  if (position === 'end') {
-    return dir === 'ltr' ? 'marginRight' : 'marginLeft';
-  }
-
+export function getPositionProperty(position: DrawerBaseProps['position']): string {
   if (position === 'bottom') {
-    return 'marginBottom';
+    return 'height';
   }
 
-  return 'marginLeft';
+  return 'width';
 }
 
 /**
@@ -72,7 +61,7 @@ export function getPositionProperty(
  */
 export const InlineDrawerMotion = createPresenceComponent<DrawerMotionParams>(
   ({ position, size, dir, unmountOnClose }) => {
-    const keyframes: Keyframe[] = [
+    const [from, to]: Keyframe[] = [
       {
         /**
          * TODO: Once the #31663 lands, we should update the RTL logic to use Motion APIs
@@ -80,26 +69,22 @@ export const InlineDrawerMotion = createPresenceComponent<DrawerMotionParams>(
          */
         transform: getPositionTransform(position, drawerCSSVars.drawerSizeVar, dir),
         opacity: 0,
-        ...(!unmountOnClose
-          ? { [getPositionProperty(position, dir)]: `calc(-1 * var(${drawerCSSVars.drawerSizeVar}))` }
-          : {}),
       },
       {
         transform: 'translate3d(0, 0, 0)',
         opacity: 1,
-        ...(!unmountOnClose ? { [getPositionProperty(position, dir)]: '0px' } : {}),
       },
     ];
     const duration = durations[size];
 
     return {
       enter: {
-        keyframes,
+        keyframes: [from, to],
         duration,
         easing: motionTokens.curveDecelerateMid,
       },
       exit: {
-        keyframes: [...keyframes].reverse(),
+        keyframes: [to, { ...from, ...(!unmountOnClose ? { [getPositionProperty(position)]: 0 } : {}) }],
         duration,
         easing: motionTokens.curveAccelerateMin,
       },
