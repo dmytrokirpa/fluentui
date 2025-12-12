@@ -273,6 +273,11 @@ export interface CartesianChartProps {
   yMaxValue?: number;
 
   /**
+   * minimum data value point in x-axis (for numeric x-axis)
+   */
+  xMinValue?: number;
+
+  /**
    * maximum data value point in x-axis
    */
   xMaxValue?: number;
@@ -451,7 +456,7 @@ export interface CartesianChartProps {
    * Optional callback to access the Chart interface. Use this instead of ref for accessing
    * the public methods and properties of the component.
    */
-  componentRef?: React.RefObject<Chart | null>;
+  componentRef?: React.Ref<Chart>;
 
   /**
    * Prop to set the x axis annotation. Used to display additional information on the x-axis.
