@@ -1,0 +1,83 @@
+'use client';
+
+import * as React from 'react';
+import { useTabsterAttributes } from '@fluentui/react-tabster';
+import { getIntrinsicElementProps, mergeCallbacks, useEventCallback, useMergedRefs } from '@fluentui/react-utilities';
+import type { TabValue } from './Tab.types';
+import { useTabListContext_unstable } from '../TabList/TabListContext';
+import { SelectTabEvent } from '../TabList/TabList.types';
+
+type TabBehaviorProps = Omit<React.ComponentPropsWithRef<'button'>, 'value'> & { value: TabValue };
+
+type TabBehaviorState = {
+  tabProps: React.ComponentPropsWithRef<'button'>;
+  disabled: boolean;
+  selected: boolean;
+  value: TabValue;
+  vertical: boolean;
+};
+
+/**
+ * Create the state required to render Tab.
+ *
+ * The returned state can be modified with hooks such as useTabStyles_unstable,
+ * before being passed to renderTab_unstable.
+ *
+ * @param props - props from this instance of Tab
+ * @param ref - reference to root HTMLElement of Tab
+ */
+export const useTabBehavior_unstable = (props: TabBehaviorProps, ref: React.Ref<HTMLElement>): TabBehaviorState => {
+  const { disabled: tabDisabled = false, onClick, onFocus, value } = props;
+
+  const selectTabOnFocus = useTabListContext_unstable(ctx => ctx.selectTabOnFocus);
+  const listDisabled = useTabListContext_unstable(ctx => ctx.disabled);
+  const selected = useTabListContext_unstable(ctx => ctx.selectedValue === value);
+  const onRegister = useTabListContext_unstable(ctx => ctx.onRegister);
+  const onUnregister = useTabListContext_unstable(ctx => ctx.onUnregister);
+  const onSelect = useTabListContext_unstable(ctx => ctx.onSelect);
+  const vertical = useTabListContext_unstable(ctx => !!ctx.vertical);
+  const disabled = listDisabled || tabDisabled;
+
+  const innerRef = React.useRef<HTMLElement>(null);
+  const onSelectCallback = (event: SelectTabEvent) => onSelect(event, { value });
+  const onTabClick = useEventCallback(mergeCallbacks(onClick, onSelectCallback));
+  const onTabFocus = useEventCallback(mergeCallbacks(onFocus, onSelectCallback));
+
+  const focusProps = useTabsterAttributes({
+    focusable: { isDefault: selected },
+  });
+
+  React.useEffect(() => {
+    onRegister({
+      value,
+      ref: innerRef,
+    });
+
+    return () => {
+      onUnregister({ value, ref: innerRef });
+    };
+  }, [onRegister, onUnregister, innerRef, value]);
+
+  return {
+    tabProps: getIntrinsicElementProps('button', {
+      // FIXME:
+      // `ref` is wrongly assigned to be `HTMLElement` instead of `HTMLButtonElement`
+      // but since it would be a breaking change to fix it, we are casting ref to it's proper type
+      ref: useMergedRefs(ref, innerRef) as React.Ref<HTMLButtonElement>,
+      role: 'tab',
+      type: 'button',
+      // aria-selected undefined indicates it is not selectable
+      // according to https://www.w3.org/TR/wai-aria-1.1/#aria-selected
+      'aria-selected': disabled ? undefined : (`${selected}` as 'true' | 'false'),
+      ...focusProps,
+      ...props,
+      disabled,
+      onClick: onTabClick,
+      onFocus: selectTabOnFocus ? onTabFocus : onFocus,
+    }),
+    disabled,
+    selected,
+    value,
+    vertical,
+  };
+};

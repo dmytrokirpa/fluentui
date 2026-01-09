@@ -141,3 +141,85 @@ export const useCard_unstable = (props: CardProps, ref: React.Ref<HTMLDivElement
     checkbox: checkboxSlot,
   };
 };
+
+type CardBehaviorProps = Omit<CardProps, 'appearance' | 'orientation' | 'size'>;
+
+type CardBehaviorState = Pick<
+  CardState,
+  'interactive' | 'selectable' | 'selectFocused' | 'selected' | 'disabled' | 'selectableA11yProps'
+> & {
+  cardProps: React.ComponentPropsWithRef<'div'>;
+};
+
+/**
+ * Create the state required to render Card.
+ *
+ * The returned state can be modified with hooks such as useCardStyles_unstable,
+ * before being passed to renderCard_unstable.
+ *
+ * @param props - props from this instance of Card
+ * @param ref - reference to the root element of Card
+ */
+export const useCardBehavior_unstable = (
+  props: CardBehaviorProps,
+  ref: React.Ref<HTMLDivElement>,
+): CardBehaviorState => {
+  const { disabled = false, ...restProps } = props;
+
+  const [referenceId, setReferenceId] = React.useState(cardContextDefaultValue.selectableA11yProps.referenceId);
+  const [referenceLabel, setReferenceLabel] = React.useState(cardContextDefaultValue.selectableA11yProps.referenceId);
+
+  const cardBaseRef = useFocusWithin<HTMLDivElement>();
+  const { selectable, selected, selectableCardProps, selectFocused, checkboxSlot, floatingActionSlot } =
+    useCardSelectable(props, { referenceId, referenceLabel }, cardBaseRef);
+
+  const cardRef = useMergedRefs(cardBaseRef, ref);
+
+  const { interactive, focusAttributes } = useCardInteractive(props);
+
+  let cardRootProps = {
+    ...(!selectable ? focusAttributes : null),
+    ...restProps,
+    ...selectableCardProps,
+  };
+
+  if (disabled) {
+    cardRootProps = {
+      ...restProps,
+      'aria-disabled': true,
+      onClick: undefined,
+    };
+  }
+
+  return {
+    // appearance,
+    // orientation,
+    // size,
+    interactive,
+    selectable,
+    selectFocused,
+    selected,
+    disabled,
+    selectableA11yProps: {
+      setReferenceId,
+      referenceId,
+      referenceLabel,
+      setReferenceLabel,
+    },
+
+    // components: {
+    //   root: 'div',
+    //   floatingAction: 'div',
+    //   checkbox: 'input',
+    // },
+
+    cardProps: getIntrinsicElementProps('div', {
+      ref: cardRef,
+      role: 'group',
+      ...cardRootProps,
+    }),
+
+    // floatingAction: floatingActionSlot,
+    // checkbox: checkboxSlot,
+  };
+};
