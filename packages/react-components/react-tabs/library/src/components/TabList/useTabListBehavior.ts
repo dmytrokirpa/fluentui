@@ -11,7 +11,7 @@ import {
 import type { TabRegisterData, SelectTabData, SelectTabEvent, TabListProps, TabListState } from './TabList.types';
 import { TabValue } from '../Tab/Tab.types';
 
-type TabListBehaviorProps = Omit<TabListProps, 'appearance' | 'reserveSelectedTabSpace' | 'size'>;
+export type TabListBehaviorProps = Omit<TabListProps, 'appearance' | 'reserveSelectedTabSpace' | 'size'>;
 
 type TabListBehaviorState = Pick<
   TabListState,

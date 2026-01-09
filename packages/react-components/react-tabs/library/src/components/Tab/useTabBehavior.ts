@@ -7,7 +7,7 @@ import type { TabValue } from './Tab.types';
 import { useTabListContext_unstable } from '../TabList/TabListContext';
 import { SelectTabEvent } from '../TabList/TabList.types';
 
-type TabBehaviorProps = Omit<React.ComponentPropsWithRef<'button'>, 'value'> & { value: TabValue };
+export type TabBehaviorProps = Omit<React.ComponentPropsWithRef<'button'>, 'value'> & { value: TabValue };
 
 type TabBehaviorState = {
   tabProps: React.ComponentPropsWithRef<'button'>;
