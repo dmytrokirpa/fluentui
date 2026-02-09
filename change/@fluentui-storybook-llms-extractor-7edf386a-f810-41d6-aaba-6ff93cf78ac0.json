@@ -1,0 +1,7 @@
+{
+  "type": "minor",
+  "comment": "feat: add agent skills generation",
+  "packageName": "@fluentui/storybook-llms-extractor",
+  "email": "dmytrokirpa@microsoft.com",
+  "dependentChangeType": "patch"
+}
