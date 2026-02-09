@@ -13,8 +13,10 @@ This tool processes Storybook production builds to generate comprehensive docume
 - **MDX Support**: Processes MDX documentation pages and converts HTML to Markdown
 - **Subcomponents**: Handles complex components with subcomponents
 - **LLMs.txt Format**: Generates summary files following the llmstxt.org specification
+- **Agent Skills**: Generates `.well-known/skills` artifacts for AI agent discovery
 - **Static File Serving**: Uses Playwright routing instead of Express for better reliability
 - **Flexible Configuration**: Supports CLI arguments and config files
+- **Customizable Output**: Fully customizable skill documentation generation
 
 ## Installation
 
@@ -60,6 +62,21 @@ module.exports = {
       url: 'https://charts.fluentui.dev',
     },
   ],
+  summaryFormat: {
+    hierarchical: true,
+    tableOfContents: true,
+    maxDescriptionLength: 120,
+    categoryOrder: ['Concepts', 'Components', 'Theme'],
+    maxNestingLevels: 3,
+    refsTitle: 'Additional Resources',
+  },
+  skills: [
+    {
+      name: 'my-component-library',
+      description: 'Comprehensive documentation for My Component Library...',
+      content: '# My Component Library Skill\n\nDocumentation content here...',
+    },
+  ],
 };
 ```
 
@@ -69,6 +86,60 @@ Then run:
 storybook-llms-extractor --config llms.config.js
 ```
 
+#### Summary Format Options
+
+The `summaryFormat` option allows you to customize how the `llms.txt` summary file is structured:
+
+| Option                 | Type       | Default                  | Description                                                                                          |
+| ---------------------- | ---------- | ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `hierarchical`         | `boolean`  | `true`                   | Use hierarchical structure with nested sections. If `false`, generates a flat list.                  |
+| `tableOfContents`      | `boolean`  | `true`                   | Include a table of contents at the top (only applies when `hierarchical` is `true`)                  |
+| `maxDescriptionLength` | `number`   | `120`                    | Maximum length for component descriptions before truncation                                          |
+| `categoryOrder`        | `string[]` | `[]`                     | Categories in this list appear first in the specified order. Others are sorted alphabetically after. |
+| `maxNestingLevels`     | `number`   | `3`                      | Maximum nesting levels to show (1=top category as ##, 2=subcategory as ###, 3+=indented lists)       |
+| `refsTitle`            | `string`   | `"Additional Resources"` | Title for the optional refs section                                                                  |
+
+**Example with hierarchical structure:**
+
+```markdown
+# My Component Library
+
+## Table of Contents
+
+- [Concepts](#concepts)
+- [Components](#components)
+
+## Concepts
+
+### Getting Started
+
+- [Introduction](...)
+- [Quick Start](...)
+
+## Components
+
+### Button
+
+- [Button](...)
+- [IconButton](...)
+
+### Input
+
+- [Input](...)
+- [TextArea](...)
+```
+
+**Example with flat structure (`hierarchical: false`):**
+
+```markdown
+# My Component Library
+
+- [Concepts/Introduction](...)
+- [Concepts/Getting Started/Quick Start](...)
+- [Components/Button/Button](...)
+- [Components/Input/Input](...)
+```
+
 ## Output Structure
 
 The tool generates the following files in your Storybook dist directory:
@@ -76,10 +147,18 @@ The tool generates the following files in your Storybook dist directory:
 ```
 storybook-static/
 ├── llms.txt                    # Main summary file (llmstxt.org format)
-└── llms/
-    ├── component-button.txt    # Individual component docs
-    ├── component-accordion.txt
-    └── concepts-introduction.txt # MDX page docs
+├── llms/
+│   ├── component-button.md     # Individual component docs
+│   ├── component-accordion.md
+│   └── concepts-introduction.md # MDX page docs
+└── .well-known/
+    └── skills/
+        ├── index.json          # Agent skills registry
+        └── [skill-name]/
+            ├── SKILL.md        # Skill documentation
+            └── references/     # Reference documentation
+                ├── *.md
+                └── ...
 ```
 
 ### Summary File (`llms.txt`)
@@ -93,6 +172,33 @@ The main summary file follows the [llmstxt.org](https://llmstxt.org/) specificat
 
 - [Components/Button](https://example.com/llms/components-button.txt): A button component
 - [Components/Accordion](https://example.com/llms/components-accordion.txt): An accordion component
+```
+
+## Agent Skills Configuration
+
+The tool generates `.well-known/skills` artifacts that enable AI agents to automatically discover and use your component library documentation. This follows the [Agent Skills Discovery RFC](https://github.com/cloudflare/agent-skills-discovery-rfc).
+
+### Skills Configuration
+
+Add a `skills` array to your config file:
+
+```javascript
+module.exports = {
+  distPath: 'storybook-static',
+  summaryBaseUrl: 'https://storybook.example.com',
+  skills: [
+    {
+      // Required: Unique identifier for the skill
+      name: 'my-component-library',
+
+      // Required: Description with trigger keywords for AI discovery
+      description:
+        'Documentation for My Component Library - a React component library with accessible components. Use when working with: my components, react ui, component library.',
+
+      content: `# My Component Library Skill.\n\nThis skill provides documentation for Fluent UI React v9 components and concepts.`,
+    },
+  ],
+};
 ```
 
 ### Individual Component Files

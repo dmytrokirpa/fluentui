@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile, readFile, cp } from 'node:fs/promises';
 import { join, resolve, extname } from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -335,7 +335,7 @@ export function generateSummaryContent(
   const summary: string[] = [
     `# ${summaryTitle}`,
     '',
-    '> **Note:** This is a summary overview using the LLMs.txt format (https://llmstxt.org/). Each section links to its full documentation file in plain text (.txt) format. Click any link below to view the detailed documentation for that section.',
+    '> **Note:** This is a summary overview using the LLMs.txt format (https://llmstxt.org/). Each section links to its full documentation file in markdown (.md) format. Click any link below to view the detailed documentation for that section.',
     '',
     summaryDescription,
     '',
@@ -376,7 +376,7 @@ export async function writeFullDocsFiles({ distPath }: Required<Args>, data: Sto
   await mkdir(llmsDir, { recursive: true });
 
   for (const item of data) {
-    const filePath = join(llmsDir, `${item.meta.id}.txt`);
+    const filePath = join(llmsDir, `${item.meta.id}.md`);
     const content = generateFullFileContentFromStory(item);
     await writeFile(filePath, content.join('\n'));
   }
@@ -546,4 +546,87 @@ function generateComponentPropsTable(props: StorybookComponentProp[]): string[] 
   content.push('');
 
   return content;
+}
+
+/**
+ * Writes artifact files for agent skill discovery
+ */
+export async function writeAgentSkillArtifacts(args: Required<Args>, data: StorybookStoreItem[]): Promise<void> {
+  const { agentSkill, distPath } = args;
+
+  const skillsDir = join(distPath, '.well-known', 'skills');
+
+  // Clean the entire .well-known/skills directory
+  await rm(skillsDir, { recursive: true, force: true });
+  await mkdir(skillsDir, { recursive: true });
+
+  const skillDir = join(skillsDir, agentSkill.name);
+  const referencesDir = join(skillDir, 'references');
+
+  // Create skill directory structure
+  await mkdir(skillDir, { recursive: true });
+
+  // Copy entire llms/ directory to references/
+  const llmsDir = join(args.distPath, 'llms');
+  await cp(llmsDir, referencesDir, { recursive: true });
+
+  // Generate SKILL.md file
+  await writeFile(join(skillDir, 'SKILL.md'), generateAgentSkillContent(args));
+
+  // Generate index.json with skills
+  await writeFile(join(skillsDir, 'index.json'), JSON.stringify(generateAgentSkillsMetadata(args, data), null, 2));
+}
+
+/**
+ * Generates the content of index.json for agent skill discovery, following the specification
+ * @see https://github.com/cloudflare/agent-skills-discovery-rfc?tab=readme-ov-file#discovery-index
+ */
+export function generateAgentSkillsMetadata({ agentSkill }: Required<Args>, data: StorybookStoreItem[]) {
+  const skillMetadata = {
+    skills: [
+      {
+        name: agentSkill.name,
+        description: agentSkill.description,
+        files: ['SKILL.md'],
+      },
+    ],
+  };
+
+  // Build files list
+  for (const item of data) {
+    skillMetadata.skills[0].files.push(`references/${item.meta.id}.md`);
+  }
+
+  return skillMetadata;
+}
+
+/**
+ * Generates the content of SKILL.md for agent skill discovery, following the specification
+ * @see https://agentskills.io/specification#skill-markdown-file
+ */
+export function generateAgentSkillContent({ agentSkill }: Required<Args>) {
+  const skillContent = [
+    /**
+     * Frontmatter with required fields: name, description, files
+     * Optional fields: license, compatibility, metadata, allowed-tools
+     * @see https://agentskills.io/specification#frontmatter-required
+     */
+    '---',
+    `name: ${agentSkill.name}`,
+    `description: ${agentSkill.description}`,
+    agentSkill.license && `license: ${agentSkill.license}`,
+    agentSkill.compatibility && `compatibility: ${agentSkill.compatibility}`,
+    ...(agentSkill.metadata
+      ? ['metadata', ...Object.entries(agentSkill.metadata).map(([key, value]) => `  ${key}: ${value}`)]
+      : []),
+    agentSkill.allowedTools && `allowed-tools: ${agentSkill.allowedTools.join(' ')}`,
+    '---',
+    ' ',
+    /**
+     * Content of the skill, should follow the format described in https://agentskills.io/specification#body-content
+     */
+    agentSkill.content,
+  ].filter(Boolean);
+
+  return skillContent.join('\n');
 }

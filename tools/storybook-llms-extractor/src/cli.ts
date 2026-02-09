@@ -2,8 +2,8 @@ import { join } from 'node:path';
 import { cwd } from 'node:process';
 import yargs from 'yargs';
 
-import type { Args, StorybookRef } from './types';
-import { extractStorybookData, writeSummaryFile, writeFullDocsFiles } from './utils';
+import type { AgentSkill, Args, StorybookRef } from './types';
+import { extractStorybookData, writeSummaryFile, writeFullDocsFiles, writeAgentSkillArtifacts } from './utils';
 
 main().catch(reason => {
   console.error(reason);
@@ -27,6 +27,12 @@ async function main() {
 
   console.log(`✅ LLMs docs generation complete.`);
   console.log(`ℹ️ You can find the generated files in the Storybook dist folder: ${args.distPath}`);
+
+  if (args.agentSkill) {
+    console.log(`ℹ️ Generating agent skills artifacts...`);
+    await writeAgentSkillArtifacts(args, data);
+    console.log(`✅ Skills artifacts generated at ${join(args.distPath, '.well-known/skills')}`);
+  }
 }
 
 /**
@@ -40,6 +46,22 @@ function isStorybookRef(obj: unknown): obj is StorybookRef {
     typeof obj.title === 'string' &&
     'url' in obj &&
     typeof obj.url === 'string'
+  );
+}
+
+/**
+ * Type guard for AgentSkill
+ */
+function isAgentSkill(obj: unknown): obj is AgentSkill {
+  return (
+    !!obj &&
+    typeof obj === 'object' &&
+    'name' in obj &&
+    typeof obj.name === 'string' &&
+    'description' in obj &&
+    typeof obj.description === 'string' &&
+    'content' in obj &&
+    typeof obj.content === 'string'
   );
 }
 
@@ -63,6 +85,17 @@ function parseRefs(refs: unknown[]): StorybookRef[] {
   }
 
   return [];
+}
+
+/**
+ * Parses skill from CLI arguments or config file.
+ */
+function parseSkill(argv: Record<string, unknown>): AgentSkill {
+  if ('agentSkill' in argv && isAgentSkill(argv.agentSkill)) {
+    return argv.agentSkill;
+  }
+
+  return { name: '', description: '', content: '' };
 }
 
 /**
@@ -107,5 +140,6 @@ async function processArgs(): Promise<Required<Args>> {
     ...argv,
     distPath: join(cwd(), argv.distPath),
     refs: parseRefs(argv.refs),
+    agentSkill: parseSkill(argv),
   };
 }

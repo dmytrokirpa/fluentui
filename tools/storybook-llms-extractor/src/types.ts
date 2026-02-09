@@ -28,6 +28,12 @@ export type Args = {
    * @example `--refs "{title:'foo', url:'www'}"`
    */
   refs?: StorybookRef[];
+
+  /**
+   * An agent skill to generate. If provided, the CLI will generate a SKILL.md file for this skill in the output directory, and include it in the index.json metadata.
+   * The skill should follow the specification: https://agentskills.io/specification
+   */
+  agentSkill?: AgentSkill | undefined;
 };
 
 /**
@@ -117,3 +123,49 @@ export type StorybookComponentProp = {
  * ```
  */
 export type StorybookRef = { title: string; url: string; sourceUrl?: string };
+
+/**
+ * Agent skill definition following the specification at https://agentskills.io/specification
+ */
+export type AgentSkill = {
+  /**
+   * Unique identifier for the skill
+   * @see https://agentskills.io/specification#name-field
+   */
+  name: string;
+  /**
+   * Description of when and why to use this skill, includes trigger keywords for discovery
+   * @see https://agentskills.io/specification#description-field
+   */
+  description: string;
+
+  /**
+   * SKILL.md content, should follow the format described in the specification
+   * @see https://agentskills.io/specification#skill-md-format
+   */
+  content: string;
+
+  /**
+   * Optional compatibility information, specifying which agents or environments this skill is compatible with
+   * @see https://agentskills.io/specification#compatibility-field
+   */
+  compatibility?: string;
+
+  /**
+   * List of tools allowed to use this skill
+   * @see https://agentskills.io/specification#allowedtools-field
+   */
+  allowedTools?: string[];
+
+  /**
+   * Optional license information for the skill's content
+   * @see https://agentskills.io/specification#license-field
+   */
+  license?: string;
+
+  /**
+   * Optional metadata for the skill
+   * @see https://agentskills.io/specification#metadata-field
+   */
+  metadata?: Record<string, string>;
+};

@@ -1,7 +1,13 @@
 import { argsWithRefs } from './__fixtures__/args';
 import { storybookStoreItems } from './__fixtures__/storybook-store-items';
 
-import { convertHtmlToMarkdown, generateSummaryContent, generateFullFileContentFromStory } from './utils';
+import {
+  convertHtmlToMarkdown,
+  generateSummaryContent,
+  generateFullFileContentFromStory,
+  generateAgentSkillsMetadata,
+  generateAgentSkillContent,
+} from './utils';
 
 describe('generate-llms-docs', () => {
   describe('convertHtmlToMarkdown', () => {
@@ -773,7 +779,7 @@ describe('generate-llms-docs', () => {
       expect(summaryContent.join('\n')).toMatchInlineSnapshot(`
         "# Fluent UI React v9
 
-        > **Note:** This is a summary overview using the LLMs.txt format (https://llmstxt.org/). Each section links to its full documentation file in plain text (.txt) format. Click any link below to view the detailed documentation for that section.
+        > **Note:** This is a summary overview using the LLMs.txt format (https://llmstxt.org/). Each section links to its full documentation file in markdown (.md) format. Click any link below to view the detailed documentation for that section.
 
         Fluent UI React is a library of React components that implement Microsoft's Fluent Design System.
 
@@ -785,6 +791,46 @@ describe('generate-llms-docs', () => {
 
         - [Charts v9](https://charts.fluentui.dev/llms.txt)
         "
+      `);
+    });
+  });
+
+  describe('generateAgentSkillsMetadata', () => {
+    it('should generates agent skills metadata', () => {
+      expect(generateAgentSkillsMetadata(argsWithRefs, storybookStoreItems)).toMatchInlineSnapshot(`
+        Object {
+          "skills": Array [
+            Object {
+              "description": "Agent skill for Fluent UI React v9 documentation, use it to answer questions about Fluent UI React v9 components and concepts.",
+              "files": Array [
+                "SKILL.md",
+                "references/concepts-introduction.md",
+                "references/concepts-developer-quick-start.md",
+                "references/components-accordion.md",
+              ],
+              "name": "fluentui-v9-skill",
+            },
+          ],
+        }
+      `);
+    });
+  });
+
+  describe('generateAgentSkillContent', () => {
+    it('generates agent skill content', () => {
+      expect(generateAgentSkillContent(argsWithRefs, storybookStoreItems)).toMatchInlineSnapshot(`
+        "---
+        name: fluentui-v9-skill
+        description: Agent skill for Fluent UI React v9 documentation, use it to answer questions about Fluent UI React v9 components and concepts.
+        license: MIT
+        metadata
+          version: 0.0.1
+          author: Fluent UI Team
+        ---
+         
+        # Fluent UI React v9 Agent Skill
+         
+        This skill provides documentation for Fluent UI React v9 components and concepts."
       `);
     });
   });
