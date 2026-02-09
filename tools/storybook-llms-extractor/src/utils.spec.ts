@@ -193,7 +193,7 @@ describe('generate-llms-docs', () => {
         | \`defaultOpenItems\` | \`unknown\` | No |  | Default value for the uncontrolled state of the panel. |
         | \`collapsible\` | \`boolean\` | No |  | Indicates if Accordion support multiple Panels closed at the same time. |
         | \`multiple\` | \`boolean\` | No |  | Indicates if Accordion support multiple Panels opened at the same time. |
-        | \`navigation\` | \`\\"linear\\" \\"circular\\"\` | No |  | @deprecated Arrow keyboard navigation is not recommended for accordions. Consider using Tree if arrow navigation is a hard requirement. Indicates if keyboard navigation is available and gives two options, linear or circular navigation. |
+        | \`navigation\` | \`\\"linear\\" \\\\| \\"circular\\"\` | No |  | @deprecated Arrow keyboard navigation is not recommended for accordions. Consider using Tree if arrow navigation is a hard requirement. Indicates if keyboard navigation is available and gives two options, linear or circular navigation. |
         | \`onToggle\` | \`AccordionToggleEventHandler<unknown>\` | No |  | Callback to be called when the opened items change. |
         | \`openItems\` | \`unknown\` | No |  | Controls the state of the panel. |
         | \`ref\` | \`Ref<HTMLDivElement>\` | No |  |  |
@@ -228,13 +228,13 @@ describe('generate-llms-docs', () => {
 
         | Name | Type | Required | Default | Description |
         |------|------|----------|---------|-------------|
-        | \`button\` | \`NonNullable<WithSlotShorthandValue<ARIAButtonSlotProps<\\"a\\">> | null>\` | No |  | The component to be used as button in heading |
-        | \`expandIcon\` | \`WithSlotShorthandValue<{ as?: \\"span\\"; } & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, \\"ref\\"> & { ...; }, \\"children\\"> & { ...; }> | null\` | No |  | Expand icon slot rendered before (or after) children content in heading. |
-        | \`icon\` | \`WithSlotShorthandValue<{ as?: \\"div\\"; } & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \\"ref\\"> & { ...; }, \\"children\\"> & { ...; }> | null\` | No |  | Expand icon slot rendered before (or after) children content in heading. |
-        | \`as\` | \`\\"div\\" \\"h1\\" \\"h2\\" \\"h3\\" \\"h4\\" \\"h5\\" \\"h6\\"\` | No |  |  |
-        | \`expandIconPosition\` | \`\\"start\\" \\"end\\"\` | No |  | The position of the expand  icon slot in heading. |
+        | \`button\` | \`NonNullable<WithSlotShorthandValue<ARIAButtonSlotProps<\\"a\\">> \\\\| null>\` | No |  | The component to be used as button in heading |
+        | \`expandIcon\` | \`WithSlotShorthandValue<{ as?: \\"span\\"; } & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, \\"ref\\"> & { ...; }, \\"children\\"> & { ...; }> \\\\| null\` | No |  | Expand icon slot rendered before (or after) children content in heading. |
+        | \`icon\` | \`WithSlotShorthandValue<{ as?: \\"div\\"; } & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, \\"ref\\"> & { ...; }, \\"children\\"> & { ...; }> \\\\| null\` | No |  | Expand icon slot rendered before (or after) children content in heading. |
+        | \`as\` | \`\\"div\\" \\\\| \\"h1\\" \\\\| \\"h2\\" \\\\| \\"h3\\" \\\\| \\"h4\\" \\\\| \\"h5\\" \\\\| \\"h6\\"\` | No |  |  |
+        | \`expandIconPosition\` | \`\\"start\\" \\\\| \\"end\\"\` | No |  | The position of the expand  icon slot in heading. |
         | \`inline\` | \`boolean\` | No |  | Indicates if the AccordionHeader should be rendered inline. |
-        | \`size\` | \`\\"small\\" \\"medium\\" \\"large\\" \\"extra-large\\"\` | No |  | Size of spacing in the heading. |
+        | \`size\` | \`\\"small\\" \\\\| \\"medium\\" \\\\| \\"large\\" \\\\| \\"extra-large\\"\` | No |  | Size of spacing in the heading. |
         | \`ref\` | \`Ref<HTMLDivElement>\` | No |  |  |
 
 
@@ -248,7 +248,7 @@ describe('generate-llms-docs', () => {
 
         | Name | Type | Required | Default | Description |
         |------|------|----------|---------|-------------|
-        | \`collapseMotion\` | \`PresenceMotionSlotProps | null\` | No |  |  |
+        | \`collapseMotion\` | \`PresenceMotionSlotProps \\\\| null\` | No |  |  |
         | \`as\` | \`\\"div\\"\` | No |  |  |
         | \`ref\` | \`Ref<HTMLDivElement>\` | No |  |  |
 
@@ -783,11 +783,17 @@ describe('generate-llms-docs', () => {
 
         Fluent UI React is a library of React components that implement Microsoft's Fluent Design System.
 
-        - [Concepts/Introduction](https://react.fluentui.dev/llms/concepts-introduction.txt)
-        - [Concepts/Developer/Quick Start](https://react.fluentui.dev/llms/concepts-developer-quick-start.txt)
-        - [Components/Accordion](https://react.fluentui.dev/llms/components-accordion.txt): An accordion allows users to toggle the display of content by expanding or collapsing sections.
+        ## Concepts
 
-        ## Optional
+        - [Introduction](https://react.fluentui.dev/llms/concepts-introduction.md)
+        - [Developer/Quick Start](https://react.fluentui.dev/llms/concepts-developer-quick-start.md)
+
+        ## Components
+
+        - [Accordion](https://react.fluentui.dev/llms/components-accordion.md): An accordion allows users to toggle the display of content by expanding or collapsing sections.
+
+
+        ## Additional References
 
         - [Charts v9](https://charts.fluentui.dev/llms.txt)
         "
@@ -818,7 +824,7 @@ describe('generate-llms-docs', () => {
 
   describe('generateAgentSkillContent', () => {
     it('generates agent skill content', () => {
-      expect(generateAgentSkillContent(argsWithRefs, storybookStoreItems)).toMatchInlineSnapshot(`
+      expect(generateAgentSkillContent(argsWithRefs)).toMatchInlineSnapshot(`
         "---
         name: fluentui-v9-skill
         description: Agent skill for Fluent UI React v9 documentation, use it to answer questions about Fluent UI React v9 components and concepts.

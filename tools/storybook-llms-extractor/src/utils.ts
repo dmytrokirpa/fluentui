@@ -341,19 +341,34 @@ export function generateSummaryContent(
     '',
   ];
 
-  // Adds links to all components/pages
-  for (const item of data) {
-    let description = item.meta.parameters?.docs?.description?.component || '';
-    if (description) {
-      description = `: ${description.split('\n')[0]}`;
+  const groupedItems: Record<string, StorybookStoreItem[]> = data.reduce((acc, item) => {
+    const group = item.meta.title.split('/')[0];
+    if (!acc[group]) {
+      acc[group] = [];
     }
-    summary.push(`- [${item.meta.title}](${summaryBaseUrl}/llms/${item.meta.id}.txt)${description}`);
+    acc[group].push(item);
+    return acc;
+  }, {} as Record<string, StorybookStoreItem[]>);
+
+  for (const [groupName, items] of Object.entries(groupedItems)) {
+    summary.push(`## ${groupName}`);
+    summary.push('');
+    for (const item of items) {
+      let description = item.meta.parameters?.docs?.description?.component || '';
+      if (description) {
+        description = `: ${description.split('\n')[0]}`;
+      }
+      summary.push(
+        `- [${item.meta.title.replace(`${groupName}/`, '')}](${summaryBaseUrl}/llms/${item.meta.id}.md)${description}`,
+      );
+    }
+    summary.push('');
   }
 
   // Adds links to all composed Storybook
   if (refs && refs.length > 0) {
     summary.push('');
-    summary.push('## Optional');
+    summary.push('## Additional References');
     summary.push('');
     for (const ref of refs) {
       summary.push(`- [${ref.title}](${ref.url.replace(/\/$/, '')}/llms.txt)`);
@@ -474,10 +489,10 @@ function stringifyPropType(type: StorybookComponentProp['type']): string {
   if (typeof type === 'object' && type !== null && 'name' in type && typeof type.name === 'string') {
     // Handle enums, unions, arrays, etc.
     if (type.name === 'enum' && Array.isArray(type.value)) {
-      return type.value.map(v => (typeof v.value === 'string' ? v.value : JSON.stringify(v.value))).join(' ');
+      return type.value.map(v => (typeof v.value === 'string' ? v.value : JSON.stringify(v.value))).join(' | ');
     }
     if (type.name === 'union' && Array.isArray(type.value)) {
-      return type.value.map(v => (typeof v.value === 'string' ? v.value : JSON.stringify(v.value))).join(' ');
+      return type.value.map(v => (typeof v.value === 'string' ? v.value : JSON.stringify(v.value))).join(' | ');
     }
     if (type.name === 'array' && type.value) {
       return `${stringifyPropType(type.value as StorybookComponentProp['type'])}[]`;
@@ -533,10 +548,12 @@ function generateComponentPropsTable(props: StorybookComponentProp[]): string[] 
   content.push('| Name | Type | Required | Default | Description |');
   content.push('|------|------|----------|---------|-------------|');
   for (const prop of props) {
+    // Escape pipe characters in type to prevent breaking markdown table syntax
+    const escapedType = stringifyPropType(prop.type).replace(/\|/g, '\\|');
     content.push(
       `| ${[
         `\`${prop.name}\``,
-        `\`${stringifyPropType(prop.type)}\``,
+        `\`${escapedType}\``,
         prop.required ? 'Yes' : 'No',
         prop.defaultValue ?? '',
         prop.description?.replace(/\n/g, ' ') ?? '',

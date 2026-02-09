@@ -179,7 +179,7 @@ const STORYBOOK_VARIANT_SUFFIX_PATTERN = /--\w+$/g;
 
 /**
  * Gets the base URL for fetching markdown content from the Storybook LLM endpoint.
- * Each story's markdown is available at: {BASE_URL}/{storyId}.txt
+ * Each story's markdown is available at: {BASE_URL}/{storyId}.md
  * @param targetWindow - The window object to use for location access
  * @returns The base URL constructed from current location origin and pathname
  */
@@ -194,10 +194,10 @@ function getStorybookMarkdownApiBaseUrl(targetWindow: Window): string {
  * @param targetWindow - The window object to use for location access
  * @param storyId - The Storybook story ID
  * @returns The full URL to the markdown endpoint for the story
- * @example "button--primary" -> "https://storybooks.fluentui.dev/llms/button.txt"
+ * @example "button--primary" -> "https://storybooks.fluentui.dev/llms/button.md"
  */
 function convertStoryIdToMarkdownUrl(targetWindow: Window, storyId: string): string {
-  return `${getStorybookMarkdownApiBaseUrl(targetWindow)}${storyId.replace(STORYBOOK_VARIANT_SUFFIX_PATTERN, '.txt')}`;
+  return `${getStorybookMarkdownApiBaseUrl(targetWindow)}${storyId.replace(STORYBOOK_VARIANT_SUFFIX_PATTERN, '.md')}`;
 }
 
 /**

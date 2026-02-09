@@ -72,6 +72,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
+            # Upload main files (az storage blob upload-batch skips hidden files by default)
             az storage blob upload-batch \
               --destination '$web' \
               --source ./website \
@@ -79,6 +80,32 @@ jobs:
               --destination-path pull/${{steps.pr_number.outputs.result}} \
               --auth-mode login \
               --overwrite
+
+            # Upload .well-known directories explicitly (for agent skills discovery)
+            # Note: upload-batch skips hidden files, so we need to upload them separately
+            find ./website -type d -name ".well-known" | while read wellknown_dir; do
+              relative_path="${wellknown_dir#./website/}"
+              echo "Uploading hidden directory: $relative_path"
+              az storage blob upload-batch \
+                --destination '$web' \
+                --source "$wellknown_dir" \
+                --account-name ${{ env.AZURE_STORAGE }} \
+                --destination-path "pull/${{steps.pr_number.outputs.result}}/${relative_path}" \
+                --auth-mode login \
+                --overwrite \
+                --pattern "*"
+            done
+
+            # Verify .well-known files were uploaded successfully
+            echo ""
+            echo "Verifying .well-known files upload..."
+            az storage blob list \
+              --account-name ${{ env.AZURE_STORAGE }} \
+              --container-name '$web' \
+              --prefix "pull/${{steps.pr_number.outputs.result}}/public-docsite-v9/react/.well-known/" \
+              --auth-mode login \
+              --query "[].name" \
+              --output tsv | head -10 || echo "No .well-known files found in storage"
 
   comment:
     runs-on: ubuntu-latest
