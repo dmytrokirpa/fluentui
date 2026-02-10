@@ -54,7 +54,7 @@ jobs:
 
       - name: Generate PR Deploy Site
         run: yarn nx run pr-deploy-site:generate:site && ls -la apps/pr-deploy-site/dist/public-docsite-v9/react/.well-known
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         with:
           name: pr-website-artifacts
           retention-days: 1
@@ -65,7 +65,7 @@ jobs:
 
       - name: Save PR number
         run: echo ${{ github.event.number }} > pr.txt
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v4
         with:
           name: pr-number
           retention-days: 1
