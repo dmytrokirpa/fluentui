@@ -53,7 +53,7 @@ jobs:
         run: yarn nx affected -t build-storybook --nxBail
 
       - name: Generate PR Deploy Site
-        run: yarn nx run pr-deploy-site:generate:site && ls -la apps/pr-deploy-site/dist/public-docsite-v9/react/.well-known
+        run: yarn nx run pr-deploy-site:generate:site
       - uses: actions/upload-artifact@v4
         with:
           name: pr-website-artifacts

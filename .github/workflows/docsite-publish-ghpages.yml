@@ -55,8 +55,6 @@ jobs:
           cp -R apps/chart-docsite/dist/storybook/* _pages/charts/
           cp -R packages/web-components/dist/storybook/* _pages/web-components
 
-          ls -la _pages/react/.well-known || echo ".well-known directory not found in built storybook artifacts"
-
       - name: Upload Pages Artifact
         if: steps.affected_storybooks_count.outputs.value > 0
         id: artifact_upload

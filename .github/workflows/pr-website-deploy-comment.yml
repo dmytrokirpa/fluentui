@@ -72,8 +72,6 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            ls -la ./website/.well-known || echo ".well-known directory not found in website artifacts"
-
             # Upload main files (az storage blob upload-batch skips hidden files by default)
             az storage blob upload-batch \
               --destination '$web' \
@@ -82,17 +80,6 @@ jobs:
               --destination-path pull/${{steps.pr_number.outputs.result}} \
               --auth-mode login \
               --overwrite
-
-            # Verify .well-known files were uploaded successfully
-            echo ""
-            echo "Verifying .well-known files upload..."
-            az storage blob list \
-              --account-name ${{ env.AZURE_STORAGE }} \
-              --container-name '$web' \
-              --prefix "pull/${{steps.pr_number.outputs.result}}/public-docsite-v9/react/.well-known/" \
-              --auth-mode login \
-              --query "[].name" \
-              --output tsv | head -10 || echo "No .well-known files found in storage"
 
   comment:
     runs-on: ubuntu-latest

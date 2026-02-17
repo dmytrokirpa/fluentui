@@ -1,152 +1,150 @@
+---
+name: fluentui-react-v9
+description: Documentation for Fluent UI React v9 (@fluentui/react-components) - Microsoft's React component library. Use when building React apps with Fluent UI, implementing Microsoft Fluent Design, working with @fluentui/react-components package, migrating from v8 or v0, customizing themes/styling, setting up SSR (Next.js/Remix), or implementing accessible React components following WCAG 2.1 AA standards.
+---
+
 # Fluent UI React v9 Skill
 
-Fluent UI React v9 is Microsoft's official React component library implementing the Fluent Design System. This skill provides comprehensive documentation for 100+ production-ready components, theming, accessibility, and migration guides.
+This skill provides comprehensive documentation for Fluent UI React v9 with 100+ React components, theming, accessibility, and migration guides.
 
-## Installation
+**Package**: `@fluentui/react-components`
 
-```bash
-npm install @fluentui/react-components
+## Quick Reference
 
-# or
+Install: `npm install @fluentui/react-components`
 
-yarn add @fluentui/react-components
-```
-
-## Quick Start
+Basic usage:
 
 ```tsx
 import { FluentProvider, webLightTheme, Button } from '@fluentui/react-components';
-
-function App() {
-  return (
-    <FluentProvider theme={webLightTheme}>
-      <Button appearance="primary">Click me</Button>
-    </FluentProvider>
-  );
-}
+<FluentProvider theme={webLightTheme}>
+  <Button appearance="primary">Click me</Button>
+</FluentProvider>;
 ```
 
-## Documentation Structure
+## How to Find Documentation
 
-The documentation is organized into these categories:
+This skill contains 229 reference files organized by category. Follow this workflow to find what you need:
 
-### 1. Components (components-\*)
+### Step 1: Identify the Category
 
-Browse component documentation by searching for `components-[name]` files. Each component includes:
+**Components** (`components-*`) - Specific UI components (Button, Dialog, Menu, Table, etc.)
+**Concepts** (`concepts-*`) - Core topics (styling, theming, SSR, accessibility)
+**Migration** (`concepts-migration-*`) - Guides for migrating from v8 or v0
+**Utilities** (`utilities-*`) - Helper functions and hooks
+**Motion** (`motion-*`) - Animation and transition components
 
-- Props and API reference
-- Multiple usage examples with code
+### Step 2: Search for the Documentation
+
+Use the Grep tool to search reference files by pattern:
+
+**For a specific component:**
+
+```
+Pattern: "components-{component-name}"
+Example: "components-button" → reads "components-button-button.md"
+```
+
+**For subcomponents:**
+
+```
+Pattern: "components-{parent}-{child}"
+Example: "components-table-tablecell"
+```
+
+**For concepts by topic:**
+
+```
+Pattern: "concepts-developer-{topic}"
+Examples:
+  - "concepts-developer-theming"
+  - "concepts-developer-styling-components"
+  - "concepts-developer-server-side-rendering-next-js"
+```
+
+**For migration guides:**
+
+```
+Pattern: "concepts-migration-from-{version}"
+Examples:
+  - "concepts-migration-from-v8-component-mapping"
+  - "concepts-migration-from-v8-components-button-migration"
+```
+
+### Step 3: Read the Documentation
+
+Once you find the file path, use the Read tool to load it. Each file contains:
+
+- API reference with props, types, and defaults
+- Code examples showing common patterns
 - Best practices and accessibility guidelines
-- Common patterns and variations
+- Links to related documentation
 
-**Common components**: Button, Input, Dialog, Menu, Dropdown, Checkbox, RadioGroup, Table, DataGrid, Accordion, Avatar, Badge, Card, Combobox, Divider, Label, Link, MessageBar, Popover, Select, Spinner, Switch, Tabs, Tag, Textarea, Toast, Toolbar, Tooltip, Tree
+### Step 4: If Documentation Not Found
 
-### 2. Concepts (concepts-\*)
+If Grep returns no results:
 
-Foundational documentation covering:
+1. Try variations: plural/singular, abbreviations, alternative names
+2. Search for related terms in file content using Grep with `output_mode: "content"`
+3. Check the "Working with AI" guide: `concepts-developer-working-with-ai`
 
-- **Quick Start** (concepts-developer-quick-start): Getting started guide
-- **Styling** (concepts-developer-styling-components): How to style components with Griffel CSS-in-JS
-- **Theming** (concepts-developer-theming): Customizing themes and design tokens
-- **Positioning** (concepts-developer-positioning-components): Positioning utilities
-- **SSR** (concepts-developer-server-side-rendering-\*): Next.js, Remix, React Router setup
-- **Accessibility** (concepts-developer-accessibility-\*): WCAG 2.1 AA patterns and best practices
-- **Advanced** (concepts-developer-advanced-\*): Advanced configuration, styling techniques, slots
+### Alternative: Online Documentation Access
 
-### 3. Migration Guides (concepts-migration-\*)
+Documentation is also available online (updated with each release):
 
-Step-by-step migration guides:
+**Comprehensive index**: https://storybooks.fluentui.dev/react/llms.txt
 
-- **From v8**: Component mapping, color mapping, breaking changes
-- **From v0 (Northstar)**: Component-by-component migration guides
-- Search for specific components: `concepts-migration-from-v8-components-[name]-migration`
+**Individual pages**: https://storybooks.fluentui.dev/react/llms/{filename}.md
 
-### 4. Utilities (utilities-\*)
+- Example: https://storybooks.fluentui.dev/react/llms/components-button-button.md
 
-Helper utilities for focus management, theme utilities, and more.
+Use local reference files (via Grep/Read) as the primary method for speed and reliability. Use WebFetch on online URLs only when:
 
-### 5. Motion (motion-\*)
+- Local files are unavailable
+- You need to verify against the absolute latest version
+- Checking for recent updates or changes
 
-Animation components and APIs for creating smooth transitions and effects.
+## Common Documentation Paths
 
-## How to Use This Skill
+**Styling and Theming:**
 
-### Finding Component Documentation
+- Styling components: `concepts-developer-styling-components`
+- Theming system: `concepts-developer-theming`
+- Advanced styling: `concepts-developer-advanced-styling-techniques`
+- Design tokens: Use Grep for "design tokens" or "theme tokens"
 
-1. **To use a component**: Search for `components-[component-name]` (e.g., `components-button`)
-2. **For subcomponents**: Search for `components-[parent]-[child]` (e.g., `components-table-tablecell`)
-3. **Read the props table**: Every component doc includes comprehensive props with types, defaults, and descriptions
-4. **Review examples**: Multiple examples show common usage patterns
+**Server-Side Rendering:**
 
-### Common Tasks
-
-**Styling a component:**
-
-```tsx
-import { makeStyles, Button } from '@fluentui/react-components';
-
-const useStyles = makeStyles({
-  customButton: {
-    backgroundColor: 'red',
-    ':hover': { backgroundColor: 'darkred' },
-  },
-});
-
-function MyButton() {
-  const styles = useStyles();
-  return <Button className={styles.customButton}>Styled Button</Button>;
-}
-```
-
-See: concepts-developer-styling-components
-
-**Creating a custom theme:**
-
-```tsx
-import { FluentProvider, createLightTheme, BrandVariants } from '@fluentui/react-components';
-
-const myBrand: BrandVariants = {
-  10: '#020305', // ... define all tokens
-};
-
-const myTheme = createLightTheme(myBrand);
-```
-
-See: concepts-developer-theming
-
-**Migrating from v8:**
-
-1. Check component mapping: concepts-migration-from-v8-component-mapping
-2. Find specific migration guide: concepts-migration-from-v8-components-[name]-migration
-3. Review breaking changes: concepts-migration-handling-breaking-changes
-
-**SSR Setup:**
-
-- Next.js App Router: concepts-developer-server-side-rendering-next-js-appdir-setup
-- Next.js Pages: concepts-developer-server-side-rendering-next-js-pages-setup
-- React Router/Remix: concepts-developer-server-side-rendering-react-router-7-and-remix-setup
+- Next.js App Router: `concepts-developer-server-side-rendering-next-js-appdir-setup`
+- Next.js Pages: `concepts-developer-server-side-rendering-next-js-pages-setup`
+- Remix/React Router: `concepts-developer-server-side-rendering-react-router-7-and-remix-setup`
 
 **Accessibility:**
 
-- Component labelling: concepts-developer-accessibility-component-labelling
-- Focus indicators: concepts-developer-accessibility-focus-indicator
-- Component-specific a11y: concepts-developer-accessibility-components-[name]
+- Overview: `concepts-developer-accessibility-components-overview`
+- Focus indicators: `concepts-developer-accessibility-focus-indicator`
+- Component labelling: `concepts-developer-accessibility-component-labelling`
+- Per-component: `concepts-developer-accessibility-components-{name}`
 
-## Best Practices
+**Migration from v8:**
 
-1. **Always wrap your app in FluentProvider** with a theme
-2. **Use semantic HTML**: Fluent components use proper ARIA attributes
-3. **Prefer built-in variants**: Use `appearance`, `size`, `shape` props before custom styling
-4. **Follow WCAG 2.1 AA**: All components are compliant by default, maintain this in customizations
-5. **Use design tokens**: Reference theme tokens instead of hard-coding colors
-6. **Test SSR**: If using SSR, follow framework-specific setup guides
+- Component mapping: `concepts-migration-from-v8-component-mapping`
+- Color mapping: `concepts-migration-from-v8-color-mapping`
+- Specific component: `concepts-migration-from-v8-components-{name}-migration`
 
-## When to Use This Skill
+**Migration from v0 (Northstar):**
 
-- Building React applications with Fluent UI
-- Implementing Microsoft Fluent Design System
-- Migrating from @fluentui/react (v8) or @fluentui/react-northstar (v0)
-- Need accessible, themeable UI components
-- Working with Next.js, Remix, or React Router SSR
-- Customizing Microsoft design language
-- Building enterprise React applications
+- Specific component: `concepts-migration-from-v0-components-{name}-migration`
+
+## Frequently Used Components
+
+When users mention these terms, search for the corresponding documentation:
+
+Button, Input, Dialog, Menu, Dropdown, Checkbox, Radio/RadioGroup, Table, DataGrid, Accordion, Avatar, Badge, Card, Combobox, Divider, Label, Link, MessageBar, Popover, Select, Spinner, Switch, Tabs, Tag, Textarea, Toast, Toolbar, Tooltip, Tree
+
+## Important Principles
+
+**Always wrap apps in FluentProvider** - Required for theme context
+**Use built-in variants first** - Check `appearance`, `size`, `shape` props before custom styling
+**Maintain accessibility** - All components are WCAG 2.1 AA compliant by default
+**Use design tokens** - Reference theme tokens instead of hard-coding colors
