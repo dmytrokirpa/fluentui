@@ -251,6 +251,20 @@ export interface PositioningOptions {
    * @default false
    */
   shiftToCoverTarget?: boolean;
+
+  /**
+   * When true, uses CSS Anchor Positioning instead of @floating-ui/dom for placement.
+   * Requires Chrome/Edge 125+, Safari 26+, or Firefox 149+.  Falls back gracefully
+   * when neither native support nor the @oddbird/css-anchor-positioning polyfill is available.
+   *
+   * **Unsupported options when enabled** (a dev warning is emitted if used):
+   * - `overflowBoundary` / `flipBoundary` with a custom element
+   * - `shiftToCoverTarget`
+   * - `unstable_disableTether`
+   *
+   * @default true
+   */
+  useNativeAnchoring?: boolean;
 }
 
 /**

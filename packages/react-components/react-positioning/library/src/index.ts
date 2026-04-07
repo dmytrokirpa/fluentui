@@ -13,6 +13,7 @@ export { usePositioningMouseTarget } from './usePositioningMouseTarget';
 export { useSafeZoneArea } from './hooks/useSafeZoneArea/useSafeZoneArea';
 export type { UseSafeZoneOptions } from './hooks/useSafeZoneArea/useSafeZoneArea';
 export { resolvePositioningShorthand, mergeArrowOffset } from './utils/index';
+export { loadCSSAnchorPolyfill } from './utils/loadCSSAnchorPolyfill';
 
 export type {
   Alignment,

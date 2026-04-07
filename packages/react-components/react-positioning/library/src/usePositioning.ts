@@ -4,7 +4,9 @@ import { canUseDOM, useEventCallback, useIsomorphicLayoutEffect } from '@fluentu
 import * as React from 'react';
 
 import { POSITIONING_END_EVENT } from './constants';
-import { createPositionManager } from './createPositionManager';
+import { createCSSAnchorPositionManager } from './createCSSAnchorPositionManager';
+import { cssAnchorPositioningSupported } from './utils/cssAnchorPositioningSupport';
+import { preloadPositioningFallback, getCreatePositionManager } from './utils/loadPositioningFallback';
 import type {
   OnPositioningEndEvent,
   PositioningOptions,
@@ -15,6 +17,11 @@ import type {
 } from './types';
 import { usePositioningOptions } from './usePositioningOptions';
 import { useCallbackRef, hasAutofocusFilter } from './utils';
+
+// Kick off the dynamic import of the floating-ui fallback immediately at module
+// evaluation time, but only when CSS Anchor Positioning is not natively supported.
+// By the time React mounts and fires layout effects, the chunk will already be loaded.
+preloadPositioningFallback();
 
 /**
  * @internal
@@ -28,7 +35,24 @@ export function usePositioning(options: PositioningProps & PositioningOptions): 
   const containerRef = React.useRef<HTMLElement | null>(null);
   const arrowRef = React.useRef<HTMLElement | null>(null);
 
-  const { enabled = true } = options;
+  const {
+    enabled = true,
+    useNativeAnchoring = true,
+    // CSS anchor options — destructured individually for stable useCallback deps
+    position,
+    align,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    positionFixed,
+    strategy,
+    offset,
+    pinned,
+    fallbackPositions,
+    autoSize,
+    matchTargetSize,
+    coverTarget,
+    disableUpdateOnResize,
+  } = options;
+
   const resolvePositioningOptions = usePositioningOptions(options);
   const updatePositionManager = React.useCallback(() => {
     if (managerRef.current) {
@@ -39,14 +63,53 @@ export function usePositioning(options: PositioningProps & PositioningOptions): 
     const target = overrideTargetRef.current ?? targetRef.current;
 
     if (enabled && canUseDOM() && target && containerRef.current) {
-      managerRef.current = createPositionManager({
-        container: containerRef.current,
-        target,
-        arrow: arrowRef.current,
-        ...resolvePositioningOptions(containerRef.current, arrowRef.current),
-      });
+      if (useNativeAnchoring && cssAnchorPositioningSupported()) {
+        managerRef.current = createCSSAnchorPositionManager({
+          container: containerRef.current,
+          target,
+          arrow: arrowRef.current,
+          position,
+          align,
+          // Default to 'fixed' so portal containers (appended to document.body
+          // outside the trigger's ancestor chain) always have the viewport as
+          // their containing block, making position-area coordinates consistent.
+          strategy: strategy ?? 'fixed',
+          offset,
+          pinned,
+          fallbackPositions,
+          autoSize,
+          matchTargetSize,
+          coverTarget,
+          disableUpdateOnResize,
+        });
+      } else {
+        const createPositionManager = getCreatePositionManager();
+        if (createPositionManager) {
+          managerRef.current = createPositionManager({
+            container: containerRef.current,
+            target,
+            arrow: arrowRef.current,
+            ...resolvePositioningOptions(containerRef.current, arrowRef.current),
+          });
+        }
+      }
     }
-  }, [enabled, resolvePositioningOptions]);
+  }, [
+    enabled,
+    useNativeAnchoring,
+    position,
+    align,
+    positionFixed,
+    strategy,
+    offset,
+    pinned,
+    fallbackPositions,
+    autoSize,
+    matchTargetSize,
+    coverTarget,
+    disableUpdateOnResize,
+    resolvePositioningOptions,
+  ]);
 
   const setOverrideTarget = useEventCallback((target: TargetElement | null) => {
     overrideTargetRef.current = target;
