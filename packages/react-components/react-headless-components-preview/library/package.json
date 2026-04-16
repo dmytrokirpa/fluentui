@@ -70,5 +70,8 @@
       "major",
       "prerelease"
     ]
+  },
+  "devDependencies": {
+    "@fluentui/scripts-cypress": "*"
   }
 }
