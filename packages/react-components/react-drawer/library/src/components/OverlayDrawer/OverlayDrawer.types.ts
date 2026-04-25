@@ -4,6 +4,7 @@ import type { ComponentProps, ComponentState, Slot } from '@fluentui/react-utili
 
 import type { DrawerMotionParams, OverlayDrawerSurfaceMotionParams } from '../../shared/drawerMotions';
 import type { DrawerBaseProps, DrawerBaseState } from '../../shared/DrawerBase.types';
+import type { DrawerSizeProps } from '../../shared/DrawerSize.types';
 import type { OverlayDrawerSurfaceProps } from './OverlayDrawerSurface';
 
 /**
@@ -41,7 +42,8 @@ export type OverlayDrawerInternalSlots = Pick<OverlayDrawerSlots, 'root'> & {
  */
 export type OverlayDrawerProps = ComponentProps<OverlayDrawerSlots> &
   Pick<DialogProps, 'modalType' | 'onOpenChange' | 'inertTrapFocus'> &
-  DrawerBaseProps & {
+  DrawerBaseProps &
+  DrawerSizeProps & {
     /**
      * @deprecated OverlayDrawer can work only as a controlled component
      * and does not support uncontrolled mode i.e. defaultOpen prop
@@ -54,6 +56,7 @@ export type OverlayDrawerProps = ComponentProps<OverlayDrawerSlots> &
  */
 export type OverlayDrawerState = ComponentState<OverlayDrawerInternalSlots> &
   Required<DrawerBaseState> &
+  Required<DrawerSizeProps> &
   Pick<OverlayDrawerProps, 'mountNode' | 'unmountOnClose'> & {
     hasMountNodeElement: boolean;
   };

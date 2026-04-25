@@ -7,6 +7,7 @@ export {
   DrawerHeaderTitle,
   drawerHeaderTitleClassNames,
   renderDrawerHeaderTitle_unstable,
+  useDrawerHeaderTitleBase_unstable,
   useDrawerHeaderTitleStyles_unstable,
   useDrawerHeaderTitle_unstable,
 } from './components/DrawerHeaderTitle/index';

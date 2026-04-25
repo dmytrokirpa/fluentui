@@ -1,5 +1,8 @@
 export { DrawerProvider, useDrawerContextValue, useDrawerContext_unstable } from './contexts';
 export type { DrawerContextValue } from './contexts';
+export { useDrawerBase_unstable } from './shared/useDrawerBase';
+export type { DrawerBaseDefaultedProps, DrawerBaseProps, DrawerBaseState } from './shared/DrawerBase.types';
+export type { DrawerSize, DrawerSizeProps } from './shared/DrawerSize.types';
 
 export { Drawer, renderDrawer_unstable, useDrawerStyles_unstable, useDrawer_unstable } from './Drawer';
 export type { DrawerProps, DrawerSlots, DrawerState } from './Drawer';
@@ -44,6 +47,7 @@ export {
   DrawerHeaderTitle,
   drawerHeaderTitleClassNames,
   renderDrawerHeaderTitle_unstable,
+  useDrawerHeaderTitleBase_unstable,
   useDrawerHeaderTitleStyles_unstable,
   useDrawerHeaderTitle_unstable,
 } from './DrawerHeaderTitle';

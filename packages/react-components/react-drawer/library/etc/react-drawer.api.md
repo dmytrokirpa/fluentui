@@ -21,6 +21,23 @@ import type { SlotClassNames } from '@fluentui/react-utilities';
 // @public
 export const Drawer: ForwardRefComponent<DrawerProps>;
 
+// @public (undocumented)
+export type DrawerBaseDefaultedProps = Required<Pick<DrawerBaseProps, 'open' | 'position' | 'unmountOnClose'>>;
+
+// @public (undocumented)
+export type DrawerBaseProps = {
+    position?: 'start' | 'end' | 'bottom';
+    open?: boolean;
+    unmountOnClose?: boolean;
+};
+
+// @public (undocumented)
+export type DrawerBaseState = Required<Pick<DrawerBaseProps, 'position'>> & {
+    motion: MotionState<HTMLElement>;
+    open?: boolean;
+    unmountOnClose?: boolean;
+};
+
 // @public
 export const DrawerBody: ForwardRefComponent<DrawerBodyProps>;
 
@@ -127,6 +144,14 @@ export type DrawerProps = ComponentProps<DrawerSlots> & {
 export const DrawerProvider: React_2.Provider<DrawerContextValue | undefined>;
 
 // @public (undocumented)
+export type DrawerSize = 'small' | 'medium' | 'large' | 'full';
+
+// @public (undocumented)
+export type DrawerSizeProps = {
+    size?: DrawerSize;
+};
+
+// @public (undocumented)
 export type DrawerSlots = Pick<OverlayDrawerSlots, 'root'> | Pick<InlineDrawerSlots, 'root'>;
 
 // @public
@@ -139,7 +164,7 @@ export const InlineDrawer: ForwardRefComponent<InlineDrawerProps>;
 export const inlineDrawerClassNames: SlotClassNames<Omit<InlineDrawerSlots, 'surfaceMotion'>>;
 
 // @public
-export type InlineDrawerProps = ComponentProps<InlineDrawerSlots> & DrawerBaseProps & {
+export type InlineDrawerProps = ComponentProps<InlineDrawerSlots> & DrawerBaseProps & DrawerSizeProps & {
     separator?: boolean;
 };
 
@@ -150,7 +175,7 @@ export type InlineDrawerSlots = {
 };
 
 // @public
-export type InlineDrawerState = Required<ComponentState<NonNullable<InlineDrawerSlots>> & DrawerBaseState & Pick<InlineDrawerProps, 'separator'> & {
+export type InlineDrawerState = Required<ComponentState<NonNullable<InlineDrawerSlots>> & DrawerBaseState & DrawerSizeProps & Pick<InlineDrawerProps, 'separator'> & {
     animationDirection: PresenceDirection;
 }>;
 
@@ -161,7 +186,7 @@ export const OverlayDrawer: ForwardRefComponent<OverlayDrawerProps>;
 export const overlayDrawerClassNames: SlotClassNames<Omit<OverlayDrawerSurfaceSlots, 'backdropMotion'>>;
 
 // @public
-export type OverlayDrawerProps = ComponentProps<OverlayDrawerSlots> & Pick<DialogProps, 'modalType' | 'onOpenChange' | 'inertTrapFocus'> & DrawerBaseProps & {
+export type OverlayDrawerProps = ComponentProps<OverlayDrawerSlots> & Pick<DialogProps, 'modalType' | 'onOpenChange' | 'inertTrapFocus'> & DrawerBaseProps & DrawerSizeProps & {
     defaultOpen?: boolean;
 };
 
@@ -173,7 +198,7 @@ export type OverlayDrawerSlots = {
 };
 
 // @public
-export type OverlayDrawerState = ComponentState<OverlayDrawerInternalSlots> & Required<DrawerBaseState> & Pick<OverlayDrawerProps, 'mountNode' | 'unmountOnClose'> & {
+export type OverlayDrawerState = ComponentState<OverlayDrawerInternalSlots> & Required<DrawerBaseState> & Required<DrawerSizeProps> & Pick<OverlayDrawerProps, 'mountNode' | 'unmountOnClose'> & {
     hasMountNodeElement: boolean;
 };
 
@@ -203,6 +228,9 @@ export const renderOverlayDrawer_unstable: (state: OverlayDrawerState, contextVa
 
 // @public
 export const useDrawer_unstable: (props: DrawerProps, ref: React_2.Ref<HTMLElement>) => DrawerState;
+
+// @public (undocumented)
+export const useDrawerBase_unstable: (props: DrawerBaseProps) => DrawerBaseDefaultedProps;
 
 // @public
 export const useDrawerBody_unstable: (props: DrawerBodyProps, ref: React_2.Ref<HTMLElement>) => DrawerBodyState;
@@ -236,6 +264,9 @@ export const useDrawerHeaderStyles_unstable: (state: DrawerHeaderState) => Drawe
 
 // @public
 export const useDrawerHeaderTitle_unstable: (props: DrawerHeaderTitleProps, ref: React_2.Ref<HTMLDivElement>) => DrawerHeaderTitleState;
+
+// @public (undocumented)
+export const useDrawerHeaderTitleBase_unstable: (props: DrawerHeaderTitleProps, ref: React_2.Ref<HTMLDivElement>, headingId?: string) => DrawerHeaderTitleState;
 
 // @public
 export const useDrawerHeaderTitleStyles_unstable: (state: DrawerHeaderTitleState) => DrawerHeaderTitleState;

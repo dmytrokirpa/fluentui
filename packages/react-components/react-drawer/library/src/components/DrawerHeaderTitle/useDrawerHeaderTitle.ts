@@ -19,8 +19,17 @@ export const useDrawerHeaderTitle_unstable = (
   props: DrawerHeaderTitleProps,
   ref: React.Ref<HTMLDivElement>,
 ): DrawerHeaderTitleState => {
-  const { children, heading } = props;
   const headingId = useDialogContext_unstable(ctx => ctx.dialogTitleId);
+
+  return useDrawerHeaderTitleBase_unstable(props, ref, headingId);
+};
+
+export const useDrawerHeaderTitleBase_unstable = (
+  props: DrawerHeaderTitleProps,
+  ref: React.Ref<HTMLDivElement>,
+  headingId?: string,
+): DrawerHeaderTitleState => {
+  const { children, heading } = props;
 
   return {
     components: {

@@ -3,15 +3,16 @@ import { tokens } from '@fluentui/react-theme';
 import type { ProviderContextValue_unstable as FluentProviderContextValue } from '@fluentui/react-shared-contexts';
 
 import type { DrawerBaseProps } from './DrawerBase.types';
+import type { DrawerSizeProps } from './DrawerSize.types';
 import { drawerCSSVars } from './useDrawerBaseStyles.styles';
 import { fadeAtom } from '@fluentui/react-motion-components-preview';
 
 export type DrawerMotionParams = Required<
-  Pick<DrawerBaseProps, 'size' | 'position'> & Pick<FluentProviderContextValue, 'dir'>
+  DrawerSizeProps & Pick<DrawerBaseProps, 'position'> & Pick<FluentProviderContextValue, 'dir'>
 >;
-export type OverlayDrawerSurfaceMotionParams = Required<Pick<DrawerBaseProps, 'size'>>;
+export type OverlayDrawerSurfaceMotionParams = Required<DrawerSizeProps>;
 
-const durations: Record<NonNullable<DrawerBaseProps['size']>, number> = {
+const durations: Record<NonNullable<DrawerSizeProps['size']>, number> = {
   small: motionTokens.durationGentle,
   medium: motionTokens.durationSlow,
   large: motionTokens.durationSlower,

@@ -8,7 +8,12 @@ import { useFluent_unstable as useFluent } from '@fluentui/react-shared-contexts
 
 import { type DrawerMotionParams, InlineDrawerMotion } from '../../shared/drawerMotions';
 import { useDrawerDefaultProps } from '../../shared/useDrawerDefaultProps';
-import type { InlineDrawerProps, InlineDrawerState, SurfaceMotionSlotProps } from './InlineDrawer.types';
+import type {
+  InlineDrawerBaseState,
+  InlineDrawerProps,
+  InlineDrawerState,
+  SurfaceMotionSlotProps,
+} from './InlineDrawer.types';
 
 const STATIC_MOTION = {
   active: true,
@@ -77,4 +82,32 @@ export const useInlineDrawer_unstable = (props: InlineDrawerProps, ref: React.Re
     // Deprecated props
     motion: STATIC_MOTION,
   } satisfies InlineDrawerState;
+};
+
+export const useInlineDrawerBase_unstable = (
+  props: InlineDrawerProps,
+  ref: React.Ref<HTMLElement>,
+): InlineDrawerBaseState => {
+  const { position, open, unmountOnClose } = useDrawerDefaultProps(props);
+  const { separator = false } = props;
+
+  return {
+    components: {
+      root: 'div',
+    },
+
+    root: slot.always(
+      getIntrinsicElementProps('div', {
+        ...props,
+        ref,
+        'aria-hidden': !unmountOnClose && !open ? true : undefined,
+      }),
+      { elementType: 'div' },
+    ),
+
+    open,
+    position,
+    separator,
+    unmountOnClose,
+  } satisfies InlineDrawerBaseState;
 };

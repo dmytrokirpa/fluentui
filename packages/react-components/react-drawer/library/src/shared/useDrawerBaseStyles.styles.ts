@@ -4,6 +4,7 @@ import { type GriffelResetStyle, makeStyles, mergeClasses } from '@griffel/react
 import { tokens } from '@fluentui/react-theme';
 
 import type { DrawerBaseState } from './DrawerBase.types';
+import type { DrawerSizeProps } from './DrawerSize.types';
 
 /**
  * CSS variable names used internally for uniform styling in Drawer.
@@ -84,7 +85,7 @@ export const useDrawerBottomBaseStyles = makeStyles({
   },
 });
 
-export const useDrawerBaseClassNames = ({ position, size }: DrawerBaseState): string => {
+export const useDrawerBaseClassNames = ({ position, size }: DrawerBaseState & Required<DrawerSizeProps>): string => {
   const baseStyles = useDrawerStyles();
   const bottomBaseStyles = useDrawerBottomBaseStyles();
 

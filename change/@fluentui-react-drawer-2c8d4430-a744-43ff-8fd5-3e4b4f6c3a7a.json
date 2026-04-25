@@ -1,0 +1,7 @@
+{
+  "type": "minor",
+  "comment": "feat: export drawer base hooks and types",
+  "packageName": "@fluentui/react-drawer",
+  "email": "dmytrokirpa@microsoft.com",
+  "dependentChangeType": "patch"
+}

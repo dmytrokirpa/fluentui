@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { resetIdsForTests } from '@fluentui/react-utilities';
 
 import { isConformant } from '../../testing/isConformant';
 import { OverlayDrawer } from './OverlayDrawer';
 import type { OverlayDrawerProps } from './OverlayDrawer.types';
+import { useOverlayDrawer_unstable } from './useOverlayDrawer';
 
 describe('OverlayDrawer', () => {
   const testid = 'test';
@@ -67,5 +69,12 @@ describe('OverlayDrawer', () => {
 
     expect(mountNodeElement).toBeTruthy();
     expect(drawerInsideMountNode).toBeTruthy();
+  });
+
+  it('keeps size in state for styled drawer styles and motion', () => {
+    const ref = React.createRef<HTMLElement>();
+    const { result } = renderHook(() => useOverlayDrawer_unstable({ open: true, size: 'large' }, ref));
+
+    expect(result.current.size).toBe('large');
   });
 });
