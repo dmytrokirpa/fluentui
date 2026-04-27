@@ -1,3 +1,1 @@
-# Drawer
-
 Headless Drawer provides structure and behavior for supplementary content without built-in visual styles. Overlay drawers compose with the headless native-dialog implementation, while inline drawers render in the page flow.
