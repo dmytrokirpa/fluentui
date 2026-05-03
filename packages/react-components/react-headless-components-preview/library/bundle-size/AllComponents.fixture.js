@@ -29,6 +29,7 @@ import * as Spinner from '@fluentui/react-headless-components-preview/spinner';
 import * as Switch from '@fluentui/react-headless-components-preview/switch';
 import * as TabList from '@fluentui/react-headless-components-preview/tab-list';
 import * as Textarea from '@fluentui/react-headless-components-preview/textarea';
+import * as Toast from '@fluentui/react-headless-components-preview/toast';
 import * as ToggleButton from '@fluentui/react-headless-components-preview/toggle-button';
 import * as Toolbar from '@fluentui/react-headless-components-preview/toolbar';
 import * as Tooltip from '@fluentui/react-headless-components-preview/tooltip';
@@ -65,6 +66,7 @@ console.log({
   Switch,
   TabList,
   Textarea,
+  Toast,
   ToggleButton,
   Toolbar,
   Tooltip,
