@@ -129,7 +129,7 @@ export type ToasterState = {
     toastsToRender: Map<ToastPosition, ToastData[]>;
     isToastVisible: (toastId: ToastId) => boolean;
     tryRestoreFocus: () => void;
-    getStackTransform: (position: string, stackIndex: number) => string;
+    getStackTransform: (position: ToastPosition, stackIndex: number) => string;
 };
 
 // @public (undocumented)
