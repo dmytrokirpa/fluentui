@@ -3,15 +3,13 @@
 
 import { assertSlots } from '@fluentui/react-utilities';
 import type { JSXElement } from '@fluentui/react-utilities';
-import type { ToastContextValues, ToastSlots, ToastState } from './Toast.types';
-import { ToastContext } from './toastContext';
+import type { ToastState, ToastSlots } from './Toast.types';
 
-export const renderToast = (state: ToastState, contextValues: ToastContextValues): JSXElement => {
+/**
+ * Render the final JSX of Toast
+ */
+export const renderToast = (state: ToastState): JSXElement => {
   assertSlots<ToastSlots>(state);
 
-  return (
-    <ToastContext.Provider value={contextValues.toast}>
-      <state.root />
-    </ToastContext.Provider>
-  );
+  return <state.root />;
 };

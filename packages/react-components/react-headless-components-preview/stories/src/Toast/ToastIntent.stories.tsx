@@ -1,13 +1,43 @@
 import * as React from 'react';
-import { Toaster, ToastTitle, Toast, useToastController } from '@fluentui/react-headless-components-preview/toast';
+import { Toast, Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
 import type { ToastIntent } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import styles from './toast.module.css';
 
 const intentIcon: Record<string, string> = {
   success: '✓',
   info: 'i',
   warning: '⚠',
   error: '✕',
+};
+
+const getIconBadgeClass = (intent: ToastIntent): string => {
+  switch (intent) {
+    case 'success':
+      return `${styles.iconBadge} ${styles.iconBadgeSuccess}`;
+    case 'info':
+      return `${styles.iconBadge} ${styles.iconBadgeInfo}`;
+    case 'warning':
+      return `${styles.iconBadge} ${styles.iconBadgeWarning}`;
+    case 'error':
+      return `${styles.iconBadge} ${styles.iconBadgeError}`;
+    default:
+      return styles.iconBadge;
+  }
+};
+
+const getIntentClass = (intent: ToastIntent): string => {
+  switch (intent) {
+    case 'success':
+      return `${styles.toast} ${styles.intentSuccess}`;
+    case 'info':
+      return `${styles.toast} ${styles.intentInfo}`;
+    case 'warning':
+      return `${styles.toast} ${styles.intentWarning}`;
+    case 'error':
+      return `${styles.toast} ${styles.intentError}`;
+    default:
+      return styles.toast;
+  }
 };
 
 export const Intent = (): React.ReactNode => {
@@ -17,49 +47,33 @@ export const Intent = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent[intent] ?? ''}`}>
+      <Toast className={getIntentClass(intent)}>
         <ToastTitle
-          className="flex items-center gap-2 text-sm font-semibold text-zinc-900"
-          media={
-            <span
-              className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white
-                ${intent === 'success' ? 'bg-green-500' : ''}
-                ${intent === 'info' ? 'bg-blue-500' : ''}
-                ${intent === 'warning' ? 'bg-yellow-500' : ''}
-                ${intent === 'error' ? 'bg-red-500' : ''}
-              `}
-            >
-              {intentIcon[intent]}
-            </span>
-          }
+          className={styles.title}
+          media={{ className: getIconBadgeClass(intent), children: intentIcon[intent] }}
         >
           Toast intent: {intent}
         </ToastTitle>
-      </div>,
+      </Toast>,
       { intent },
     );
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <div className="flex flex-col gap-3">
-        <fieldset className="border border-zinc-200 rounded p-3 text-sm">
-          <legend className="px-1 text-zinc-600">Intent</legend>
-          <div className="flex flex-col gap-1">
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <div className={styles.controls}>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.legend}>Intent</legend>
+          <div className={styles.options}>
             {(['success', 'info', 'warning', 'error'] as ToastIntent[]).map(i => (
-              <label key={i} className="flex items-center gap-2 cursor-pointer">
+              <label key={i} className={styles.optionLabel}>
                 <input type="radio" name="intent" value={i} checked={intent === i} onChange={() => setIntent(i)} />
                 {i}
               </label>
             ))}
           </div>
         </fieldset>
-        <button
-          type="button"
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100 w-fit"
-          onClick={notify}
-        >
+        <button type="button" className={styles.triggerBtn} onClick={notify}>
           Make toast
         </button>
       </div>

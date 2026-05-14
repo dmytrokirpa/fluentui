@@ -1,36 +1,51 @@
 /** @jsxRuntime automatic */
 /** @jsxImportSource @fluentui/react-jsx-runtime */
 
-import * as React from 'react';
+import { assertSlots } from '@fluentui/react-utilities';
 import type { JSXElement } from '@fluentui/react-utilities';
-import type { ToasterState } from './Toaster.types';
-import { ToastContainer } from '../ToastContainer';
+import { Portal } from '@fluentui/react-portal';
+import type { ToasterSlotsInternal, ToasterState } from './Toaster.types';
+import { AriaLive } from '../AriaLive';
 
+/**
+ * Render the position-based containers for the headless Toaster.
+ *
+ * Each container is a `<div role="list" data-toaster-position="...">` that
+ * consumers can target with CSS to apply positioning/styling. When `inline` is
+ * true the slots render in-place; otherwise they render inside a Portal.
+ */
 export const renderToaster = (state: ToasterState): JSXElement => {
-  const { toastsToRender, isToastVisible, tryRestoreFocus, getStackTransform } = state;
+  const { announceRef, renderAriaLive, inline, mountNode } = state;
+  assertSlots<ToasterSlotsInternal>(state);
+
+  const hasToasts =
+    !!state.bottomStart || !!state.bottomEnd || !!state.topStart || !!state.topEnd || !!state.top || !!state.bottom;
+
+  const ariaLive = renderAriaLive ? <AriaLive announceRef={announceRef} /> : null;
+  const positionSlots = (
+    <>
+      {state.bottom ? <state.bottom /> : null}
+      {state.bottomStart ? <state.bottomStart /> : null}
+      {state.bottomEnd ? <state.bottomEnd /> : null}
+      {state.topStart ? <state.topStart /> : null}
+      {state.topEnd ? <state.topEnd /> : null}
+      {state.top ? <state.top /> : null}
+    </>
+  );
+
+  if (inline) {
+    return (
+      <>
+        {ariaLive}
+        {hasToasts ? positionSlots : null}
+      </>
+    );
+  }
 
   return (
     <>
-      {Array.from(toastsToRender.entries()).flatMap(([position, toasts]) =>
-        toasts.map((toast, index) => {
-          const stackIndex = position.startsWith('bottom') ? toasts.length - 1 - index : index;
-
-          return (
-            <ToastContainer
-              key={toast.toastId}
-              {...toast}
-              visible={isToastVisible(toast.toastId)}
-              tryRestoreFocus={tryRestoreFocus}
-              style={{
-                transform: getStackTransform(position, stackIndex),
-                zIndex: stackIndex + 1,
-              }}
-            >
-              {toast.content as React.ReactNode}
-            </ToastContainer>
-          );
-        }),
-      )}
+      {ariaLive}
+      {hasToasts ? <Portal mountNode={mountNode}>{positionSlots}</Portal> : null}
     </>
   );
 };

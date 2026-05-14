@@ -1,1 +1,5 @@
-export type { ToastBodyBaseProps, ToastBodyBaseState, ToastBodySlots } from '@fluentui/react-toast';
+export type {
+  ToastBodyBaseProps as ToastBodyProps,
+  ToastBodyBaseState as ToastBodyState,
+  ToastBodySlots,
+} from '@fluentui/react-toast';

@@ -1,24 +1,21 @@
 import * as React from 'react';
 import {
+  Toast,
   Toaster,
   ToastTitle,
   useToastController,
-  useToastContext,
+  useToastContainerContext,
 } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import styles from './toast.module.css';
 
 /**
- * A dismiss button that reads `requestOpenChange` from `ToastContext`.
+ * A dismiss button that reads `close` from `ToastContainerContext`.
  * This is the headless equivalent of the styled layer's `ToastTrigger`.
  */
 const DismissButton = ({ children }: { children: React.ReactNode }) => {
-  const { requestOpenChange } = useToastContext();
+  const { close } = useToastContainerContext();
   return (
-    <button
-      type="button"
-      className="text-xs text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-      onClick={e => requestOpenChange({ type: 'dismissClick', open: false, event: e })}
-    >
+    <button type="button" className={styles.dismissBtn} onClick={close}>
       {children}
     </button>
   );
@@ -30,26 +27,18 @@ export const DismissToastWithAction = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.success}`}>
-        <ToastTitle
-          className="flex items-center justify-between gap-2 text-sm font-semibold text-zinc-900"
-          action={<DismissButton>Dismiss</DismissButton>}
-        >
+      <Toast className={`${styles.toast} ${styles.intentSuccess}`}>
+        <ToastTitle className={styles.title} action={<DismissButton>Dismiss</DismissButton>}>
           Dismiss me
         </ToastTitle>
-      </div>,
+      </Toast>,
       { intent: 'success' },
     );
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <button
-        type="button"
-        className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100"
-        onClick={notify}
-      >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <button type="button" className={styles.triggerBtn} onClick={notify}>
         Make toast
       </button>
     </>
@@ -60,9 +49,9 @@ DismissToastWithAction.parameters = {
   docs: {
     description: {
       story: [
-        'Use `useToastContext()` to access `requestOpenChange` inside the dispatched content.',
-        'Calling it with `{ open: false }` closes the toast — this is the headless equivalent of',
-        "the styled layer's `ToastTrigger` component.",
+        'Use `useToastContainerContext()` to access `close` inside the dispatched content.',
+        'Calling it closes the toast — this is the headless equivalent of the styled',
+        "layer's `ToastTrigger` component.",
       ].join('\n'),
     },
   },

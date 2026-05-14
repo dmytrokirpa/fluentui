@@ -1,17 +1,13 @@
-import type { ToastData, ToastId, ToastPosition, ToasterId } from '@fluentui/react-toast';
+import type { Slot } from '@fluentui/react-utilities';
 
-/**
- * Headless Toaster props. Position, offset, and aria-live are omitted because
- * the Popover API places each toast in the browser top layer independently —
- * consumers control position through CSS (e.g. :popover-open { inset: auto; ... }).
- */
-export type ToasterProps = {
-  toasterId?: ToasterId;
-};
+export type { ToasterSlots, ToasterProps, ToasterState } from '@fluentui/react-toast';
 
-export type ToasterState = {
-  toastsToRender: Map<ToastPosition, ToastData[]>;
-  isToastVisible: (toastId: ToastId) => boolean;
-  tryRestoreFocus: () => void;
-  getStackTransform: (position: ToastPosition, stackIndex: number) => string;
+export type ToasterSlotsInternal = {
+  root: Slot<'div'>;
+  bottomEnd?: Slot<'div'>;
+  bottomStart?: Slot<'div'>;
+  topEnd?: Slot<'div'>;
+  topStart?: Slot<'div'>;
+  top?: Slot<'div'>;
+  bottom?: Slot<'div'>;
 };

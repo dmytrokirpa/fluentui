@@ -17,7 +17,7 @@ export { MultipleToasters } from './ToastMultipleToasters.stories';
 export { ProgressToast } from './ToastProgressToast.stories';
 
 export default {
-  title: 'Headless Components/Toast',
+  title: 'Components/Toast',
   component: Toast,
   subcomponents: {
     ToastTitle,

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import { Toast, Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
+import styles from './toast.module.css';
 
 export const PauseOnHover = (): React.ReactNode => {
   const toasterId = React.useId();
@@ -8,21 +8,16 @@ export const PauseOnHover = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.info}`}>
-        <ToastTitle className="text-sm font-semibold text-zinc-900">Hover me!</ToastTitle>
-      </div>,
+      <Toast className={`${styles.toast} ${styles.intentInfo}`}>
+        <ToastTitle className={styles.title}>Hover me!</ToastTitle>
+      </Toast>,
       { pauseOnHover: true, intent: 'info' },
     );
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <button
-        type="button"
-        className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100"
-        onClick={notify}
-      >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <button type="button" className={styles.triggerBtn} onClick={notify}>
         Make toast
       </button>
     </>

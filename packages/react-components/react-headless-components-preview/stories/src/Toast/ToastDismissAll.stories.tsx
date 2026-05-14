@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import { Toast, Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
+import styles from './toast.module.css';
 
 export const DismissAll = (): React.ReactNode => {
   const toasterId = React.useId();
@@ -8,29 +8,20 @@ export const DismissAll = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.info}`}>
-        <ToastTitle className="text-sm font-semibold text-zinc-900">This is a toast</ToastTitle>
-      </div>,
+      <Toast className={`${styles.toast} ${styles.intentInfo}`}>
+        <ToastTitle className={styles.title}>This is a toast</ToastTitle>
+      </Toast>,
       { intent: 'info' },
     );
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100"
-          onClick={notify}
-        >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <div className={styles.demoRow}>
+        <button type="button" className={styles.triggerBtn} onClick={notify}>
           Make toast
         </button>
-        <button
-          type="button"
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100"
-          onClick={() => dismissAllToasts()}
-        >
+        <button type="button" className={styles.triggerBtn} onClick={() => dismissAllToasts()}>
           Dismiss all toasts
         </button>
       </div>

@@ -4,67 +4,77 @@
 
 ```ts
 
+import type { Announce } from '@fluentui/react-toast';
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
 import { DispatchToastOptions } from '@fluentui/react-toast';
-import type { EventHandler } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { JSXElement } from '@fluentui/react-utilities';
 import * as React_2 from 'react';
+import { renderToastFooter_unstable as renderToastFooter } from '@fluentui/react-toast';
 import type { Slot } from '@fluentui/react-utilities';
-import { ToastBodyBaseProps } from '@fluentui/react-toast';
-import { ToastBodyBaseState } from '@fluentui/react-toast';
+import { ToastBodyBaseProps as ToastBodyProps } from '@fluentui/react-toast';
 import { ToastBodySlots } from '@fluentui/react-toast';
+import { ToastBodyBaseState as ToastBodyState } from '@fluentui/react-toast';
 import { ToastChangeData } from '@fluentui/react-toast';
 import { ToastChangeHandler } from '@fluentui/react-toast';
+import type { ToastContainerContextValue } from '@fluentui/react-toast';
 import type { ToastData } from '@fluentui/react-toast';
 import { ToasterId } from '@fluentui/react-toast';
+import { ToasterProps } from '@fluentui/react-toast';
+import { ToasterState } from '@fluentui/react-toast';
 import { ToastFooterProps } from '@fluentui/react-toast';
 import { ToastFooterSlots } from '@fluentui/react-toast';
 import { ToastFooterState } from '@fluentui/react-toast';
 import { ToastId } from '@fluentui/react-toast';
 import { ToastImperativeRef } from '@fluentui/react-toast';
-import type { ToastIntent } from '@fluentui/react-toast';
+import { ToastIntent } from '@fluentui/react-toast';
 import { ToastPoliteness } from '@fluentui/react-toast';
 import { ToastPosition } from '@fluentui/react-toast';
+import { ToastBaseProps as ToastProps } from '@fluentui/react-toast';
+import { ToastSlots } from '@fluentui/react-toast';
+import { ToastBaseState as ToastState } from '@fluentui/react-toast';
 import { ToastStatus } from '@fluentui/react-toast';
-import { ToastTitleBaseProps } from '@fluentui/react-toast';
-import { ToastTitleBaseState } from '@fluentui/react-toast';
+import { ToastTitleBaseProps as ToastTitleProps } from '@fluentui/react-toast';
 import { ToastTitleSlots } from '@fluentui/react-toast';
+import { ToastTitleBaseState as ToastTitleState } from '@fluentui/react-toast';
 import { UpdateToastOptions } from '@fluentui/react-toast';
+import { useToastBodyBase_unstable as useToastBody } from '@fluentui/react-toast';
+import { useToastContainerContext } from '@fluentui/react-toast';
 import { useToastController } from '@fluentui/react-toast';
+import { useToastFooter_unstable as useToastFooter } from '@fluentui/react-toast';
+import { useToastTitleBase_unstable as useToastTitle } from '@fluentui/react-toast';
 
 export { DispatchToastOptions }
 
-// @public (undocumented)
-export const renderToast: (state: ToastState, contextValues: ToastContextValues) => JSXElement;
+// @public
+export const renderToast: (state: ToastState) => JSXElement;
 
 // @public (undocumented)
-export const renderToastBody: (state: ToastBodyBaseState) => JSXElement;
+export const renderToastBody: (state: ToastBodyState) => JSXElement;
 
 // @public (undocumented)
-export const renderToastContainer: (state: ToastContainerState, contextValues: ToastContextValues) => JSXElement;
+export const renderToastContainer: (state: ToastContainerState, contextValues: ToastContainerContextValues) => JSXElement;
 
-// @public (undocumented)
+// @public
 export const renderToaster: (state: ToasterState) => JSXElement;
 
-// @public (undocumented)
-export const renderToastFooter: (state: ToastFooterState) => JSXElement;
+export { renderToastFooter }
 
 // @public (undocumented)
-export const renderToastTitle: (state: ToastTitleBaseState) => JSXElement;
+export const renderToastTitle: (state: ToastTitleState) => JSXElement;
 
 // @public (undocumented)
 export const Toast: ForwardRefComponent<ToastProps>;
 
 // @public (undocumented)
-export const ToastBody: ForwardRefComponent<ToastBodyBaseProps>;
+export const ToastBody: ForwardRefComponent<ToastBodyProps>;
 
-export { ToastBodyBaseProps }
-
-export { ToastBodyBaseState }
+export { ToastBodyProps }
 
 export { ToastBodySlots }
+
+export { ToastBodyState }
 
 export { ToastChangeData }
 
@@ -73,64 +83,37 @@ export { ToastChangeHandler }
 // @public (undocumented)
 export const ToastContainer: ForwardRefComponent<ToastContainerProps>;
 
-// @public
-export type ToastContainerProps = Omit<ComponentProps<ToastContainerSlots>, 'content'> & ToastData & {
+export { ToastContainerContextValue }
+
+// @public (undocumented)
+export type ToastContainerProps = Omit<ComponentProps<Partial<ToastContainerSlots>>, 'content'> & ToastData & {
     visible: boolean;
-    children?: React_2.ReactNode;
     tryRestoreFocus: () => void;
+    announce?: Announce;
 };
 
 // @public (undocumented)
 export type ToastContainerSlots = {
-    root: Slot<'div'>;
+    root: NonNullable<Slot<'div'>>;
 };
 
 // @public (undocumented)
-export type ToastContainerState = ComponentState<ToastContainerSlots> & {
-    intent: ToastIntent | undefined;
-    bodyId: string;
-    titleId: string;
-    close: () => void;
+export type ToastContainerState = ComponentState<ToastContainerSlots> & Pick<ToastContainerProps, 'remove' | 'close' | 'updateId' | 'visible' | 'intent'> & Pick<ToastContainerContextValue, 'titleId' | 'bodyId'> & {
+    running: boolean;
+    nodeRef: React_2.Ref<HTMLDivElement>;
 };
-
-// @public (undocumented)
-export const ToastContext: React_2.Context<ToastContextValue | undefined>;
-
-// @public (undocumented)
-type ToastContextValue = {
-    open: boolean;
-    intent: ToastIntent | undefined;
-    bodyId: string;
-    titleId: string;
-    requestOpenChange: (data: ToastOpenChangeData) => void;
-};
-export { ToastContextValue as ToastContainerContextValue }
-export { ToastContextValue }
-
-// @public (undocumented)
-type ToastContextValues = {
-    toast: ToastContextValue;
-};
-export { ToastContextValues as ToastContainerContextValues }
-export { ToastContextValues }
 
 // @public
-export const Toaster: ForwardRefComponent<ToasterProps>;
+export const Toaster: {
+    (props: ToasterProps): JSXElement;
+    displayName: string;
+};
 
 export { ToasterId }
 
-// @public
-export type ToasterProps = {
-    toasterId?: ToasterId;
-};
+export { ToasterProps }
 
-// @public (undocumented)
-export type ToasterState = {
-    toastsToRender: Map<ToastPosition, ToastData[]>;
-    isToastVisible: (toastId: ToastId) => boolean;
-    tryRestoreFocus: () => void;
-    getStackTransform: (position: ToastPosition, stackIndex: number) => string;
-};
+export { ToasterState }
 
 // @public (undocumented)
 export const ToastFooter: ForwardRefComponent<ToastFooterProps>;
@@ -147,89 +130,50 @@ export { ToastImperativeRef }
 
 export { ToastIntent }
 
-// @public (undocumented)
-export type ToastOpenChangeData = {
-    type: 'dismissClick';
-    open: false;
-    event: React_2.MouseEvent;
-} | {
-    type: 'timeout';
-    open: false;
-    event: null;
-} | {
-    type: 'triggerClick';
-    open: boolean;
-    event: React_2.MouseEvent;
-};
-
 export { ToastPoliteness }
 
 export { ToastPosition }
 
-// @public (undocumented)
-export type ToastProps = ComponentProps<ToastSlots> & {
-    open?: boolean;
-    defaultOpen?: boolean;
-    onOpenChange?: EventHandler<ToastOpenChangeData>;
-    intent?: ToastIntent;
-    timeout?: number;
-};
+export { ToastProps }
 
-// @public (undocumented)
-export type ToastSlots = {
-    root: Slot<'div'>;
-};
+export { ToastSlots }
 
-// @public (undocumented)
-export type ToastState = ComponentState<ToastSlots> & {
-    open: boolean;
-    intent: ToastIntent | undefined;
-    bodyId: string;
-    titleId: string;
-    requestOpenChange: ToastContextValue['requestOpenChange'];
-};
+export { ToastState }
 
 export { ToastStatus }
 
 // @public (undocumented)
-export const ToastTitle: ForwardRefComponent<ToastTitleBaseProps>;
+export const ToastTitle: ForwardRefComponent<ToastTitleProps>;
 
-export { ToastTitleBaseProps }
-
-export { ToastTitleBaseState }
+export { ToastTitleProps }
 
 export { ToastTitleSlots }
+
+export { ToastTitleState }
 
 export { UpdateToastOptions }
 
 // @public (undocumented)
 export const useToast: (props: ToastProps, ref: React_2.Ref<HTMLElement>) => ToastState;
 
-// @public (undocumented)
-export const useToastBody: (props: ToastBodyBaseProps, ref: React_2.Ref<HTMLElement>) => ToastBodyBaseState;
+export { useToastBody }
 
 // @public (undocumented)
 export const useToastContainer: (props: ToastContainerProps, ref: React_2.Ref<HTMLElement>) => ToastContainerState;
 
-// @public (undocumented)
-export const useToastContainerContextValues: (state: ToastContainerState) => ToastContextValues;
+export { useToastContainerContext }
 
 // @public (undocumented)
-export const useToastContext: () => ToastContextValue;
-
-// @public (undocumented)
-export const useToastContextValues: (state: ToastState) => ToastContextValues;
+export const useToastContainerContextValues: (state: ToastContainerState) => ToastContainerContextValues;
 
 export { useToastController }
 
-// @public (undocumented)
-export const useToaster: ({ toasterId }: ToasterProps, _ref: React_2.Ref<HTMLElement>) => ToasterState;
+// @public
+export const useToaster: (props: ToasterProps) => ToasterState;
 
-// @public (undocumented)
-export const useToastFooter: (props: ToastFooterProps, ref: React_2.Ref<HTMLElement>) => ToastFooterState;
+export { useToastFooter }
 
-// @public (undocumented)
-export const useToastTitle: (props: ToastTitleBaseProps, ref: React_2.Ref<HTMLElement>) => ToastTitleBaseState;
+export { useToastTitle }
 
 // (No @packageDocumentation comment for this package)
 

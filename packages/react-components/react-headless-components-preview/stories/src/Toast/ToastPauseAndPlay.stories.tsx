@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import { Toast, Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
+import styles from './toast.module.css';
 
 export const PauseAndPlay = (): React.ReactNode => {
   const toasterId = React.useId();
@@ -11,9 +11,9 @@ export const PauseAndPlay = (): React.ReactNode => {
 
   const notify = () => {
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.success}`}>
-        <ToastTitle className="text-sm font-semibold text-zinc-900">This is a toast</ToastTitle>
-      </div>,
+      <Toast className={`${styles.toast} ${styles.intentSuccess}`}>
+        <ToastTitle className={styles.title}>This is a toast</ToastTitle>
+      </Toast>,
       {
         toastId,
         intent: 'success',
@@ -38,23 +38,12 @@ export const PauseAndPlay = (): React.ReactNode => {
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={!unmounted}
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100 disabled:opacity-50"
-          onClick={notify}
-        >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <div className={styles.demoRow}>
+        <button type="button" disabled={!unmounted} className={styles.triggerBtn} onClick={notify}>
           Make toast
         </button>
-        <button
-          type="button"
-          disabled={unmounted}
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100 disabled:opacity-50"
-          onClick={toggle}
-        >
+        <button type="button" disabled={unmounted} className={styles.triggerBtn} onClick={toggle}>
           {paused ? '▶ Play' : '⏸ Pause'} toast
         </button>
       </div>

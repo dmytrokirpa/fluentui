@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import { Toast, Toaster, ToastTitle, useToastController } from '@fluentui/react-headless-components-preview/toast';
+import styles from './toast.module.css';
 
 export const MultipleToasters = (): React.ReactNode => {
   const firstId = React.useId();
@@ -12,16 +12,16 @@ export const MultipleToasters = (): React.ReactNode => {
   const notify = () => {
     if (toaster === 'first') {
       dispatchFirst(
-        <div className={`${cardBase} ${intentAccent.info}`}>
-          <ToastTitle className="text-sm font-semibold text-zinc-900">First toaster</ToastTitle>
-        </div>,
+        <Toast className={`${styles.toast} ${styles.intentInfo}`}>
+          <ToastTitle className={styles.title}>First toaster</ToastTitle>
+        </Toast>,
         { intent: 'info' },
       );
     } else {
       dispatchSecond(
-        <div className={`${cardBase} ${intentAccent.info}`}>
-          <ToastTitle className="text-sm font-semibold text-zinc-900">Second toaster</ToastTitle>
-        </div>,
+        <Toast className={`${styles.toast} ${styles.intentInfo}`}>
+          <ToastTitle className={styles.title}>Second toaster</ToastTitle>
+        </Toast>,
         { intent: 'info' },
       );
     }
@@ -29,28 +29,23 @@ export const MultipleToasters = (): React.ReactNode => {
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={firstId} />
-      <Toaster toasterId={secondId} />
-      <div className="flex flex-col gap-3">
-        <fieldset className="border border-zinc-200 rounded p-3 text-sm">
-          <legend className="px-1 text-zinc-600">Choose toaster</legend>
-          <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-2 cursor-pointer">
+      <Toaster className={styles.toaster} toasterId={firstId} />
+      <Toaster className={styles.toaster} toasterId={secondId} />
+      <div className={styles.controls}>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.legend}>Choose toaster</legend>
+          <div className={styles.options}>
+            <label className={styles.optionLabel}>
               <input type="radio" name="toaster" checked={toaster === 'first'} onChange={() => setToaster('first')} />
               First toaster
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className={styles.optionLabel}>
               <input type="radio" name="toaster" checked={toaster === 'second'} onChange={() => setToaster('second')} />
               Second toaster
             </label>
           </div>
         </fieldset>
-        <button
-          type="button"
-          className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100 w-fit"
-          onClick={notify}
-        >
+        <button type="button" className={styles.triggerBtn} onClick={notify}>
           Make toast
         </button>
       </div>

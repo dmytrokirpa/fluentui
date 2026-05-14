@@ -5,8 +5,9 @@ import {
   ToastBody,
   ToastFooter,
   useToastController,
+  Toast,
 } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import styles from './toast.module.css';
 
 export const Default = (): React.ReactNode => {
   const toasterId = React.useId();
@@ -14,53 +15,36 @@ export const Default = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.success}`}>
+      <Toast className={`${styles.toast} ${styles.intentSuccess}`}>
         <ToastTitle
-          className="flex items-center justify-between gap-2 text-sm font-semibold text-zinc-900"
+          className={styles.title}
           action={
-            <button
-              type="button"
-              className="text-xs text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-            >
+            <button type="button" className={styles.actionBtn}>
               Undo
             </button>
           }
         >
           Email sent
         </ToastTitle>
-        <ToastBody
-          subtitle={<span className="text-xs text-zinc-400">Subtitle</span>}
-          className="text-sm text-zinc-600 mt-1"
-        >
+        <ToastBody subtitle={{ className: styles.subtitle, children: 'Subtitle' }} className={styles.bodyText}>
           This is a toast body
         </ToastBody>
-        <ToastFooter className="flex gap-3 mt-3">
-          <button
-            type="button"
-            className="text-sm text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-          >
+        <ToastFooter className={styles.footer}>
+          <button type="button" className={styles.actionBtn}>
             Action
           </button>
-          <button
-            type="button"
-            className="text-sm text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-          >
+          <button type="button" className={styles.actionBtn}>
             Action
           </button>
         </ToastFooter>
-      </div>,
-      { intent: 'success' },
+      </Toast>,
+      { intent: 'success', timeout: 10_000 },
     );
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <button
-        type="button"
-        className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100"
-        onClick={notify}
-      >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <button type="button" className={styles.triggerBtn} onClick={notify}>
         Make toast
       </button>
     </>

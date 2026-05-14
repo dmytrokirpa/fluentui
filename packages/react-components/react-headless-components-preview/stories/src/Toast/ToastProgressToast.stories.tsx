@@ -1,25 +1,22 @@
 import * as React from 'react';
 import {
+  Toast,
   Toaster,
   ToastTitle,
   ToastBody,
   ToastFooter,
   useToastController,
-  useToastContext,
+  useToastContainerContext,
 } from '@fluentui/react-headless-components-preview/toast';
-import { popoverStyle, cardBase, intentAccent } from './ToastStoryShared';
+import styles from './toast.module.css';
 
 const intervalDelay = 100;
 const intervalIncrement = 5;
 
 const DismissButton = ({ children }: { children: React.ReactNode }) => {
-  const { requestOpenChange } = useToastContext();
+  const { close } = useToastContainerContext();
   return (
-    <button
-      type="button"
-      className="text-xs text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-      onClick={e => requestOpenChange({ type: 'dismissClick', open: false, event: e })}
-    >
+    <button type="button" className={styles.dismissBtn} onClick={close}>
       {children}
     </button>
   );
@@ -38,7 +35,7 @@ const DownloadProgressBar: React.FC<{ onDownloadEnd: () => void }> = ({ onDownlo
     }
   }, [value, onDownloadEnd]);
 
-  return <progress value={value} max={100} className="mt-2 w-full" />;
+  return <progress value={value} max={100} className={styles.progressBar} />;
 };
 
 export const ProgressToast = (): React.ReactNode => {
@@ -51,32 +48,23 @@ export const ProgressToast = (): React.ReactNode => {
 
   const notify = () =>
     dispatchToast(
-      <div className={`${cardBase} ${intentAccent.success}`}>
-        <ToastTitle
-          className="flex items-center justify-between gap-2 text-sm font-semibold text-zinc-900"
-          action={<DismissButton>Dismiss</DismissButton>}
-        >
+      <Toast className={`${styles.toast} ${styles.intentSuccess}`}>
+        <ToastTitle className={styles.title} action={<DismissButton>Dismiss</DismissButton>}>
           Downloading file
         </ToastTitle>
-        <ToastBody className="mt-1">
-          <p className="text-sm text-zinc-600 mb-1">This may take a while</p>
+        <ToastBody className={styles.body}>
+          <p className={styles.bodyText}>This may take a while</p>
           <DownloadProgressBar onDownloadEnd={dismiss} />
         </ToastBody>
-        <ToastFooter className="flex gap-3 mt-3">
-          <button
-            type="button"
-            className="text-sm text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-          >
+        <ToastFooter className={styles.footer}>
+          <button type="button" className={styles.actionBtn}>
             Action
           </button>
-          <button
-            type="button"
-            className="text-sm text-blue-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
-          >
+          <button type="button" className={styles.actionBtn}>
             Action
           </button>
         </ToastFooter>
-      </div>,
+      </Toast>,
       {
         intent: 'success',
         timeout: -1,
@@ -87,14 +75,8 @@ export const ProgressToast = (): React.ReactNode => {
 
   return (
     <>
-      <style>{popoverStyle}</style>
-      <Toaster toasterId={toasterId} />
-      <button
-        type="button"
-        disabled={!unmounted}
-        className="rounded px-3 py-1.5 text-sm border border-zinc-200 hover:bg-zinc-100 disabled:opacity-50"
-        onClick={notify}
-      >
+      <Toaster className={styles.toaster} toasterId={toasterId} />
+      <button type="button" disabled={!unmounted} className={styles.triggerBtn} onClick={notify}>
         Make toast
       </button>
     </>
