@@ -1,0 +1,7 @@
+{
+  "comment": "feat(react-headless-components-preview): export useSkeletonContextValues from Skeleton",
+  "type": "patch",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com",
+  "dependentChangeType": "patch"
+}
