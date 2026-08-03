@@ -43,11 +43,16 @@ import { AccordionState } from '@fluentui/react-accordion';
 import { AccordionToggleData } from '@fluentui/react-accordion';
 import { AccordionToggleEvent } from '@fluentui/react-accordion';
 import { AccordionToggleEventHandler } from '@fluentui/react-accordion';
+import { addDays } from '@fluentui/react-calendar';
+import { addMonths } from '@fluentui/react-calendar';
+import { addWeeks } from '@fluentui/react-calendar';
+import { addYears } from '@fluentui/react-calendar';
 import { AlphaSlider } from '@fluentui/react-color-picker';
 import { alphaSliderClassNames } from '@fluentui/react-color-picker';
 import { AlphaSliderProps } from '@fluentui/react-color-picker';
 import { AlphaSliderSlots } from '@fluentui/react-color-picker';
 import { AlphaSliderState } from '@fluentui/react-color-picker';
+import { AnimationDirection } from '@fluentui/react-calendar';
 import { AnnounceContextValue } from '@fluentui/react-shared-contexts';
 import { AnnounceProvider } from '@fluentui/react-shared-contexts';
 import { AppItem } from '@fluentui/react-nav';
@@ -135,6 +140,37 @@ import { buttonClassNames } from '@fluentui/react-button';
 import { ButtonProps } from '@fluentui/react-button';
 import { ButtonSlots } from '@fluentui/react-button';
 import { ButtonState } from '@fluentui/react-button';
+import { Calendar } from '@fluentui/react-calendar';
+import { calendarClassNames } from '@fluentui/react-calendar';
+import { CalendarDay } from '@fluentui/react-calendar';
+import { calendarDayClassNames } from '@fluentui/react-calendar';
+import { CalendarDayGrid } from '@fluentui/react-calendar';
+import { calendarDayGridClassNames } from '@fluentui/react-calendar';
+import { CalendarDayGridProps } from '@fluentui/react-calendar';
+import { CalendarDayGridStyleProps } from '@fluentui/react-calendar';
+import { CalendarDayGridStyles } from '@fluentui/react-calendar';
+import { CalendarDayProps } from '@fluentui/react-calendar';
+import { CalendarDayStyleProps } from '@fluentui/react-calendar';
+import { CalendarDayStyles } from '@fluentui/react-calendar';
+import { CalendarMonth } from '@fluentui/react-calendar';
+import { CalendarMonthProps } from '@fluentui/react-calendar';
+import { CalendarMonthStyleProps } from '@fluentui/react-calendar';
+import { CalendarMonthStyles } from '@fluentui/react-calendar';
+import { calendarPickerClassNames } from '@fluentui/react-calendar';
+import { CalendarPickerStyleProps } from '@fluentui/react-calendar';
+import { CalendarPickerStyles } from '@fluentui/react-calendar';
+import { CalendarProps } from '@fluentui/react-calendar';
+import { CalendarStrings } from '@fluentui/react-calendar';
+import { CalendarStyleProps } from '@fluentui/react-calendar';
+import { CalendarStyles } from '@fluentui/react-calendar';
+import { CalendarYear } from '@fluentui/react-calendar';
+import { CalendarYearHeaderProps } from '@fluentui/react-calendar';
+import { CalendarYearProps } from '@fluentui/react-calendar';
+import { CalendarYearRange } from '@fluentui/react-calendar';
+import { CalendarYearRangeToString } from '@fluentui/react-calendar';
+import { CalendarYearStrings } from '@fluentui/react-calendar';
+import { CalendarYearStyleProps } from '@fluentui/react-calendar';
+import { CalendarYearStyles } from '@fluentui/react-calendar';
 import { Caption1 } from '@fluentui/react-text';
 import { caption1ClassNames } from '@fluentui/react-text';
 import { Caption1Strong } from '@fluentui/react-text';
@@ -263,6 +299,8 @@ import { ComboboxProps } from '@fluentui/react-combobox';
 import { ComboboxProvider } from '@fluentui/react-combobox';
 import { ComboboxSlots } from '@fluentui/react-combobox';
 import { ComboboxState } from '@fluentui/react-combobox';
+import { compareDatePart } from '@fluentui/react-calendar';
+import { compareDates } from '@fluentui/react-calendar';
 import { ComponentProps } from '@fluentui/react-utilities';
 import { ComponentState } from '@fluentui/react-utilities';
 import { CompoundButton } from '@fluentui/react-button';
@@ -335,6 +373,16 @@ import { DataGridSelectionCellSlots } from '@fluentui/react-table';
 import { DataGridSelectionCellState } from '@fluentui/react-table';
 import { DataGridSlots } from '@fluentui/react-table';
 import { DataGridState } from '@fluentui/react-table';
+import { DateFormatting } from '@fluentui/react-calendar';
+import { DateGridStrings } from '@fluentui/react-calendar';
+import { DateRangeType } from '@fluentui/react-calendar';
+import { DayInfo } from '@fluentui/react-calendar';
+import { DayOfWeek } from '@fluentui/react-calendar';
+import { DAYS_IN_WEEK } from '@fluentui/react-calendar';
+import { DEFAULT_CALENDAR_STRINGS } from '@fluentui/react-calendar';
+import { DEFAULT_DATE_FORMATTING } from '@fluentui/react-calendar';
+import { DEFAULT_DATE_GRID_STRINGS } from '@fluentui/react-calendar';
+import { defaultCalendarStrings } from '@fluentui/react-calendar';
 import { Dialog } from '@fluentui/react-dialog';
 import { DialogActions } from '@fluentui/react-dialog';
 import { dialogActionsClassNames } from '@fluentui/react-dialog';
@@ -430,6 +478,7 @@ import { emptySwatchClassNames } from '@fluentui/react-swatch-picker';
 import { EmptySwatchProps } from '@fluentui/react-swatch-picker';
 import { EmptySwatchSlots } from '@fluentui/react-swatch-picker';
 import { EmptySwatchState } from '@fluentui/react-swatch-picker';
+import { extraCalendarDayGridClassNames } from '@fluentui/react-calendar';
 import { Field } from '@fluentui/react-field';
 import { fieldClassNames } from '@fluentui/react-field';
 import { FieldContextProvider } from '@fluentui/react-field';
@@ -440,6 +489,7 @@ import { FieldControlPropsOptions } from '@fluentui/react-field';
 import { FieldProps } from '@fluentui/react-field';
 import { FieldSlots } from '@fluentui/react-field';
 import { FieldState } from '@fluentui/react-field';
+import { FirstWeekOfYear } from '@fluentui/react-calendar';
 import { flattenTree_unstable } from '@fluentui/react-tree';
 import { FlattenTreeItem } from '@fluentui/react-tree';
 import { FlatTree } from '@fluentui/react-tree';
@@ -460,11 +510,21 @@ import { FontFamilyTokens } from '@fluentui/react-theme';
 import { FontSizeTokens } from '@fluentui/react-theme';
 import { FontWeightTokens } from '@fluentui/react-theme';
 import { ForwardRefComponent } from '@fluentui/react-utilities';
+import { getDatePartHashValue } from '@fluentui/react-calendar';
+import { getDateRangeArray } from '@fluentui/react-calendar';
+import { getEndDateOfWeek } from '@fluentui/react-calendar';
 import { getIntrinsicElementProps } from '@fluentui/react-utilities';
+import { getMonthEnd } from '@fluentui/react-calendar';
+import { getMonthStart } from '@fluentui/react-calendar';
 import { getNativeElementProps } from '@fluentui/react-utilities';
 import { getPartitionedNativeProps } from '@fluentui/react-utilities';
 import { getSlotClassNameProp_unstable } from '@fluentui/react-utilities';
 import { getSlots } from '@fluentui/react-utilities';
+import { getStartDateOfWeek } from '@fluentui/react-calendar';
+import { getWeekNumber } from '@fluentui/react-calendar';
+import { getWeekNumbersInMonth } from '@fluentui/react-calendar';
+import { getYearEnd } from '@fluentui/react-calendar';
+import { getYearStart } from '@fluentui/react-calendar';
 import { GriffelRenderer } from '@griffel/react';
 import { GriffelResetStyle } from '@griffel/react';
 import { GriffelStyle } from '@griffel/react';
@@ -477,6 +537,11 @@ import { HeadlessFlatTreeItem } from '@fluentui/react-tree';
 import { HeadlessFlatTreeItemProps } from '@fluentui/react-tree';
 import { HeadlessFlatTreeOptions } from '@fluentui/react-tree';
 import { HorizontalSpacingTokens } from '@fluentui/react-theme';
+import { ICalendar } from '@fluentui/react-calendar';
+import { ICalendarDay } from '@fluentui/react-calendar';
+import { ICalendarDayGrid } from '@fluentui/react-calendar';
+import { ICalendarMonth } from '@fluentui/react-calendar';
+import { ICalendarYear } from '@fluentui/react-calendar';
 import { IdPrefixProvider } from '@fluentui/react-utilities';
 import { Image as Image_2 } from '@fluentui/react-image';
 import { imageClassNames } from '@fluentui/react-image';
@@ -526,6 +591,7 @@ import { InteractionTagSecondaryState } from '@fluentui/react-tags';
 import { InteractionTagSlots } from '@fluentui/react-tags';
 import { InteractionTagState } from '@fluentui/react-tags';
 import { isHTMLElement } from '@fluentui/react-utilities';
+import { isInDateRangeArray } from '@fluentui/react-calendar';
 import { isTruncatableBreadcrumbContent } from '@fluentui/react-breadcrumb';
 import { JSXElement } from '@fluentui/react-utilities';
 import { JSXIntrinsicElement } from '@fluentui/react-utilities';
@@ -677,6 +743,7 @@ import { MessageBarTitleProps } from '@fluentui/react-message-bar';
 import { MessageBarTitleSlots } from '@fluentui/react-message-bar';
 import { MessageBarTitleState } from '@fluentui/react-message-bar';
 import { MessageBarTransitionContextValue } from '@fluentui/react-message-bar';
+import { MonthOfYear } from '@fluentui/react-calendar';
 import { MotionComponentProps } from '@fluentui/react-motion';
 import { MotionImperativeRef } from '@fluentui/react-motion';
 import { motionTokens } from '@fluentui/react-motion';
@@ -1090,6 +1157,7 @@ import { SelectState } from '@fluentui/react-select';
 import { SelectTabData } from '@fluentui/react-tabs';
 import { SelectTabEvent } from '@fluentui/react-tabs';
 import { SelectTabEventHandler } from '@fluentui/react-tabs';
+import { setMonth } from '@fluentui/react-calendar';
 import { ShadowBrandTokens } from '@fluentui/react-theme';
 import { ShadowTokens } from '@fluentui/react-theme';
 import { shorthands } from '@griffel/react';
@@ -1403,6 +1471,7 @@ import { TextSlots } from '@fluentui/react-text';
 import { TextState } from '@fluentui/react-text';
 import { Theme } from '@fluentui/react-theme';
 import { themeToTokensObject } from '@fluentui/react-theme';
+import { TimeConstants } from '@fluentui/react-calendar';
 import { Title1 } from '@fluentui/react-text';
 import { title1ClassNames } from '@fluentui/react-text';
 import { Title2 } from '@fluentui/react-text';
@@ -1575,6 +1644,12 @@ import { useBreadcrumbItemStyles_unstable } from '@fluentui/react-breadcrumb';
 import { useBreadcrumbStyles_unstable } from '@fluentui/react-breadcrumb';
 import { useButton_unstable } from '@fluentui/react-button';
 import { useButtonStyles_unstable } from '@fluentui/react-button';
+import { useCalendarDayGridStyles_unstable } from '@fluentui/react-calendar';
+import { useCalendarDayStyles_unstable } from '@fluentui/react-calendar';
+import { useCalendarMonthStyles_unstable } from '@fluentui/react-calendar';
+import { useCalendarPickerStyles_unstable } from '@fluentui/react-calendar';
+import { useCalendarStyles_unstable } from '@fluentui/react-calendar';
+import { useCalendarYearStyles_unstable } from '@fluentui/react-calendar';
 import { useCard_unstable } from '@fluentui/react-card';
 import { useCardFooter_unstable } from '@fluentui/react-card';
 import { useCardFooterStyles_unstable } from '@fluentui/react-card';
@@ -2026,6 +2101,7 @@ import { useUncontrolledFocus } from '@fluentui/react-tabster';
 import { VerticalSpacingTokens } from '@fluentui/react-theme';
 import { webDarkTheme } from '@fluentui/react-theme';
 import { webLightTheme } from '@fluentui/react-theme';
+import { WeekCorners } from '@fluentui/react-calendar';
 
 export { __css }
 
@@ -2105,6 +2181,14 @@ export { AccordionToggleEvent }
 
 export { AccordionToggleEventHandler }
 
+export { addDays }
+
+export { addMonths }
+
+export { addWeeks }
+
+export { addYears }
+
 export { AlphaSlider }
 
 export { alphaSliderClassNames }
@@ -2114,6 +2198,8 @@ export { AlphaSliderProps }
 export { AlphaSliderSlots }
 
 export { AlphaSliderState }
+
+export { AnimationDirection }
 
 export { AnnounceContextValue }
 
@@ -2288,6 +2374,68 @@ export { ButtonProps }
 export { ButtonSlots }
 
 export { ButtonState }
+
+export { Calendar }
+
+export { calendarClassNames }
+
+export { CalendarDay }
+
+export { calendarDayClassNames }
+
+export { CalendarDayGrid }
+
+export { calendarDayGridClassNames }
+
+export { CalendarDayGridProps }
+
+export { CalendarDayGridStyleProps }
+
+export { CalendarDayGridStyles }
+
+export { CalendarDayProps }
+
+export { CalendarDayStyleProps }
+
+export { CalendarDayStyles }
+
+export { CalendarMonth }
+
+export { CalendarMonthProps }
+
+export { CalendarMonthStyleProps }
+
+export { CalendarMonthStyles }
+
+export { calendarPickerClassNames }
+
+export { CalendarPickerStyleProps }
+
+export { CalendarPickerStyles }
+
+export { CalendarProps }
+
+export { CalendarStrings }
+
+export { CalendarStyleProps }
+
+export { CalendarStyles }
+
+export { CalendarYear }
+
+export { CalendarYearHeaderProps }
+
+export { CalendarYearProps }
+
+export { CalendarYearRange }
+
+export { CalendarYearRangeToString }
+
+export { CalendarYearStrings }
+
+export { CalendarYearStyleProps }
+
+export { CalendarYearStyles }
 
 export { Caption1 }
 
@@ -2545,6 +2693,10 @@ export { ComboboxSlots }
 
 export { ComboboxState }
 
+export { compareDatePart }
+
+export { compareDates }
+
 export { ComponentProps }
 
 export { ComponentState }
@@ -2688,6 +2840,26 @@ export { DataGridSelectionCellState }
 export { DataGridSlots }
 
 export { DataGridState }
+
+export { DateFormatting }
+
+export { DateGridStrings }
+
+export { DateRangeType }
+
+export { DayInfo }
+
+export { DayOfWeek }
+
+export { DAYS_IN_WEEK }
+
+export { DEFAULT_CALENDAR_STRINGS }
+
+export { DEFAULT_DATE_FORMATTING }
+
+export { DEFAULT_DATE_GRID_STRINGS }
+
+export { defaultCalendarStrings }
 
 export { Dialog }
 
@@ -2879,6 +3051,8 @@ export { EmptySwatchSlots }
 
 export { EmptySwatchState }
 
+export { extraCalendarDayGridClassNames }
+
 export { Field }
 
 export { fieldClassNames }
@@ -2898,6 +3072,8 @@ export { FieldProps }
 export { FieldSlots }
 
 export { FieldState }
+
+export { FirstWeekOfYear }
 
 export { flattenTree_unstable }
 
@@ -2939,7 +3115,17 @@ export { FontWeightTokens }
 
 export { ForwardRefComponent }
 
+export { getDatePartHashValue }
+
+export { getDateRangeArray }
+
+export { getEndDateOfWeek }
+
 export { getIntrinsicElementProps }
+
+export { getMonthEnd }
+
+export { getMonthStart }
 
 export { getNativeElementProps }
 
@@ -2948,6 +3134,16 @@ export { getPartitionedNativeProps }
 export { getSlotClassNameProp_unstable }
 
 export { getSlots }
+
+export { getStartDateOfWeek }
+
+export { getWeekNumber }
+
+export { getWeekNumbersInMonth }
+
+export { getYearEnd }
+
+export { getYearStart }
 
 export { GriffelRenderer }
 
@@ -2972,6 +3168,16 @@ export { HeadlessFlatTreeItemProps }
 export { HeadlessFlatTreeOptions }
 
 export { HorizontalSpacingTokens }
+
+export { ICalendar }
+
+export { ICalendarDay }
+
+export { ICalendarDayGrid }
+
+export { ICalendarMonth }
+
+export { ICalendarYear }
 
 export { IdPrefixProvider }
 
@@ -3070,6 +3276,8 @@ export { InteractionTagSlots }
 export { InteractionTagState }
 
 export { isHTMLElement }
+
+export { isInDateRangeArray }
 
 export { isTruncatableBreadcrumbContent }
 
@@ -3372,6 +3580,8 @@ export { MessageBarTitleSlots }
 export { MessageBarTitleState }
 
 export { MessageBarTransitionContextValue }
+
+export { MonthOfYear }
 
 export { MotionComponentProps }
 
@@ -4199,6 +4409,8 @@ export { SelectTabEvent }
 
 export { SelectTabEventHandler }
 
+export { setMonth }
+
 export { ShadowBrandTokens }
 
 export { ShadowTokens }
@@ -4825,6 +5037,8 @@ export { Theme }
 
 export { themeToTokensObject }
 
+export { TimeConstants }
+
 export { Title1 }
 
 export { title1ClassNames }
@@ -5168,6 +5382,18 @@ export { useBreadcrumbStyles_unstable }
 export { useButton_unstable }
 
 export { useButtonStyles_unstable }
+
+export { useCalendarDayGridStyles_unstable }
+
+export { useCalendarDayStyles_unstable }
+
+export { useCalendarMonthStyles_unstable }
+
+export { useCalendarPickerStyles_unstable }
+
+export { useCalendarStyles_unstable }
+
+export { useCalendarYearStyles_unstable }
 
 export { useCard_unstable }
 
@@ -6070,6 +6296,8 @@ export { VerticalSpacingTokens }
 export { webDarkTheme }
 
 export { webLightTheme }
+
+export { WeekCorners }
 
 // (No @packageDocumentation comment for this package)
 

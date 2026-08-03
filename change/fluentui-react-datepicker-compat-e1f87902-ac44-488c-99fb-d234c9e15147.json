@@ -1,0 +1,7 @@
+{
+  "type": "patch",
+  "comment": "chore: consume the stable Calendar package",
+  "packageName": "@fluentui/react-datepicker-compat",
+  "email": "copilot@microsoft.com",
+  "dependentChangeType": "patch"
+}

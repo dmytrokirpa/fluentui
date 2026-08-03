@@ -4,13 +4,13 @@
 
 ```ts
 
-import type { CalendarProps } from '@fluentui/react-calendar-compat';
-import { CalendarStrings } from '@fluentui/react-calendar-compat';
+import type { CalendarProps } from '@fluentui/react-calendar';
+import { CalendarStrings } from '@fluentui/react-calendar';
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
-import type { DateFormatting } from '@fluentui/react-calendar-compat';
-import type { DayOfWeek } from '@fluentui/react-calendar-compat';
-import type { FirstWeekOfYear } from '@fluentui/react-calendar-compat';
+import type { DateFormatting } from '@fluentui/react-calendar';
+import type { DayOfWeek } from '@fluentui/react-calendar';
+import type { FirstWeekOfYear } from '@fluentui/react-calendar';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { Input } from '@fluentui/react-input';
 import type { JSXElement } from '@fluentui/react-utilities';

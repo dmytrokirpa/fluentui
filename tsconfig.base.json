@@ -42,10 +42,12 @@
       "@fluentui/react-breadcrumb-stories": ["packages/react-components/react-breadcrumb/stories/src/index.ts"],
       "@fluentui/react-button": ["packages/react-components/react-button/library/src/index.ts"],
       "@fluentui/react-button-stories": ["packages/react-components/react-button/stories/src/index.ts"],
+      "@fluentui/react-calendar": ["packages/react-components/react-calendar/library/src/index.ts"],
       "@fluentui/react-calendar-compat": ["packages/react-components/react-calendar-compat/library/src/index.ts"],
       "@fluentui/react-calendar-compat-stories": [
         "packages/react-components/react-calendar-compat/stories/src/index.ts"
       ],
+      "@fluentui/react-calendar-stories": ["packages/react-components/react-calendar/stories/src/index.ts"],
       "@fluentui/react-card": ["packages/react-components/react-card/library/src/index.ts"],
       "@fluentui/react-card-stories": ["packages/react-components/react-card/stories/src/index.ts"],
       "@fluentui/react-carousel": ["packages/react-components/react-carousel/library/src/index.ts"],

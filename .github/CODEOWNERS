@@ -305,6 +305,8 @@ packages/react-components/react-swatch-picker/library @microsoft/cxe-prg
 packages/react-components/react-swatch-picker/stories @microsoft/cxe-prg
 packages/react-components/react-calendar-compat/library @microsoft/cxe-prg @ValentinaKozlova
 packages/react-components/react-calendar-compat/stories @microsoft/cxe-prg @ValentinaKozlova
+packages/react-components/react-calendar/library @microsoft/cxe-prg @ValentinaKozlova
+packages/react-components/react-calendar/stories @microsoft/cxe-prg @ValentinaKozlova
 packages/react-components/react-infolabel/library @microsoft/cxe-prg @mainframev
 packages/react-components/react-infolabel/stories @microsoft/cxe-prg @mainframev
 packages/react-components/react-list/library @microsoft/teams-prg
