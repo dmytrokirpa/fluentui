@@ -1,7 +1,7 @@
 {
-  "type": "none",
+  "type": "minor",
   "comment": "feat: create stable Calendar package",
   "packageName": "@fluentui/react-calendar",
   "email": "copilot@microsoft.com",
-  "dependentChangeType": "none"
+  "dependentChangeType": "patch"
 }

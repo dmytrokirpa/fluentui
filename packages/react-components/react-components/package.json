@@ -17,7 +17,7 @@
     "@fluentui/react-avatar": "^9.11.0",
     "@fluentui/react-badge": "^9.5.1",
     "@fluentui/react-button": "^9.9.0",
-    "@fluentui/react-calendar": "^9.0.0",
+    "@fluentui/react-calendar": "9.0.0-alpha.0",
     "@fluentui/react-card": "^9.6.0",
     "@fluentui/react-checkbox": "^9.6.0",
     "@fluentui/react-combobox": "^9.17.0",
