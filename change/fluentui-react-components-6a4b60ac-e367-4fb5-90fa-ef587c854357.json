@@ -1,0 +1,7 @@
+{
+  "type": "minor",
+  "comment": "feat: export Calendar from the stable suite",
+  "packageName": "@fluentui/react-components",
+  "email": "copilot@microsoft.com",
+  "dependentChangeType": "patch"
+}

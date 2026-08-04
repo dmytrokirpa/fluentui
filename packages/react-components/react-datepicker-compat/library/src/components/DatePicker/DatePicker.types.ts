@@ -1,7 +1,7 @@
-import type { DayOfWeek, FirstWeekOfYear } from '@fluentui/react-calendar-compat';
+import type { DayOfWeek, FirstWeekOfYear } from '@fluentui/react-calendar';
 import type { Input } from '@fluentui/react-input';
 import type { ComponentProps, ComponentState, Slot } from '@fluentui/react-utilities';
-import type { CalendarProps, CalendarStrings, DateFormatting } from '@fluentui/react-calendar-compat';
+import type { CalendarProps, CalendarStrings, DateFormatting } from '@fluentui/react-calendar';
 import type { PortalProps } from '@fluentui/react-portal';
 import type { PositioningProps } from '@fluentui/react-positioning';
 
