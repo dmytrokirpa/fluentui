@@ -58,6 +58,11 @@ export const CONDITION_KEYS = [
   '_groupActive',
   /** Parent (root) focus-visible — use on child slots */
   '_groupFocusVisible',
+  /**
+   * Root contains a `:checked` control — use on child slots for Radio/Checkbox
+   * patterns without a `data-checked` attr: `.root:has(:checked) .slot`
+   */
+  '_hasChecked',
   /** Pseudo-element ::after */
   '_after',
   /** Pseudo-element ::before */

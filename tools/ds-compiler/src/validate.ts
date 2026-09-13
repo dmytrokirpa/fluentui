@@ -72,6 +72,22 @@ const LITERALS = new Set([
   'fit-content',
   'max-content',
   'min-content',
+  'infinite',
+  'linear',
+  'ease',
+  'both',
+  'vertical',
+  'horizontal',
+  'pre-wrap',
+  'break-word',
+  'inline',
+  'cover',
+  'contain',
+  'fill',
+  'paused',
+  'running',
+  'forwards',
+  'backwards',
 ]);
 
 const TOKEN_REF = /^\$[A-Za-z][A-Za-z0-9]*$/;
@@ -91,22 +107,24 @@ function isAllowed(value: StyleValue): boolean {
     value.startsWith('calc(') ||
     value.includes(' ') ||
     value.includes(',') ||
-    /^(translate|translateX|translateY|translateZ|scale|scaleX|scaleY|rotate|skew|skewX|skewY|matrix|min|max|clamp)\(/.test(
+    /^(translate|translateX|translateY|translateZ|scale|scaleX|scaleY|rotate|skew|skewX|skewY|matrix|min|max|clamp|linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient)\(/.test(
       value,
     );
   if (looksFunctional) {
-    let stripped = value.replace(/\$[A-Za-z][A-Za-z0-9]*/g, '0').replace(/var\(--[A-Za-z][A-Za-z0-9_-]*\)/g, '0');
+    let stripped = value
+      .replace(/\$[A-Za-z][A-Za-z0-9]*/g, '0')
+      // Allow CSS var() with optional fallback: var(--name, 90deg)
+      .replace(/var\(--[A-Za-z][A-Za-z0-9_-]*(?:\s*,[^)]*)?\)/g, '0');
+    // Strip CSS functions before keyword literals so `linear` does not break `linear-gradient`.
+    stripped = stripped.replace(
+      /calc|min|max|clamp|scaleX|scaleY|scale|translateX|translateY|translateZ|translate|rotate|skewX|skewY|skew|matrix|linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient/g,
+      '',
+    );
     // Remove allow-listed keywords used inside shorthand values (e.g. "solid")
     for (const lit of LITERALS) {
       stripped = stripped.replace(new RegExp(`\\b${lit}\\b`, 'g'), '0');
     }
-    stripped = stripped
-      .replace(
-        /calc|min|max|clamp|scaleX|scaleY|scale|translateX|translateY|translateZ|translate|rotate|skewX|skewY|skew|matrix/g,
-        '',
-      )
-      .replace(/[0-9.+*/(),%\s-]/g, '')
-      .replace(/px|rem|em|vh|vw|ms|s|deg|fr|inset/g, '');
+    stripped = stripped.replace(/[0-9.+*/(),%\s-]/g, '').replace(/px|rem|em|vh|vw|ms|s|deg|fr|inset/g, '');
     return stripped.length === 0;
   }
   return false;

@@ -56,6 +56,8 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
     guard: ':not([data-disabled]):not([data-disabled-focusable])',
   },
   _groupFocusVisible: { kind: 'groupPseudo', pseudo: ':focus-visible' },
+  /** `.root:has(:checked) .slot` — Radio checked styling without data-checked */
+  _hasChecked: { kind: 'groupPseudo', pseudo: ':has(:checked)' },
   _after: { kind: 'pseudo', pseudo: '::after' },
   _before: { kind: 'pseudo', pseudo: '::before' },
   _child: { kind: 'wrap', wrap: selector => `${selector} > *` },

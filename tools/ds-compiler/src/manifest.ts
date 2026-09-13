@@ -235,6 +235,93 @@ export const inputManifest: HeadlessManifest = {
   types: { props: 'InputProps', state: 'InputState', slots: 'InputSlots' },
 };
 
+export const fieldManifest: HeadlessManifest = {
+  component: 'Field',
+  subpath: 'field',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'label', 'validationMessage', 'validationMessageIcon', 'hint'],
+  states: {
+    validationState: {
+      kind: 'enum',
+      attr: 'data-validate-state',
+      values: ['error', 'warning', 'success', 'none'],
+    },
+  },
+  hooks: { use: 'useField', render: 'renderField' },
+  types: { props: 'FieldProps', state: 'FieldState', slots: 'FieldSlots' },
+};
+
+export const textareaManifest: HeadlessManifest = {
+  component: 'Textarea',
+  subpath: 'textarea',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'textarea'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    invalid: { kind: 'presence', attr: 'data-invalid' },
+    resize: {
+      kind: 'enum',
+      attr: 'data-resize',
+      values: ['none', 'horizontal', 'vertical', 'both'],
+    },
+  },
+  hooks: { use: 'useTextarea', render: 'renderTextarea' },
+  types: { props: 'TextareaProps', state: 'TextareaState', slots: 'TextareaSlots' },
+};
+
+export const sliderManifest: HeadlessManifest = {
+  component: 'Slider',
+  subpath: 'slider',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'rail', 'thumb', 'input'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    vertical: { kind: 'presence', attr: 'data-vertical' },
+  },
+  hooks: { use: 'useSlider', render: 'renderSlider' },
+  types: { props: 'SliderProps', state: 'SliderState', slots: 'SliderSlots' },
+};
+
+export const spinnerManifest: HeadlessManifest = {
+  component: 'Spinner',
+  subpath: 'spinner',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'spinner', 'spinnerTail', 'label'],
+  states: {
+    labelPosition: {
+      kind: 'enum',
+      attr: 'data-label-position',
+      values: ['before', 'after', 'above', 'below'],
+    },
+  },
+  hooks: { use: 'useSpinner', render: 'renderSpinner' },
+  types: { props: 'SpinnerProps', state: 'SpinnerState', slots: 'SpinnerSlots' },
+};
+
+/** Radio + RadioGroup share headless subpath `radio-group`. */
+export const radioManifest: HeadlessManifest = {
+  component: 'Radio',
+  subpath: 'radio-group',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'label', 'input', 'indicator'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    labelPosition: { kind: 'enum', attr: 'data-label-position', values: ['after', 'below'] },
+  },
+  hooks: { use: 'useRadio', render: 'renderRadio' },
+  types: { props: 'RadioProps', state: 'RadioState', slots: 'RadioSlots' },
+};
+
+export const radioGroupManifest: HeadlessManifest = {
+  component: 'RadioGroup',
+  subpath: 'radio-group',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root'],
+  states: {},
+  hooks: { use: 'useRadioGroup', render: 'renderRadioGroup' },
+  types: { props: 'RadioGroupProps', state: 'RadioGroupState', slots: 'RadioGroupSlots' },
+};
+
 export const manifestsByComponent: Record<string, HeadlessManifest> = {
   Button: buttonManifest,
   Checkbox: checkboxManifest,
@@ -249,6 +336,12 @@ export const manifestsByComponent: Record<string, HeadlessManifest> = {
   ToggleButton: toggleButtonManifest,
   Switch: switchManifest,
   Input: inputManifest,
+  Field: fieldManifest,
+  Textarea: textareaManifest,
+  Slider: sliderManifest,
+  Spinner: spinnerManifest,
+  Radio: radioManifest,
+  RadioGroup: radioGroupManifest,
 };
 
 export function getManifest(component: string): HeadlessManifest {
