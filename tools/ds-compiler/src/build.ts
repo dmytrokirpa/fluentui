@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import prettier from 'prettier';
 import type { DesignSystemBundle } from './schema';
 import { getManifest } from './manifest';
 import { validateRecipe, assertNoErrors, type ValidationIssue } from './validate';
@@ -7,6 +8,17 @@ import { compileRecipe } from './compile';
 import { emitCss, emitThemeCss } from './emit-css';
 import { emitTsx, emitIndex } from './emit-tsx';
 import { emitStories } from './emit-stories';
+
+/** Match repo Prettier so generated files stay rebuild-stable under nano-staged. */
+function formatGeneratedFile(filePath: string): void {
+  if (!/\.(css|tsx?)$/.test(filePath)) return;
+  const source = fs.readFileSync(filePath, 'utf8');
+  const config = prettier.resolveConfig.sync(filePath) ?? {};
+  const formatted = prettier.format(source, { ...config, filepath: filePath });
+  if (formatted !== source) {
+    fs.writeFileSync(filePath, formatted, 'utf8');
+  }
+}
 
 export type BuildOptions = {
   outDir: string;
@@ -92,6 +104,10 @@ export function buildDesignSystem(bundle: DesignSystemBundle, options: BuildOpti
   const exports = uniqueHeadless.map(h => `export * from './${h}';`).join('\n');
   fs.writeFileSync(rootIndex, `import './theme.css';\n${exports}\n`, 'utf8');
   files.push(rootIndex);
+
+  for (const filePath of files) {
+    formatGeneratedFile(filePath);
+  }
 
   return { issues: allIssues, files, rawBlockCount };
 }

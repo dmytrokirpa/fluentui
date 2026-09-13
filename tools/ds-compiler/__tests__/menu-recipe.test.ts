@@ -79,12 +79,10 @@ describe('fluent2 Menu family recipes', () => {
       'MenuDivider',
       'MenuGroupHeader',
     ]) {
-      expect(barrel).toContain(`export { ${name} } from './${name}'`);
+      expect(barrel).toMatch(new RegExp(`export \\{ ${name} \\} from ['"]\\./${name}['"]`));
       expect(fs.existsSync(path.join(outDir, 'menu', `${name}.tsx`))).toBe(true);
     }
     const root = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8');
-    expect(root.match(/export \* from '\.\/menu'/g)?.length ?? root.match(/export \* from '\.\/menu'/g)?.length).toBe(
-      1,
-    );
+    expect(root.match(/export \* from ['"]\.\/menu['"]/g)?.length).toBe(1);
   });
 });
