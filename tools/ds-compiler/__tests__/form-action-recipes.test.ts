@@ -117,6 +117,7 @@ describe('fluent2 form/action recipes', () => {
     for (const dir of ['label', 'link', 'toggle-button', 'switch', 'input']) {
       expect(fs.existsSync(path.join(outDir, dir))).toBe(true);
     }
-    expect(result.rawBlockCount).toBe(0);
+    // Spinner contributes one raw keyframes block at the design-system level.
+    expect(result.rawBlockCount).toBe(1);
   });
 });

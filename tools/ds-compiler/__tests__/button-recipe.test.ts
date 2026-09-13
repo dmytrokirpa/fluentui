@@ -80,6 +80,7 @@ describe('fluent2 Button recipe', () => {
     expect(fs.existsSync(path.join(outDir, 'theme.css'))).toBe(true);
     expect(fs.existsSync(path.join(outDir, 'button', 'Button.tsx'))).toBe(true);
     expect(fs.existsSync(path.join(outDir, 'button', 'Button.css'))).toBe(true);
-    expect(result.rawBlockCount).toBe(0);
+    // Spinner contributes one raw keyframes block at the design-system level.
+    expect(result.rawBlockCount).toBe(1);
   });
 });

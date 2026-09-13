@@ -60,6 +60,7 @@ describe('fluent2 Checkbox recipe', () => {
     const result = buildDesignSystem(fluent2, { outDir });
     expect(fs.existsSync(path.join(outDir, 'checkbox', 'Checkbox.tsx'))).toBe(true);
     expect(fs.existsSync(path.join(outDir, 'checkbox', 'Checkbox.css'))).toBe(true);
-    expect(result.rawBlockCount).toBe(0);
+    // Spinner contributes one raw keyframes block at the design-system level.
+    expect(result.rawBlockCount).toBe(1);
   });
 });

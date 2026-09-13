@@ -69,7 +69,8 @@ describe('fluent2 Menu family recipes', () => {
   it('build merges full menu family into one barrel', () => {
     const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ds-compiler-'));
     const result = buildDesignSystem(fluent2, { outDir });
-    expect(result.rawBlockCount).toBe(0);
+    // Spinner contributes one raw keyframes block at the design-system level.
+    expect(result.rawBlockCount).toBe(1);
     const barrel = fs.readFileSync(path.join(outDir, 'menu', 'index.ts'), 'utf8');
     for (const name of [
       'MenuPopover',

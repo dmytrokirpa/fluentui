@@ -7,3 +7,8 @@ export * from './link';
 export * from './toggle-button';
 export * from './switch';
 export * from './input';
+export * from './field';
+export * from './textarea';
+export * from './slider';
+export * from './spinner';
+export * from './radio-group';

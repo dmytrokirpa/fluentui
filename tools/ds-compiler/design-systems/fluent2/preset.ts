@@ -123,6 +123,28 @@ export const fluent2Tokens = defineTokens({
   durationNormal: 'var(--durationNormal)',
   spacingHorizontalXXS: 'var(--spacingHorizontalXXS)',
   strokeWidthThicker: 'var(--strokeWidthThicker)',
+  // Form / feedback / slider / radio / spinner wave
+  colorNeutralForeground4: 'var(--colorNeutralForeground4)',
+  colorNeutralForegroundStaticInverted: 'var(--colorNeutralForegroundStaticInverted)',
+  colorBrandStroke1: 'var(--colorBrandStroke1)',
+  colorBrandStroke2Contrast: 'var(--colorBrandStroke2Contrast)',
+  colorNeutralStrokeOnBrand2: 'var(--colorNeutralStrokeOnBrand2)',
+  colorNeutralStrokeAlpha2: 'var(--colorNeutralStrokeAlpha2)',
+  colorPaletteRedForeground1: 'var(--colorPaletteRedForeground1)',
+  colorPaletteDarkOrangeForeground1: 'var(--colorPaletteDarkOrangeForeground1)',
+  colorPaletteGreenForeground1: 'var(--colorPaletteGreenForeground1)',
+  colorNeutralForegroundStaticInverted: 'var(--colorNeutralForegroundStaticInverted)',
+  spacingVerticalXXS: 'var(--spacingVerticalXXS)',
+  spacingVerticalXS: 'var(--spacingVerticalXS)',
+  strokeWidthThickest: 'var(--strokeWidthThickest)',
+  fontSizeBase100: 'var(--fontSizeBase100)',
+  lineHeightBase100: 'var(--lineHeightBase100)',
+  fontSizeBase500: 'var(--fontSizeBase500)',
+  lineHeightBase500: 'var(--lineHeightBase500)',
+  durationUltraFast: 'var(--durationUltraFast)',
+  durationSlow: 'var(--durationSlow)',
+  curveAccelerateMid: 'var(--curveAccelerateMid)',
+  curveDecelerateMid: 'var(--curveDecelerateMid)',
 });
 
 export const fluent2Preset = definePreset({

@@ -13,6 +13,12 @@ import { linkRecipe } from './recipes/link';
 import { toggleButtonRecipe } from './recipes/toggle-button';
 import { switchRecipe } from './recipes/switch';
 import { inputRecipe } from './recipes/input';
+import { fieldRecipe } from './recipes/field';
+import { textareaRecipe } from './recipes/textarea';
+import { sliderRecipe } from './recipes/slider';
+import { spinnerRecipe } from './recipes/spinner';
+import { radioRecipe } from './recipes/radio';
+import { radioGroupRecipe } from './recipes/radio-group';
 
 export const fluent2: DesignSystemBundle = {
   preset: fluent2Preset,
@@ -30,6 +36,12 @@ export const fluent2: DesignSystemBundle = {
     toggleButtonRecipe,
     switchRecipe,
     inputRecipe,
+    fieldRecipe,
+    textareaRecipe,
+    sliderRecipe,
+    spinnerRecipe,
+    radioRecipe,
+    radioGroupRecipe,
   ],
 };
 
@@ -48,4 +60,10 @@ export {
   toggleButtonRecipe,
   switchRecipe,
   inputRecipe,
+  fieldRecipe,
+  textareaRecipe,
+  sliderRecipe,
+  spinnerRecipe,
+  radioRecipe,
+  radioGroupRecipe,
 };

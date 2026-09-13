@@ -63,9 +63,10 @@ yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts
 1. ~~Nested conditions / Button `raw` elimination.~~ **Done**
 2. ~~Checkbox + Menu family (+ selectable + `_groupHover`).~~ **Done**
 3. ~~Label, Link, ToggleButton, Switch, Input.~~ **Done** (0 raw)
-4. **Next Fluent 2 recipes:** Field, Textarea, Slider, RadioGroup, Spinner, Dialog/Drawer surfaces
-5. Griffel AST → recipe coverage measurement (only after a critical mass of hand recipes).
-6. Prose/agent-first DS — **deferred** until Fluent 2 recipe set validates the compiler end-to-end.
+4. ~~Field, Textarea, Slider, RadioGroup, Spinner.~~ **Done** (Spinner: 1 raw keyframes)
+5. **Next Fluent 2 recipes:** Dialog/Drawer surfaces, ProgressBar, Avatar, Badge
+6. Griffel AST → recipe coverage measurement (only after a critical mass of hand recipes).
+7. Prose/agent-first DS — **deferred** until Fluent 2 recipe set validates the compiler end-to-end.
 
 ## Nested condition syntax (Panda CSS)
 
@@ -149,3 +150,20 @@ Selectable menu items reuse MenuItem base styles + `data-checked` presence to to
 - `_after` / `_before` — `::after` / `::before` pseudo-elements
 - `_child` — direct-child combinator (`selector > *`) for Switch thumb
 - Transform functions (`translateX(…)`, `scale(…)`, …) allowed without `raw`
+
+## Form controls wave 2 (Fluent 2)
+
+| Component  | Headless highlights                                    | DS variants           | Raw |
+| ---------- | ------------------------------------------------------ | --------------------- | --- |
+| Field      | `validationState` via `data-validate-state`            | `orientation`, `size` | 0   |
+| Textarea   | `disabled`, `invalid`, `resize`                        | `appearance`, `size`  | 0   |
+| Slider     | `disabled`, `vertical`; CSS vars for progress/thumb    | `size`                | 0   |
+| Spinner    | `labelPosition`; simplified ring (border spin)         | `appearance`, `size`  | 1   |
+| Radio      | `disabled`, `labelPosition`; checked via `_hasChecked` | —                     | 0   |
+| RadioGroup | — (layout is DS-only)                                  | `layout`              | 0   |
+
+### Schema additions for this wave
+
+- `_hasChecked` — `.root:has(:checked) .slot` for Radio (no `data-checked` on headless)
+- `linear-gradient` / `var(--x, fallback)` allowed in style values
+- Validate strips CSS functions before keyword literals (`linear` vs `linear-gradient`)
