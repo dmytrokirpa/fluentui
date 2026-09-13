@@ -8,6 +8,11 @@ import { menuItemCheckboxRecipe } from './recipes/menu-item-checkbox';
 import { menuItemRadioRecipe } from './recipes/menu-item-radio';
 import { menuDividerRecipe } from './recipes/menu-divider';
 import { menuGroupHeaderRecipe } from './recipes/menu-group-header';
+import { labelRecipe } from './recipes/label';
+import { linkRecipe } from './recipes/link';
+import { toggleButtonRecipe } from './recipes/toggle-button';
+import { switchRecipe } from './recipes/switch';
+import { inputRecipe } from './recipes/input';
 
 export const fluent2: DesignSystemBundle = {
   preset: fluent2Preset,
@@ -20,6 +25,11 @@ export const fluent2: DesignSystemBundle = {
     menuItemRadioRecipe,
     menuDividerRecipe,
     menuGroupHeaderRecipe,
+    labelRecipe,
+    linkRecipe,
+    toggleButtonRecipe,
+    switchRecipe,
+    inputRecipe,
   ],
 };
 
@@ -33,4 +43,9 @@ export {
   menuItemRadioRecipe,
   menuDividerRecipe,
   menuGroupHeaderRecipe,
+  labelRecipe,
+  linkRecipe,
+  toggleButtonRecipe,
+  switchRecipe,
+  inputRecipe,
 };

@@ -58,10 +58,14 @@ yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts
 
 ### Recommended next steps
 
-1. ~~Extend nested conditions / eliminate Button `raw`.~~ **Done**
-2. ~~Port Checkbox + Menu (composite).~~ **Done** — + selectable MenuItemCheckbox/Radio; `_groupHover` closes parent→child gap.
-3. Add a Griffel AST → recipe extractor against `useButtonStyles.styles.ts` and measure coverage %.
-4. Only then bring the prose/agent-first DS through the same compiler.
+**Priority: Fluent 2 recipe coverage first** (not prose/agent DS).
+
+1. ~~Nested conditions / Button `raw` elimination.~~ **Done**
+2. ~~Checkbox + Menu family (+ selectable + `_groupHover`).~~ **Done**
+3. ~~Label, Link, ToggleButton, Switch, Input.~~ **Done** (0 raw)
+4. **Next Fluent 2 recipes:** Field, Textarea, Slider, RadioGroup, Spinner, Dialog/Drawer surfaces
+5. Griffel AST → recipe coverage measurement (only after a critical mass of hand recipes).
+6. Prose/agent-first DS — **deferred** until Fluent 2 recipe set validates the compiler end-to-end.
 
 ## Nested condition syntax (Panda CSS)
 
@@ -80,7 +84,7 @@ primary: {
 }
 ```
 
-Supported keys: `_hover`, `_active`, `_focus`, `_focusVisible`, `_focusWithin`, `_groupHover`, `_groupActive`, `_groupFocusVisible`, `_forcedColors`, `_reducedMotion`, `_rtl`.
+Supported keys: `_hover`, `_active`, `_focus`, `_focusVisible`, `_focusWithin`, `_groupHover`, `_groupActive`, `_groupFocusVisible`, `_after`, `_before`, `_child`, `_forcedColors`, `_reducedMotion`, `_rtl`.
 Hover/active automatically append `:not([data-disabled]):not([data-disabled-focusable])`.
 
 This replaced the Button recipe's last `raw` block (per-appearance hover/active overrides).
@@ -129,3 +133,19 @@ Emits `.fui-MenuItem:not([data-disabled]):hover .fui-MenuItem__icon { … }` (Pa
 ## MenuItemCheckbox / MenuItemRadio
 
 Selectable menu items reuse MenuItem base styles + `data-checked` presence to toggle checkmark `visibility`. Still **0 raw**.
+
+## Form + action recipes (Fluent 2)
+
+| Component    | Headless highlights                                     | DS variants                   | Raw |
+| ------------ | ------------------------------------------------------- | ----------------------------- | --- |
+| Label        | `disabled`, `required`                                  | `size`, `weight`              | 0   |
+| Link         | `disabled`, `disabledFocusable`                         | `appearance`, `inline`        | 0   |
+| ToggleButton | Button states + `checked`                               | `appearance`, `size`, `shape` | 0   |
+| Switch       | `checked`, `labelPosition`, `_child` thumb slide        | `size`                        | 0   |
+| Input        | `disabled`, `invalid`, `_focusWithin` underline approx. | `appearance`, `size`          | 0   |
+
+### Schema additions for this wave
+
+- `_after` / `_before` — `::after` / `::before` pseudo-elements
+- `_child` — direct-child combinator (`selector > *`) for Switch thumb
+- Transform functions (`translateX(…)`, `scale(…)`, …) allowed without `raw`
