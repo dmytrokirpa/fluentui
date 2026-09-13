@@ -32,6 +32,26 @@
     cursor: pointer;
   }
 
+  .fui-Button:not([data-disabled]):not([data-disabled-focusable]):hover {
+    background-color: var(--colorNeutralBackground1Hover);
+    border-color: var(--colorNeutralStroke1Hover);
+    color: var(--colorNeutralForeground1Hover);
+  }
+
+  .fui-Button:not([data-disabled]):not([data-disabled-focusable]):active {
+    background-color: var(--colorNeutralBackground1Pressed);
+    border-color: var(--colorNeutralStroke1Pressed);
+    color: var(--colorNeutralForeground1Pressed);
+  }
+
+  .fui-Button:focus-visible {
+    border-color: var(--colorStrokeFocus2);
+    border-width: 1px;
+    outline: var(--strokeWidthThick) solid var(--colorTransparentStroke);
+    box-shadow: inset 0 0 0 var(--strokeWidthThin) var(--colorStrokeFocus2);
+    z-index: 1;
+  }
+
   .fui-Button .fui-Button__icon {
     display: inline-flex;
     align-items: center;
@@ -39,6 +59,12 @@
     font-size: 20px;
     height: 20px;
     width: 20px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fui-Button {
+      transition-duration: 0.01ms;
+    }
   }
 }
 
@@ -49,8 +75,28 @@
     color: var(--colorNeutralForegroundOnBrand);
   }
 
+  .fui-Button[data-fui-appearance='primary']:not([data-disabled]):not([data-disabled-focusable]):hover {
+    background-color: var(--colorBrandBackgroundHover);
+    border-color: transparent;
+    color: var(--colorNeutralForegroundOnBrand);
+  }
+
+  .fui-Button[data-fui-appearance='primary']:not([data-disabled]):not([data-disabled-focusable]):active {
+    background-color: var(--colorBrandBackgroundPressed);
+    border-color: transparent;
+    color: var(--colorNeutralForegroundOnBrand);
+  }
+
   .fui-Button[data-fui-appearance='outline'] {
     background-color: var(--colorTransparentBackground);
+  }
+
+  .fui-Button[data-fui-appearance='outline']:not([data-disabled]):not([data-disabled-focusable]):hover {
+    background-color: var(--colorTransparentBackgroundHover);
+  }
+
+  .fui-Button[data-fui-appearance='outline']:not([data-disabled]):not([data-disabled-focusable]):active {
+    background-color: var(--colorTransparentBackgroundPressed);
   }
 
   .fui-Button[data-fui-appearance='subtle'] {
@@ -59,10 +105,34 @@
     color: var(--colorNeutralForeground2);
   }
 
+  .fui-Button[data-fui-appearance='subtle']:not([data-disabled]):not([data-disabled-focusable]):hover {
+    background-color: var(--colorSubtleBackgroundHover);
+    border-color: transparent;
+    color: var(--colorNeutralForeground2Hover);
+  }
+
+  .fui-Button[data-fui-appearance='subtle']:not([data-disabled]):not([data-disabled-focusable]):active {
+    background-color: var(--colorSubtleBackgroundPressed);
+    border-color: transparent;
+    color: var(--colorNeutralForeground2Pressed);
+  }
+
   .fui-Button[data-fui-appearance='transparent'] {
     background-color: var(--colorTransparentBackground);
     border-color: transparent;
     color: var(--colorNeutralForeground2);
+  }
+
+  .fui-Button[data-fui-appearance='transparent']:not([data-disabled]):not([data-disabled-focusable]):hover {
+    background-color: var(--colorTransparentBackgroundHover);
+    border-color: transparent;
+    color: var(--colorNeutralForeground2BrandHover);
+  }
+
+  .fui-Button[data-fui-appearance='transparent']:not([data-disabled]):not([data-disabled-focusable]):active {
+    background-color: var(--colorTransparentBackgroundPressed);
+    border-color: transparent;
+    color: var(--colorNeutralForeground2BrandPressed);
   }
 
   .fui-Button[data-fui-size='small'] {
@@ -169,79 +239,5 @@
   .fui-Button[data-fui-appearance='transparent'][data-disabled] {
     background-color: var(--colorTransparentBackground);
     border-color: transparent;
-  }
-}
-
-@layer ds.interactions {
-  .fui-Button:not([data-disabled]):not([data-disabled-focusable]):hover {
-    background-color: var(--colorNeutralBackground1Hover);
-    border-color: var(--colorNeutralStroke1Hover);
-    color: var(--colorNeutralForeground1Hover);
-  }
-
-  .fui-Button:not([data-disabled]):not([data-disabled-focusable]):active {
-    background-color: var(--colorNeutralBackground1Pressed);
-    border-color: var(--colorNeutralStroke1Pressed);
-    color: var(--colorNeutralForeground1Pressed);
-  }
-
-  .fui-Button:focus-visible {
-    border-color: var(--colorStrokeFocus2);
-    border-width: 1px;
-    outline: var(--strokeWidthThick) solid var(--colorTransparentStroke);
-    box-shadow: inset 0 0 0 var(--strokeWidthThin) var(--colorStrokeFocus2);
-    z-index: 1;
-  }
-}
-
-@layer ds.conditions {
-  @media (forced-colors: active) {
-    .fui-Button {
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .fui-Button {
-      transition-duration: 0.01ms;
-    }
-  }
-}
-
-@layer ds.raw {
-  /* raw: Primary appearance hover/active overrides — compound interaction selectors not in schema yet */
-  .fui-Button[data-fui-appearance='primary']:not([data-disabled]):not([data-disabled-focusable]):hover {
-    background-color: var(--colorBrandBackgroundHover);
-    border-color: transparent;
-    color: var(--colorNeutralForegroundOnBrand);
-  }
-  .fui-Button[data-fui-appearance='primary']:not([data-disabled]):not([data-disabled-focusable]):active {
-    background-color: var(--colorBrandBackgroundPressed);
-    border-color: transparent;
-    color: var(--colorNeutralForegroundOnBrand);
-  }
-  .fui-Button[data-fui-appearance='subtle']:not([data-disabled]):not([data-disabled-focusable]):hover {
-    background-color: var(--colorSubtleBackgroundHover);
-    border-color: transparent;
-    color: var(--colorNeutralForeground2Hover);
-  }
-  .fui-Button[data-fui-appearance='subtle']:not([data-disabled]):not([data-disabled-focusable]):active {
-    background-color: var(--colorSubtleBackgroundPressed);
-    border-color: transparent;
-    color: var(--colorNeutralForeground2Pressed);
-  }
-  .fui-Button[data-fui-appearance='transparent']:not([data-disabled]):not([data-disabled-focusable]):hover {
-    background-color: var(--colorTransparentBackgroundHover);
-    border-color: transparent;
-    color: var(--colorNeutralForeground2BrandHover);
-  }
-  .fui-Button[data-fui-appearance='transparent']:not([data-disabled]):not([data-disabled-focusable]):active {
-    background-color: var(--colorTransparentBackgroundPressed);
-    border-color: transparent;
-    color: var(--colorNeutralForeground2BrandPressed);
-  }
-  .fui-Button[data-fui-appearance='outline']:not([data-disabled]):not([data-disabled-focusable]):hover {
-    background-color: var(--colorTransparentBackgroundHover);
-  }
-  .fui-Button[data-fui-appearance='outline']:not([data-disabled]):not([data-disabled-focusable]):active {
-    background-color: var(--colorTransparentBackgroundPressed);
   }
 }

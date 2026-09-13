@@ -1,5 +1,6 @@
 import type { HeadlessManifest } from './manifest';
 import type { PresetDefinition, SlotRecipeDefinition, SlotStyles, Style, StyleValue } from './schema';
+import { isConditionKey } from './schema';
 
 export type ValidationIssue = { level: 'error' | 'warning'; path: string; message: string };
 
@@ -94,6 +95,43 @@ function isAllowed(value: StyleValue): boolean {
 
 function walkStyle(styles: Style, path: string, issues: ValidationIssue[]) {
   for (const [prop, value] of Object.entries(styles)) {
+    if (value === undefined) continue;
+    if (isConditionKey(prop)) {
+      if (!value || typeof value !== 'object') {
+        issues.push({
+          level: 'error',
+          path: `${path}.${prop}`,
+          message: `Condition "${prop}" must be a nested Style object`,
+        });
+        continue;
+      }
+      walkStyle(value as Style, `${path}.${prop}`, issues);
+      continue;
+    }
+    if (prop.startsWith('_')) {
+      issues.push({
+        level: 'error',
+        path: `${path}.${prop}`,
+        message: `Unknown condition key "${prop}". Known: ${[
+          '_hover',
+          '_active',
+          '_focus',
+          '_focusVisible',
+          '_forcedColors',
+          '_reducedMotion',
+          '_rtl',
+        ].join(', ')}`,
+      });
+      continue;
+    }
+    if (typeof value === 'object') {
+      issues.push({
+        level: 'error',
+        path: `${path}.${prop}`,
+        message: `Nested object under CSS property "${prop}" is not allowed — use a condition key (_hover, …)`,
+      });
+      continue;
+    }
     if (!isAllowed(value)) {
       issues.push({
         level: 'error',
@@ -107,14 +145,6 @@ function walkStyle(styles: Style, path: string, issues: ValidationIssue[]) {
 function walkSlots(slotStyles: SlotStyles | undefined, path: string, issues: ValidationIssue[]) {
   if (!slotStyles) return;
   for (const [slot, styles] of Object.entries(slotStyles)) walkStyle(styles, `${path}.${slot}`, issues);
-}
-
-function isEnumMap(value: unknown): value is Record<string, SlotStyles> {
-  if (!value || typeof value !== 'object') return false;
-  const first = Object.values(value as object)[0];
-  if (!first || typeof first !== 'object') return false;
-  const nested = Object.values(first as object)[0];
-  return nested !== null && typeof nested === 'object';
 }
 
 export function validateRecipe(
@@ -182,27 +212,19 @@ export function validateRecipe(
         continue;
       }
       if (desc.kind === 'presence') {
-        if (isEnumMap(styles)) {
-          issues.push({
-            level: 'error',
-            path: `states.${name}`,
-            message: `Presence state expects SlotStyles, got enum map`,
-          });
-        } else {
-          walkSlots(styles as SlotStyles, `states.${name}`, issues);
-        }
-      } else if (!isEnumMap(styles)) {
-        issues.push({ level: 'error', path: `states.${name}`, message: `Enum state expects value → SlotStyles map` });
+        // Presence states are SlotStyles (slot → Style). Nested _hover etc. are allowed on Style.
+        walkSlots(styles as SlotStyles, `states.${name}`, issues);
       } else {
-        for (const [val, slotStyles] of Object.entries(styles)) {
-          if (!desc.values.includes(val)) {
+        // Enum states are value → SlotStyles. Nested conditions are allowed inside each SlotStyles.
+        for (const [enumValue, slotStyles] of Object.entries(styles as Record<string, SlotStyles>)) {
+          if (!desc.values.includes(enumValue)) {
             issues.push({
               level: 'error',
-              path: `states.${name}.${val}`,
+              path: `states.${name}.${enumValue}`,
               message: `Invalid value for ${desc.attr}. Known: ${desc.values.join(', ')}`,
             });
           }
-          walkSlots(slotStyles, `states.${name}.${val}`, issues);
+          walkSlots(slotStyles, `states.${name}.${enumValue}`, issues);
         }
       }
     }

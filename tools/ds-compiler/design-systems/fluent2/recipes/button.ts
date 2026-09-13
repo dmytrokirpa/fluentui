@@ -46,6 +46,27 @@ export const buttonRecipe = defineSlotRecipe({
       transitionProperty: 'background, border, color',
       transitionTimingFunction: '$curveEasyEase',
       cursor: 'pointer',
+      // Default (secondary) interactive styles — appearance variants override these.
+      _hover: {
+        backgroundColor: '$colorNeutralBackground1Hover',
+        borderColor: '$colorNeutralStroke1Hover',
+        color: '$colorNeutralForeground1Hover',
+      },
+      _active: {
+        backgroundColor: '$colorNeutralBackground1Pressed',
+        borderColor: '$colorNeutralStroke1Pressed',
+        color: '$colorNeutralForeground1Pressed',
+      },
+      _focusVisible: {
+        borderColor: '$colorStrokeFocus2',
+        borderWidth: '1px',
+        outline: '$strokeWidthThick solid $colorTransparentStroke',
+        boxShadow: 'inset 0 0 0 $strokeWidthThin $colorStrokeFocus2',
+        zIndex: 1,
+      },
+      _reducedMotion: {
+        transitionDuration: '0.01ms',
+      },
     },
     icon: {
       display: 'inline-flex',
@@ -66,18 +87,34 @@ export const buttonRecipe = defineSlotRecipe({
   variants: {
     appearance: {
       secondary: {
-        // same as base
+        // Interactive styles inherit from base.root._hover / _active.
       },
       primary: {
         root: {
           backgroundColor: '$colorBrandBackground',
           borderColor: 'transparent',
           color: '$colorNeutralForegroundOnBrand',
+          _hover: {
+            backgroundColor: '$colorBrandBackgroundHover',
+            borderColor: 'transparent',
+            color: '$colorNeutralForegroundOnBrand',
+          },
+          _active: {
+            backgroundColor: '$colorBrandBackgroundPressed',
+            borderColor: 'transparent',
+            color: '$colorNeutralForegroundOnBrand',
+          },
         },
       },
       outline: {
         root: {
           backgroundColor: '$colorTransparentBackground',
+          _hover: {
+            backgroundColor: '$colorTransparentBackgroundHover',
+          },
+          _active: {
+            backgroundColor: '$colorTransparentBackgroundPressed',
+          },
         },
       },
       subtle: {
@@ -85,6 +122,16 @@ export const buttonRecipe = defineSlotRecipe({
           backgroundColor: '$colorSubtleBackground',
           borderColor: 'transparent',
           color: '$colorNeutralForeground2',
+          _hover: {
+            backgroundColor: '$colorSubtleBackgroundHover',
+            borderColor: 'transparent',
+            color: '$colorNeutralForeground2Hover',
+          },
+          _active: {
+            backgroundColor: '$colorSubtleBackgroundPressed',
+            borderColor: 'transparent',
+            color: '$colorNeutralForeground2Pressed',
+          },
         },
       },
       transparent: {
@@ -92,6 +139,16 @@ export const buttonRecipe = defineSlotRecipe({
           backgroundColor: '$colorTransparentBackground',
           borderColor: 'transparent',
           color: '$colorNeutralForeground2',
+          _hover: {
+            backgroundColor: '$colorTransparentBackgroundHover',
+            borderColor: 'transparent',
+            color: '$colorNeutralForeground2BrandHover',
+          },
+          _active: {
+            backgroundColor: '$colorTransparentBackgroundPressed',
+            borderColor: 'transparent',
+            color: '$colorNeutralForeground2BrandPressed',
+          },
         },
       },
     },
@@ -250,84 +307,6 @@ export const buttonRecipe = defineSlotRecipe({
           borderColor: 'transparent',
         },
       },
-    },
-  ],
-
-  interactions: {
-    root: {
-      hover: {
-        backgroundColor: '$colorNeutralBackground1Hover',
-        borderColor: '$colorNeutralStroke1Hover',
-        color: '$colorNeutralForeground1Hover',
-      },
-      active: {
-        backgroundColor: '$colorNeutralBackground1Pressed',
-        borderColor: '$colorNeutralStroke1Pressed',
-        color: '$colorNeutralForeground1Pressed',
-      },
-      focusVisible: {
-        borderColor: '$colorStrokeFocus2',
-        borderWidth: '1px',
-        outline: '$strokeWidthThick solid $colorTransparentStroke',
-        boxShadow: 'inset 0 0 0 $strokeWidthThin $colorStrokeFocus2',
-        zIndex: 1,
-      },
-    },
-  },
-
-  conditions: {
-    reducedMotion: {
-      root: {
-        transitionDuration: '0.01ms',
-      },
-    },
-    forcedColors: {
-      root: {
-        // System colors — allow-listed literals
-        // (full parity with Griffel high-contrast blocks is a follow-up)
-      },
-    },
-  },
-
-  raw: [
-    {
-      reason: 'Primary appearance hover/active overrides — compound interaction selectors not in schema yet',
-      css: `.fui-Button[data-fui-appearance="primary"]:not([data-disabled]):not([data-disabled-focusable]):hover {
-  background-color: var(--colorBrandBackgroundHover);
-  border-color: transparent;
-  color: var(--colorNeutralForegroundOnBrand);
-}
-.fui-Button[data-fui-appearance="primary"]:not([data-disabled]):not([data-disabled-focusable]):active {
-  background-color: var(--colorBrandBackgroundPressed);
-  border-color: transparent;
-  color: var(--colorNeutralForegroundOnBrand);
-}
-.fui-Button[data-fui-appearance="subtle"]:not([data-disabled]):not([data-disabled-focusable]):hover {
-  background-color: var(--colorSubtleBackgroundHover);
-  border-color: transparent;
-  color: var(--colorNeutralForeground2Hover);
-}
-.fui-Button[data-fui-appearance="subtle"]:not([data-disabled]):not([data-disabled-focusable]):active {
-  background-color: var(--colorSubtleBackgroundPressed);
-  border-color: transparent;
-  color: var(--colorNeutralForeground2Pressed);
-}
-.fui-Button[data-fui-appearance="transparent"]:not([data-disabled]):not([data-disabled-focusable]):hover {
-  background-color: var(--colorTransparentBackgroundHover);
-  border-color: transparent;
-  color: var(--colorNeutralForeground2BrandHover);
-}
-.fui-Button[data-fui-appearance="transparent"]:not([data-disabled]):not([data-disabled-focusable]):active {
-  background-color: var(--colorTransparentBackgroundPressed);
-  border-color: transparent;
-  color: var(--colorNeutralForeground2BrandPressed);
-}
-.fui-Button[data-fui-appearance="outline"]:not([data-disabled]):not([data-disabled-focusable]):hover {
-  background-color: var(--colorTransparentBackgroundHover);
-}
-.fui-Button[data-fui-appearance="outline"]:not([data-disabled]):not([data-disabled-focusable]):active {
-  background-color: var(--colorTransparentBackgroundPressed);
-}`,
     },
   ],
 });

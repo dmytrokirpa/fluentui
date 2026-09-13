@@ -51,6 +51,10 @@ describe('fluent2 Button recipe', () => {
     expect(css).toContain('[data-fui-appearance="primary"]');
     expect(css).toContain('[data-fui-size="small"]');
     expect(css).toContain('[data-disabled]');
+    expect(css).toContain('[data-fui-appearance="primary"]:not([data-disabled]):not([data-disabled-focusable]):hover');
+    expect(css).toContain(':focus-visible');
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(css).not.toContain('@layer ds.raw');
     expect(css).toContain('[data-icon-only]');
     expect(css).toContain('[data-icon-position="before"]');
     expect(css).toContain('var(--colorBrandBackground)');
@@ -76,6 +80,6 @@ describe('fluent2 Button recipe', () => {
     expect(fs.existsSync(path.join(outDir, 'theme.css'))).toBe(true);
     expect(fs.existsSync(path.join(outDir, 'button', 'Button.tsx'))).toBe(true);
     expect(fs.existsSync(path.join(outDir, 'button', 'Button.css'))).toBe(true);
-    expect(result.rawBlockCount).toBeGreaterThanOrEqual(1);
+    expect(result.rawBlockCount).toBe(0);
   });
 });

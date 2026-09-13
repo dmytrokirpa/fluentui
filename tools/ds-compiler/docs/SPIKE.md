@@ -62,3 +62,26 @@ yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts
 2. Port Checkbox + Menu (composite) to pressure-test slots/context.
 3. Add a Griffel AST → recipe extractor against `useButtonStyles.styles.ts` and measure coverage %.
 4. Only then bring the prose/agent-first DS through the same compiler.
+
+## Nested condition syntax (Panda CSS)
+
+Recipes may nest condition keys anywhere a `Style` object is accepted:
+
+```ts
+primary: {
+  root: {
+    backgroundColor: '$colorBrandBackground',
+    _hover: { backgroundColor: '$colorBrandBackgroundHover' },
+    _active: { backgroundColor: '$colorBrandBackgroundPressed' },
+    _focusVisible: { outline: '…' },
+    _forcedColors: { backgroundColor: 'Highlight' },
+    _reducedMotion: { transitionDuration: '0.01ms' },
+  },
+}
+```
+
+Supported keys: `_hover`, `_active`, `_focus`, `_focusVisible`, `_forcedColors`, `_reducedMotion`, `_rtl`.
+Hover/active automatically append `:not([data-disabled]):not([data-disabled-focusable])`.
+
+This replaced the Button recipe's last `raw` block (per-appearance hover/active overrides).
+Flat `interactions` / `conditions` fields remain as a deprecated alternate form.

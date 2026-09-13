@@ -1,6 +1,6 @@
 import type { CompiledRecipe } from './compile';
 import { camelToKebab } from './compile';
-import type { SlotStyles, Style, StyleValue } from './schema';
+import { isConditionKey, type ConditionKey, type SlotStyles, type Style, type StyleValue } from './schema';
 
 function resolveValue(value: StyleValue): string {
   if (typeof value === 'number') return String(value);
@@ -8,21 +8,132 @@ function resolveValue(value: StyleValue): string {
   return value.replace(/\$([A-Za-z][A-Za-z0-9]*)/g, 'var(--$1)');
 }
 
-function decls(style: Style, indent: string): string {
+function decls(style: Record<string, StyleValue>, indent: string): string {
   return Object.entries(style)
     .map(([prop, value]) => `${indent}${camelToKebab(prop)}: ${resolveValue(value)};`)
     .join('\n');
 }
 
-function emitSlots(compiled: CompiledRecipe, slotStyles: SlotStyles, rootSelector: string, indent = ''): string {
+/**
+ * Maps Panda-style `_condition` keys to selector / media transforms.
+ *
+ * Hover/active automatically exclude disabled headless states so recipes don't
+ * need to repeat `:not([data-disabled])` everywhere.
+ */
+type ConditionTransform =
+  | { kind: 'pseudo'; pseudo: string; guard?: string }
+  | { kind: 'media'; query: string }
+  | { kind: 'wrap'; wrap: (selector: string) => string };
+
+const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
+  _hover: {
+    kind: 'pseudo',
+    pseudo: ':hover',
+    guard: ':not([data-disabled]):not([data-disabled-focusable])',
+  },
+  _active: {
+    kind: 'pseudo',
+    pseudo: ':active',
+    guard: ':not([data-disabled]):not([data-disabled-focusable])',
+  },
+  _focus: { kind: 'pseudo', pseudo: ':focus' },
+  _focusVisible: { kind: 'pseudo', pseudo: ':focus-visible' },
+  _forcedColors: { kind: 'media', query: '(forced-colors: active)' },
+  _reducedMotion: { kind: 'media', query: '(prefers-reduced-motion: reduce)' },
+  _rtl: {
+    kind: 'wrap',
+    wrap: selector => `[dir="rtl"] ${selector}, ${selector}[dir="rtl"]`,
+  },
+};
+
+type FlatRule = {
+  selector: string;
+  /** Media query expression without `@media`, if any. */
+  media?: string;
+  declarations: Record<string, StyleValue>;
+};
+
+/**
+ * Flatten a Style that may contain nested `_condition` keys into a list of
+ * concrete CSS rules. Conditions may nest arbitrarily
+ * (e.g. `_forcedColors: { _hover: { … } }`).
+ */
+function flattenStyle(style: Style, selector: string, media: string | undefined, out: FlatRule[]): void {
+  const declarations: Record<string, StyleValue> = {};
+  const nested: Array<[ConditionKey, Style]> = [];
+
+  for (const [key, value] of Object.entries(style)) {
+    if (value === undefined) continue;
+
+    if (isConditionKey(key)) {
+      nested.push([key, value as Style]);
+      continue;
+    }
+
+    if (typeof value === 'object') {
+      // Should have been rejected by validate; skip defensively.
+      continue;
+    }
+
+    declarations[key] = value;
+  }
+
+  // Emit the base declarations first so nested conditions cascade after.
+  if (Object.keys(declarations).length > 0) {
+    out.push({ selector, media, declarations });
+  }
+
+  for (const [key, nestedStyle] of nested) {
+    const transform = CONDITIONS[key];
+    if (transform.kind === 'pseudo') {
+      const nextSelector = `${selector}${transform.guard ?? ''}${transform.pseudo}`;
+      flattenStyle(nestedStyle, nextSelector, media, out);
+    } else if (transform.kind === 'media') {
+      const nextMedia = media ? `${media} and ${transform.query}` : transform.query;
+      flattenStyle(nestedStyle, selector, nextMedia, out);
+    } else {
+      flattenStyle(nestedStyle, transform.wrap(selector), media, out);
+    }
+  }
+}
+
+function emitFlatRules(rules: FlatRule[], indent: string): string {
+  // Group by media so we emit one @media block per query.
+  const noMedia: FlatRule[] = [];
+  const byMedia = new Map<string, FlatRule[]>();
+  for (const rule of rules) {
+    if (!rule.media) {
+      noMedia.push(rule);
+    } else {
+      const list = byMedia.get(rule.media) ?? [];
+      list.push(rule);
+      byMedia.set(rule.media, list);
+    }
+  }
+
   const blocks: string[] = [];
-  for (const [slot, style] of Object.entries(slotStyles)) {
-    const selector = slot === 'root' ? rootSelector : `${rootSelector} .${compiled.classNames[slot]}`;
-    blocks.push(`${indent}${selector} {\n${decls(style, indent + '  ')}\n${indent}}`);
+  for (const rule of noMedia) {
+    blocks.push(`${indent}${rule.selector} {\n${decls(rule.declarations, indent + '  ')}\n${indent}}`);
+  }
+  for (const [query, mediaRules] of byMedia) {
+    const inner = mediaRules
+      .map(rule => `${indent}  ${rule.selector} {\n${decls(rule.declarations, indent + '    ')}\n${indent}  }`)
+      .join('\n\n');
+    blocks.push(`${indent}@media ${query} {\n${inner}\n${indent}}`);
   }
   return blocks.join('\n\n');
 }
 
+function emitSlots(compiled: CompiledRecipe, slotStyles: SlotStyles, rootSelector: string, indent = ''): string {
+  const rules: FlatRule[] = [];
+  for (const [slot, style] of Object.entries(slotStyles)) {
+    const selector = slot === 'root' ? rootSelector : `${rootSelector} .${compiled.classNames[slot]}`;
+    flattenStyle(style, selector, undefined, rules);
+  }
+  return emitFlatRules(rules, indent);
+}
+
+/** @deprecated flat interaction map — prefer nested `_hover` etc. */
 const PSEUDO: Record<string, string> = {
   hover: 'hover',
   active: 'active',
@@ -53,7 +164,7 @@ export function emitCss(compiled: CompiledRecipe): string {
   out.push('}');
   out.push('');
 
-  // variants
+  // variants (nested _hover / _active etc. expand here)
   if (recipe.variants) {
     out.push('@layer ds.variants {');
     const blocks: string[] = [];
@@ -64,6 +175,7 @@ export function emitCss(compiled: CompiledRecipe): string {
     }
     out.push(
       blocks
+        .filter(Boolean)
         .join('\n\n')
         .split('\n')
         .map(l => (l ? `  ${l}` : l))
@@ -90,6 +202,7 @@ export function emitCss(compiled: CompiledRecipe): string {
     }
     out.push(
       blocks
+        .filter(Boolean)
         .join('\n\n')
         .split('\n')
         .map(l => (l ? `  ${l}` : l))
@@ -121,6 +234,7 @@ export function emitCss(compiled: CompiledRecipe): string {
     }
     out.push(
       blocks
+        .filter(Boolean)
         .join('\n\n')
         .split('\n')
         .map(l => (l ? `  ${l}` : l))
@@ -130,7 +244,7 @@ export function emitCss(compiled: CompiledRecipe): string {
     out.push('');
   }
 
-  // interactions
+  // legacy flat interactions (prefer nested _hover on Style)
   if (recipe.interactions) {
     out.push('@layer ds.interactions {');
     const blocks: string[] = [];
@@ -141,11 +255,15 @@ export function emitCss(compiled: CompiledRecipe): string {
         const guard =
           pseudo === 'hover' || pseudo === 'active' ? ':not([data-disabled]):not([data-disabled-focusable])' : '';
         const selector = `${base}${guard}:${PSEUDO[pseudo] ?? pseudo}`;
-        blocks.push(`${selector} {\n${decls(style, '  ')}\n}`);
+        // Flatten in case someone nests conditions inside a legacy interaction style.
+        const rules: FlatRule[] = [];
+        flattenStyle(style, selector, undefined, rules);
+        blocks.push(emitFlatRules(rules, ''));
       }
     }
     out.push(
       blocks
+        .filter(Boolean)
         .join('\n\n')
         .split('\n')
         .map(l => (l ? `  ${l}` : l))
@@ -155,7 +273,7 @@ export function emitCss(compiled: CompiledRecipe): string {
     out.push('');
   }
 
-  // conditions
+  // legacy flat conditions (prefer nested _forcedColors on Style)
   if (recipe.conditions) {
     out.push('@layer ds.conditions {');
     if (recipe.conditions.forcedColors) {
@@ -174,14 +292,16 @@ export function emitCss(compiled: CompiledRecipe): string {
           slot === 'root'
             ? `[dir="rtl"] ${root}, ${root}[dir="rtl"]`
             : `[dir="rtl"] ${root} .${compiled.classNames[slot]}`;
-        out.push(`  ${sel} {\n${decls(style, '    ')}\n  }`);
+        const rules: FlatRule[] = [];
+        flattenStyle(style, sel, undefined, rules);
+        out.push(emitFlatRules(rules, '  '));
       }
     }
     out.push('}');
     out.push('');
   }
 
-  // raw
+  // raw escape hatch
   if (recipe.raw?.length) {
     out.push('@layer ds.raw {');
     for (const block of recipe.raw) {
