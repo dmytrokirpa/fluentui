@@ -121,11 +121,57 @@ export const menuGroupHeaderManifest: HeadlessManifest = {
   },
 };
 
+/**
+ * MenuItemCheckbox: MenuItem states + data-checked (presence; '' when true).
+ */
+export const menuItemCheckboxManifest: HeadlessManifest = {
+  component: 'MenuItemCheckbox',
+  subpath: 'menu',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'icon', 'checkmark', 'content', 'secondaryContent', 'subText'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    hasSubmenu: { kind: 'presence', attr: 'data-has-submenu' },
+    submenuOpen: { kind: 'presence', attr: 'data-submenu-open' },
+    checked: { kind: 'presence', attr: 'data-checked' },
+  },
+  hooks: { use: 'useMenuItemCheckbox', render: 'renderMenuItemCheckbox' },
+  types: {
+    props: 'MenuItemCheckboxProps',
+    state: 'MenuItemCheckboxState',
+    slots: 'MenuItemSlots',
+  },
+};
+
+/**
+ * MenuItemRadio: same contract as MenuItemCheckbox (exclusive selection).
+ */
+export const menuItemRadioManifest: HeadlessManifest = {
+  component: 'MenuItemRadio',
+  subpath: 'menu',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'icon', 'checkmark', 'content', 'secondaryContent', 'subText'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    hasSubmenu: { kind: 'presence', attr: 'data-has-submenu' },
+    submenuOpen: { kind: 'presence', attr: 'data-submenu-open' },
+    checked: { kind: 'presence', attr: 'data-checked' },
+  },
+  hooks: { use: 'useMenuItemRadio', render: 'renderMenuItemRadio' },
+  types: {
+    props: 'MenuItemRadioProps',
+    state: 'MenuItemRadioState',
+    slots: 'MenuItemSlots',
+  },
+};
+
 export const manifestsByComponent: Record<string, HeadlessManifest> = {
   Button: buttonManifest,
   Checkbox: checkboxManifest,
   MenuPopover: menuPopoverManifest,
   MenuItem: menuItemManifest,
+  MenuItemCheckbox: menuItemCheckboxManifest,
+  MenuItemRadio: menuItemRadioManifest,
   MenuDivider: menuDividerManifest,
   MenuGroupHeader: menuGroupHeaderManifest,
 };

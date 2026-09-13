@@ -27,6 +27,8 @@ function decls(style: Record<string, StyleValue>, indent: string): string {
  */
 type ConditionTransform =
   | { kind: 'pseudo'; pseudo: string; guard?: string }
+  /** Apply pseudo/guard to the root segment of a descendant selector (Panda `_group*`). */
+  | { kind: 'groupPseudo'; pseudo: string; guard?: string }
   | { kind: 'media'; query: string }
   | { kind: 'wrap'; wrap: (selector: string) => string };
 
@@ -44,6 +46,17 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
   _focus: { kind: 'pseudo', pseudo: ':focus' },
   _focusVisible: { kind: 'pseudo', pseudo: ':focus-visible' },
   _focusWithin: { kind: 'pseudo', pseudo: ':focus-within' },
+  _groupHover: {
+    kind: 'groupPseudo',
+    pseudo: ':hover',
+    guard: ':not([data-disabled]):not([data-disabled-focusable])',
+  },
+  _groupActive: {
+    kind: 'groupPseudo',
+    pseudo: ':active',
+    guard: ':not([data-disabled]):not([data-disabled-focusable])',
+  },
+  _groupFocusVisible: { kind: 'groupPseudo', pseudo: ':focus-visible' },
   _forcedColors: { kind: 'media', query: '(forced-colors: active)' },
   _reducedMotion: { kind: 'media', query: '(prefers-reduced-motion: reduce)' },
   _rtl: {
@@ -51,6 +64,21 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
     wrap: selector => `[dir="rtl"] ${selector}, ${selector}[dir="rtl"]`,
   },
 };
+
+/**
+ * Apply a pseudo to the root segment of a selector.
+ * `.fui-MenuItem .fui-MenuItem__icon` + `:hover` → `.fui-MenuItem:hover .fui-MenuItem__icon`
+ * On the root itself, behaves like a normal pseudo.
+ */
+function applyGroupPseudo(selector: string, pseudo: string, guard?: string): string {
+  const space = selector.indexOf(' ');
+  if (space === -1) {
+    return `${selector}${guard ?? ''}${pseudo}`;
+  }
+  const root = selector.slice(0, space);
+  const rest = selector.slice(space + 1);
+  return `${root}${guard ?? ''}${pseudo} ${rest}`;
+}
 
 type FlatRule = {
   selector: string;
@@ -93,6 +121,9 @@ function flattenStyle(style: Style, selector: string, media: string | undefined,
     const transform = CONDITIONS[key];
     if (transform.kind === 'pseudo') {
       const nextSelector = `${selector}${transform.guard ?? ''}${transform.pseudo}`;
+      flattenStyle(nestedStyle, nextSelector, media, out);
+    } else if (transform.kind === 'groupPseudo') {
+      const nextSelector = applyGroupPseudo(selector, transform.pseudo, transform.guard);
       flattenStyle(nestedStyle, nextSelector, media, out);
     } else if (transform.kind === 'media') {
       const nextMedia = media ? `${media} and ${transform.query}` : transform.query;

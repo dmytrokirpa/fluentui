@@ -58,8 +58,8 @@ yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts
 
 ### Recommended next steps
 
-1. Extend `interactions` with compound guards → eliminate the Button `raw` block.
-2. ~~Port Checkbox + Menu (composite) to pressure-test slots/context.~~ **Done** — Checkbox + MenuPopover/MenuItem/MenuDivider/MenuGroupHeader (0 raw).
+1. ~~Extend nested conditions / eliminate Button `raw`.~~ **Done**
+2. ~~Port Checkbox + Menu (composite).~~ **Done** — + selectable MenuItemCheckbox/Radio; `_groupHover` closes parent→child gap.
 3. Add a Griffel AST → recipe extractor against `useButtonStyles.styles.ts` and measure coverage %.
 4. Only then bring the prose/agent-first DS through the same compiler.
 
@@ -80,7 +80,7 @@ primary: {
 }
 ```
 
-Supported keys: `_hover`, `_active`, `_focus`, `_focusVisible`, `_forcedColors`, `_reducedMotion`, `_rtl`.
+Supported keys: `_hover`, `_active`, `_focus`, `_focusVisible`, `_focusWithin`, `_groupHover`, `_groupActive`, `_groupFocusVisible`, `_forcedColors`, `_reducedMotion`, `_rtl`.
 Hover/active automatically append `:not([data-disabled]):not([data-disabled-focusable])`.
 
 This replaced the Button recipe's last `raw` block (per-appearance hover/active overrides).
@@ -109,3 +109,23 @@ Added after Button to pressure-test:
 
 - Checkbox: native `:focus-within` outline instead of tabster focus indicator.
 - MenuItem: icon filled/regular swap omitted; parent-hover → child color for icon/subText approximated via root color inheritance (no parent→child combinator in schema yet).
+
+## Group conditions (`_groupHover` / `_groupActive`)
+
+Child slots can react to the **root** being hovered/pressed without raw CSS:
+
+```ts
+icon: {
+  _groupHover: { color: '$colorNeutralForeground2BrandSelected' },
+},
+subText: {
+  _groupHover: { color: '$colorNeutralForeground3Hover' },
+  _groupActive: { color: '$colorNeutralForeground3Pressed' },
+},
+```
+
+Emits `.fui-MenuItem:not([data-disabled]):hover .fui-MenuItem__icon { … }` (Panda/Chakra group pattern).
+
+## MenuItemCheckbox / MenuItemRadio
+
+Selectable menu items reuse MenuItem base styles + `data-checked` presence to toggle checkmark `visibility`. Still **0 raw**.

@@ -19,6 +19,8 @@ export type StyleValue = string | number;
  *   backgroundColor: '$colorBrandBackground',
  *   _hover: { backgroundColor: '$colorBrandBackgroundHover' },
  *   _forcedColors: { backgroundColor: 'Highlight' },
+ *   // on a child slot:
+ *   _groupHover: { color: '$colorNeutralForeground2BrandSelected' },
  * }
  * ```
  */
@@ -50,6 +52,12 @@ export const CONDITION_KEYS = [
   '_focus',
   '_focusVisible',
   '_focusWithin',
+  /** Parent (root) hovered — use on child slots: `.root:hover .slot` */
+  '_groupHover',
+  /** Parent (root) active — use on child slots: `.root:active .slot` */
+  '_groupActive',
+  /** Parent (root) focus-visible — use on child slots */
+  '_groupFocusVisible',
   '_forcedColors',
   '_reducedMotion',
   '_rtl',

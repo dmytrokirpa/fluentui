@@ -1,6 +1,6 @@
 import type { HeadlessManifest } from './manifest';
 import type { PresetDefinition, SlotRecipeDefinition, SlotStyles, Style, StyleValue } from './schema';
-import { isConditionKey } from './schema';
+import { CONDITION_KEYS, isConditionKey } from './schema';
 
 export type ValidationIssue = { level: 'error' | 'warning'; path: string; message: string };
 
@@ -115,15 +115,7 @@ function walkStyle(styles: Style, path: string, issues: ValidationIssue[]) {
       issues.push({
         level: 'error',
         path: `${path}.${prop}`,
-        message: `Unknown condition key "${prop}". Known: ${[
-          '_hover',
-          '_active',
-          '_focus',
-          '_focusVisible',
-          '_forcedColors',
-          '_reducedMotion',
-          '_rtl',
-        ].join(', ')}`,
+        message: `Unknown condition key "${prop}". Known: ${CONDITION_KEYS.join(', ')}`,
       });
       continue;
     }
