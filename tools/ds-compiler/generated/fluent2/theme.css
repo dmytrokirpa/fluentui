@@ -53,4 +53,26 @@
   --durationFaster: var(--durationFaster);
   --curveEasyEase: var(--curveEasyEase);
   --shadow4: var(--shadow4);
+  --colorNeutralForeground3: var(--colorNeutralForeground3);
+  --colorNeutralForeground3Hover: var(--colorNeutralForeground3Hover);
+  --colorNeutralForeground3Pressed: var(--colorNeutralForeground3Pressed);
+  --colorNeutralForeground2BrandSelected: var(--colorNeutralForeground2BrandSelected);
+  --colorNeutralForegroundInverted: var(--colorNeutralForegroundInverted);
+  --colorNeutralStroke2: var(--colorNeutralStroke2);
+  --colorNeutralStrokeAccessible: var(--colorNeutralStrokeAccessible);
+  --colorNeutralStrokeAccessibleHover: var(--colorNeutralStrokeAccessibleHover);
+  --colorNeutralStrokeAccessiblePressed: var(--colorNeutralStrokeAccessiblePressed);
+  --colorCompoundBrandBackground: var(--colorCompoundBrandBackground);
+  --colorCompoundBrandBackgroundHover: var(--colorCompoundBrandBackgroundHover);
+  --colorCompoundBrandBackgroundPressed: var(--colorCompoundBrandBackgroundPressed);
+  --colorCompoundBrandStroke: var(--colorCompoundBrandStroke);
+  --colorCompoundBrandStrokeHover: var(--colorCompoundBrandStrokeHover);
+  --colorCompoundBrandStrokePressed: var(--colorCompoundBrandStrokePressed);
+  --colorCompoundBrandForeground1: var(--colorCompoundBrandForeground1);
+  --colorCompoundBrandForeground1Hover: var(--colorCompoundBrandForeground1Hover);
+  --colorCompoundBrandForeground1Pressed: var(--colorCompoundBrandForeground1Pressed);
+  --borderRadiusSmall: var(--borderRadiusSmall);
+  --spacingVerticalS: var(--spacingVerticalS);
+  --spacingVerticalSNudge: var(--spacingVerticalSNudge);
+  --shadow16: var(--shadow16);
 }

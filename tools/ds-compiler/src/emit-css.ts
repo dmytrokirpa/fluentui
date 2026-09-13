@@ -8,9 +8,14 @@ function resolveValue(value: StyleValue): string {
   return value.replace(/\$([A-Za-z][A-Za-z0-9]*)/g, 'var(--$1)');
 }
 
+function cssProp(prop: string): string {
+  // Custom properties must keep their exact spelling (e.g. --fui-Checkbox__indicator--color).
+  return prop.startsWith('--') ? prop : camelToKebab(prop);
+}
+
 function decls(style: Record<string, StyleValue>, indent: string): string {
   return Object.entries(style)
-    .map(([prop, value]) => `${indent}${camelToKebab(prop)}: ${resolveValue(value)};`)
+    .map(([prop, value]) => `${indent}${cssProp(prop)}: ${resolveValue(value)};`)
     .join('\n');
 }
 
@@ -38,6 +43,7 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
   },
   _focus: { kind: 'pseudo', pseudo: ':focus' },
   _focusVisible: { kind: 'pseudo', pseudo: ':focus-visible' },
+  _focusWithin: { kind: 'pseudo', pseudo: ':focus-within' },
   _forcedColors: { kind: 'media', query: '(forced-colors: active)' },
   _reducedMotion: { kind: 'media', query: '(prefers-reduced-motion: reduce)' },
   _rtl: {
@@ -141,6 +147,11 @@ const PSEUDO: Record<string, string> = {
   focus: 'focus',
 };
 
+function enumAttrSelector(desc: { attr: string; attrValues?: Record<string, string> }, enumValue: string): string {
+  const attrValue = desc.attrValues?.[enumValue] ?? enumValue;
+  return `[${desc.attr}="${attrValue}"]`;
+}
+
 export function emitCss(compiled: CompiledRecipe): string {
   const { recipe, manifest, variantAttrs, rootClass } = compiled;
   const root = `.${rootClass}`;
@@ -196,7 +207,7 @@ export function emitCss(compiled: CompiledRecipe): string {
         blocks.push(emitSlots(compiled, stateStyles as SlotStyles, `${root}[${desc.attr}]`));
       } else {
         for (const [enumValue, slotStyles] of Object.entries(stateStyles as Record<string, SlotStyles>)) {
-          blocks.push(emitSlots(compiled, slotStyles, `${root}[${desc.attr}="${enumValue}"]`));
+          blocks.push(emitSlots(compiled, slotStyles, `${root}${enumAttrSelector(desc, enumValue)}`));
         }
       }
     }
@@ -227,7 +238,7 @@ export function emitCss(compiled: CompiledRecipe): string {
         for (const [stateName, value] of Object.entries(cv.states)) {
           const desc = manifest.states[stateName];
           if (!desc) continue;
-          selector += desc.kind === 'presence' ? `[${desc.attr}]` : `[${desc.attr}="${value}"]`;
+          selector += desc.kind === 'presence' ? `[${desc.attr}]` : enumAttrSelector(desc, String(value));
         }
       }
       blocks.push(emitSlots(compiled, cv.css, selector));

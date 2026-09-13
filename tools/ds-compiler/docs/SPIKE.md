@@ -59,7 +59,7 @@ yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts
 ### Recommended next steps
 
 1. Extend `interactions` with compound guards → eliminate the Button `raw` block.
-2. Port Checkbox + Menu (composite) to pressure-test slots/context.
+2. ~~Port Checkbox + Menu (composite) to pressure-test slots/context.~~ **Done** — Checkbox + MenuPopover/MenuItem/MenuDivider/MenuGroupHeader (0 raw).
 3. Add a Griffel AST → recipe extractor against `useButtonStyles.styles.ts` and measure coverage %.
 4. Only then bring the prose/agent-first DS through the same compiler.
 
@@ -85,3 +85,27 @@ Hover/active automatically append `:not([data-disabled]):not([data-disabled-focu
 
 This replaced the Button recipe's last `raw` block (per-appearance hover/active overrides).
 Flat `interactions` / `conditions` fields remain as a deprecated alternate form.
+
+## Checkbox + Menu (Fluent 2)
+
+Added after Button to pressure-test:
+
+| Component       | Headless states                                       | DS variants     | Raw blocks |
+| --------------- | ----------------------------------------------------- | --------------- | ---------- |
+| Checkbox        | `disabled`, `checked` (`''`/`mixed`), `labelPosition` | `size`, `shape` | 0          |
+| MenuPopover     | —                                                     | —               | 0          |
+| MenuItem        | `disabled`, `hasSubmenu`, `submenuOpen`               | —               | 0          |
+| MenuDivider     | —                                                     | —               | 0          |
+| MenuGroupHeader | —                                                     | —               | 0          |
+
+### Schema additions
+
+- `EnumAttr.attrValues` — map recipe enum keys to DOM attribute values (Checkbox `checked=true` → `data-checked=""`).
+- `_focusWithin` condition (Checkbox focus ring).
+- Custom property keys (`--fui-…`) are emitted verbatim (not camel-cased).
+- Build merges recipes that share a headless subpath (`menu/*`) into one barrel `index.ts`.
+
+### Intentional deltas
+
+- Checkbox: native `:focus-within` outline instead of tabster focus indicator.
+- MenuItem: icon filled/regular swap omitted; parent-hover → child color for icon/subText approximated via root color inheritance (no parent→child combinator in schema yet).

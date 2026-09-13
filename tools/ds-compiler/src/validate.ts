@@ -65,6 +65,9 @@ const LITERALS = new Set([
   'LinkText',
   'FieldText',
   'Field',
+  'fit-content',
+  'max-content',
+  'min-content',
 ]);
 
 const TOKEN_REF = /^\$[A-Za-z][A-Za-z0-9]*$/;

@@ -33,6 +33,9 @@ export function buildDesignSystem(bundle: DesignSystemBundle, options: BuildOpti
   fs.writeFileSync(themePath, emitThemeCss(bundle.preset), 'utf8');
   files.push(themePath);
 
+  /** Recipes sharing a headless subpath write into one folder; barrel is merged. */
+  const byHeadless = new Map<string, string[]>();
+
   for (const recipe of bundle.recipes) {
     const manifest = getManifest(recipe.component);
     const issues = validateRecipe(recipe, bundle.preset, manifest);
@@ -49,20 +52,44 @@ export function buildDesignSystem(bundle: DesignSystemBundle, options: BuildOpti
 
     const cssPath = path.join(componentDir, `${recipe.component}.css`);
     const tsxPath = path.join(componentDir, `${recipe.component}.tsx`);
-    const indexPath = path.join(componentDir, 'index.ts');
     const storiesPath = path.join(componentDir, `${recipe.component}.stories.tsx`);
 
     fs.writeFileSync(cssPath, emitCss(compiled), 'utf8');
     fs.writeFileSync(tsxPath, emitTsx(compiled), 'utf8');
-    fs.writeFileSync(indexPath, emitIndex(compiled), 'utf8');
     fs.writeFileSync(storiesPath, emitStories(compiled), 'utf8');
 
-    files.push(cssPath, tsxPath, indexPath, storiesPath);
+    files.push(cssPath, tsxPath, storiesPath);
+
+    const list = byHeadless.get(recipe.headless) ?? [];
+    list.push(recipe.component);
+    byHeadless.set(recipe.headless, list);
   }
 
-  // root index
+  for (const [headless, components] of byHeadless) {
+    const indexPath = path.join(outDir, headless, 'index.ts');
+    const barrel =
+      components.length === 1
+        ? emitIndex(
+            compileRecipe(
+              bundle.recipes.find(r => r.component === components[0])!,
+              bundle.preset,
+              getManifest(components[0]),
+            ),
+          )
+        : components
+            .map(
+              name =>
+                `export { ${name} } from './${name}';\nexport type { ${name}Props, ${name}State, ${name}Variants } from './${name}';`,
+            )
+            .join('\n');
+    fs.writeFileSync(indexPath, barrel.endsWith('\n') ? barrel : barrel + '\n', 'utf8');
+    files.push(indexPath);
+  }
+
+  // root index — unique headless subpaths
   const rootIndex = path.join(outDir, 'index.ts');
-  const exports = bundle.recipes.map(r => `export * from './${r.headless}';`).join('\n');
+  const uniqueHeadless = [...byHeadless.keys()];
+  const exports = uniqueHeadless.map(h => `export * from './${h}';`).join('\n');
   fs.writeFileSync(rootIndex, `import './theme.css';\n${exports}\n`, 'utf8');
   files.push(rootIndex);
 

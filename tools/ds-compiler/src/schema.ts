@@ -49,6 +49,7 @@ export const CONDITION_KEYS = [
   '_active',
   '_focus',
   '_focusVisible',
+  '_focusWithin',
   '_forcedColors',
   '_reducedMotion',
   '_rtl',
