@@ -27,7 +27,6 @@ function decls(style: Record<string, StyleValue>, indent: string): string {
  */
 type ConditionTransform =
   | { kind: 'pseudo'; pseudo: string; guard?: string }
-  /** Apply pseudo/guard to the root segment of a descendant selector (Panda `_group*`). */
   | { kind: 'groupPseudo'; pseudo: string; guard?: string }
   | { kind: 'media'; query: string }
   | { kind: 'wrap'; wrap: (selector: string) => string };
@@ -57,6 +56,9 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
     guard: ':not([data-disabled]):not([data-disabled-focusable])',
   },
   _groupFocusVisible: { kind: 'groupPseudo', pseudo: ':focus-visible' },
+  _after: { kind: 'pseudo', pseudo: '::after' },
+  _before: { kind: 'pseudo', pseudo: '::before' },
+  _child: { kind: 'wrap', wrap: selector => `${selector} > *` },
   _forcedColors: { kind: 'media', query: '(forced-colors: active)' },
   _reducedMotion: { kind: 'media', query: '(prefers-reduced-motion: reduce)' },
   _rtl: {

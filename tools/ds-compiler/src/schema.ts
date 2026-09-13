@@ -58,6 +58,12 @@ export const CONDITION_KEYS = [
   '_groupActive',
   /** Parent (root) focus-visible — use on child slots */
   '_groupFocusVisible',
+  /** Pseudo-element ::after */
+  '_after',
+  /** Pseudo-element ::before */
+  '_before',
+  /** Direct child combinator `> *` */
+  '_child',
   '_forcedColors',
   '_reducedMotion',
   '_rtl',

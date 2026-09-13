@@ -165,6 +165,76 @@ export const menuItemRadioManifest: HeadlessManifest = {
   },
 };
 
+export const labelManifest: HeadlessManifest = {
+  component: 'Label',
+  subpath: 'label',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'required'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    required: { kind: 'presence', attr: 'data-required' },
+  },
+  hooks: { use: 'useLabel', render: 'renderLabel' },
+  types: { props: 'LabelProps', state: 'LabelState', slots: 'LabelSlots' },
+};
+
+export const linkManifest: HeadlessManifest = {
+  component: 'Link',
+  subpath: 'link',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    disabledFocusable: { kind: 'presence', attr: 'data-disabled-focusable' },
+  },
+  hooks: { use: 'useLink', render: 'renderLink' },
+  types: { props: 'LinkProps', state: 'LinkState', slots: 'LinkSlots' },
+};
+
+export const toggleButtonManifest: HeadlessManifest = {
+  component: 'ToggleButton',
+  subpath: 'toggle-button',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'icon'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    disabledFocusable: { kind: 'presence', attr: 'data-disabled-focusable' },
+    iconOnly: { kind: 'presence', attr: 'data-icon-only' },
+    checked: { kind: 'presence', attr: 'data-checked' },
+    iconPosition: { kind: 'enum', attr: 'data-icon-position', values: ['before', 'after'] },
+  },
+  hooks: { use: 'useToggleButton', render: 'renderToggleButton' },
+  types: { props: 'ToggleButtonProps', state: 'ToggleButtonState', slots: 'ToggleButtonSlots' },
+};
+
+export const switchManifest: HeadlessManifest = {
+  component: 'Switch',
+  subpath: 'switch',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'indicator', 'input', 'label'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    disabledFocusable: { kind: 'presence', attr: 'data-disabled-focusable' },
+    checked: { kind: 'presence', attr: 'data-checked' },
+    labelPosition: { kind: 'enum', attr: 'data-label-position', values: ['before', 'after', 'above'] },
+  },
+  hooks: { use: 'useSwitch', render: 'renderSwitch' },
+  types: { props: 'SwitchProps', state: 'SwitchState', slots: 'SwitchSlots' },
+};
+
+export const inputManifest: HeadlessManifest = {
+  component: 'Input',
+  subpath: 'input',
+  packageName: '@fluentui/react-headless-components-preview',
+  slots: ['root', 'input', 'contentBefore', 'contentAfter'],
+  states: {
+    disabled: { kind: 'presence', attr: 'data-disabled' },
+    invalid: { kind: 'presence', attr: 'data-invalid' },
+  },
+  hooks: { use: 'useInput', render: 'renderInput' },
+  types: { props: 'InputProps', state: 'InputState', slots: 'InputSlots' },
+};
+
 export const manifestsByComponent: Record<string, HeadlessManifest> = {
   Button: buttonManifest,
   Checkbox: checkboxManifest,
@@ -174,6 +244,11 @@ export const manifestsByComponent: Record<string, HeadlessManifest> = {
   MenuItemRadio: menuItemRadioManifest,
   MenuDivider: menuDividerManifest,
   MenuGroupHeader: menuGroupHeaderManifest,
+  Label: labelManifest,
+  Link: linkManifest,
+  ToggleButton: toggleButtonManifest,
+  Switch: switchManifest,
+  Input: inputManifest,
 };
 
 export function getManifest(component: string): HeadlessManifest {

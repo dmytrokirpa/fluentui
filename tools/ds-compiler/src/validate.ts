@@ -7,6 +7,7 @@ export type ValidationIssue = { level: 'error' | 'warning'; path: string; messag
 const LITERALS = new Set([
   'auto',
   'none',
+  'text',
   'inherit',
   'initial',
   'unset',
@@ -41,6 +42,9 @@ const LITERALS = new Set([
   'content-box',
   'middle',
   'underline',
+  'double',
+  'wavy',
+  'solid',
   'italic',
   'normal',
   'bold',
@@ -78,17 +82,29 @@ const IDENT_LIST = /^[A-Za-z][A-Za-z0-9-]*(\s*,\s*[A-Za-z][A-Za-z0-9-]*)*$/;
 
 function isAllowed(value: StyleValue): boolean {
   if (typeof value === 'number') return true;
+  // CSS content: empty string for ::before/::after
+  if (value === '""' || value === "''") return true;
   if (TOKEN_REF.test(value) || LOCAL_VAR.test(value) || LITERALS.has(value) || LENGTH.test(value)) return true;
   if (IDENT_LIST.test(value)) return true;
-  // Multipart values: "$strokeWidthThin solid $colorNeutralStroke1", calc(...), etc.
-  if (value.startsWith('calc(') || value.includes(' ') || value.includes(',')) {
+  // Multipart / functional values: shorthands, calc(...), translateX(20px), etc.
+  const looksFunctional =
+    value.startsWith('calc(') ||
+    value.includes(' ') ||
+    value.includes(',') ||
+    /^(translate|translateX|translateY|translateZ|scale|scaleX|scaleY|rotate|skew|skewX|skewY|matrix|min|max|clamp)\(/.test(
+      value,
+    );
+  if (looksFunctional) {
     let stripped = value.replace(/\$[A-Za-z][A-Za-z0-9]*/g, '0').replace(/var\(--[A-Za-z][A-Za-z0-9_-]*\)/g, '0');
     // Remove allow-listed keywords used inside shorthand values (e.g. "solid")
     for (const lit of LITERALS) {
       stripped = stripped.replace(new RegExp(`\\b${lit}\\b`, 'g'), '0');
     }
     stripped = stripped
-      .replace(/calc|min|max|clamp/g, '')
+      .replace(
+        /calc|min|max|clamp|scaleX|scaleY|scale|translateX|translateY|translateZ|translate|rotate|skewX|skewY|skew|matrix/g,
+        '',
+      )
       .replace(/[0-9.+*/(),%\s-]/g, '')
       .replace(/px|rem|em|vh|vw|ms|s|deg|fr|inset/g, '');
     return stripped.length === 0;
