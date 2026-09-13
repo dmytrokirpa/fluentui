@@ -49,3 +49,23 @@ describe('group conditions (_groupHover / _groupActive)', () => {
     expect(css).not.toContain('.fui-MenuItem__icon:not([data-disabled])');
   });
 });
+
+it('disabled state hover keeps [data-disabled] without contradictory :not()', () => {
+  const disabledFixture = defineSlotRecipe({
+    component: 'MenuItem',
+    headless: 'menu',
+    slots: ['root'],
+    base: { root: { color: '$colorNeutralForeground2' } },
+    states: {
+      disabled: {
+        root: {
+          color: '$colorNeutralForegroundDisabled',
+          _hover: { color: '$colorNeutralForegroundDisabled' },
+        },
+      },
+    },
+  });
+  const css = emitCss(compileRecipe(disabledFixture, fluent2Preset, manifest));
+  expect(css).toContain('.fui-MenuItem[data-disabled]:hover');
+  expect(css).not.toContain('[data-disabled]:not([data-disabled])');
+});

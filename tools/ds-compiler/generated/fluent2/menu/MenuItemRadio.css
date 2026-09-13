@@ -139,12 +139,12 @@
     cursor: not-allowed;
   }
 
-  .fui-MenuItemRadio[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover {
+  .fui-MenuItemRadio[data-disabled]:hover {
     color: var(--colorNeutralForegroundDisabled);
     background-color: var(--colorNeutralBackground1);
   }
 
-  .fui-MenuItemRadio[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):active {
+  .fui-MenuItemRadio[data-disabled]:active {
     color: var(--colorNeutralForegroundDisabled);
     background-color: var(--colorNeutralBackground1);
   }
@@ -157,21 +157,7 @@
     color: var(--colorNeutralForegroundDisabled);
   }
 
-  .fui-MenuItemRadio[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover .fui-MenuItemRadio__icon {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
   .fui-MenuItemRadio[data-disabled] .fui-MenuItemRadio__subText {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
-  .fui-MenuItemRadio[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover
-    .fui-MenuItemRadio__subText {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
-  .fui-MenuItemRadio[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):active
-    .fui-MenuItemRadio__subText {
     color: var(--colorNeutralForegroundDisabled);
   }
 

@@ -148,19 +148,11 @@ export const menuItemInteractionStates: RecipeStateMap = {
       },
     },
     icon: {
+      // Group-hover is already disabled-guarded; base color is enough.
       color: '$colorNeutralForegroundDisabled',
-      _groupHover: {
-        color: '$colorNeutralForegroundDisabled',
-      },
     },
     subText: {
       color: '$colorNeutralForegroundDisabled',
-      _groupHover: {
-        color: '$colorNeutralForegroundDisabled',
-      },
-      _groupActive: {
-        color: '$colorNeutralForegroundDisabled',
-      },
       _forcedColors: {
         color: 'GrayText',
       },

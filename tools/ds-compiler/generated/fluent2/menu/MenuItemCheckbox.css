@@ -140,12 +140,12 @@
     cursor: not-allowed;
   }
 
-  .fui-MenuItemCheckbox[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover {
+  .fui-MenuItemCheckbox[data-disabled]:hover {
     color: var(--colorNeutralForegroundDisabled);
     background-color: var(--colorNeutralBackground1);
   }
 
-  .fui-MenuItemCheckbox[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):active {
+  .fui-MenuItemCheckbox[data-disabled]:active {
     color: var(--colorNeutralForegroundDisabled);
     background-color: var(--colorNeutralBackground1);
   }
@@ -158,22 +158,7 @@
     color: var(--colorNeutralForegroundDisabled);
   }
 
-  .fui-MenuItemCheckbox[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover
-    .fui-MenuItemCheckbox__icon {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
   .fui-MenuItemCheckbox[data-disabled] .fui-MenuItemCheckbox__subText {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
-  .fui-MenuItemCheckbox[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):hover
-    .fui-MenuItemCheckbox__subText {
-    color: var(--colorNeutralForegroundDisabled);
-  }
-
-  .fui-MenuItemCheckbox[data-disabled]:not([data-disabled]):not([data-disabled-focusable]):active
-    .fui-MenuItemCheckbox__subText {
     color: var(--colorNeutralForegroundDisabled);
   }
 

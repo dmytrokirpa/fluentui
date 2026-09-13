@@ -70,14 +70,25 @@ const CONDITIONS: Record<ConditionKey, ConditionTransform> = {
  * `.fui-MenuItem .fui-MenuItem__icon` + `:hover` → `.fui-MenuItem:hover .fui-MenuItem__icon`
  * On the root itself, behaves like a normal pseudo.
  */
+
+/** Skip disabled guards when the selector already targets a disabled state. */
+function effectiveDisabledGuard(selector: string, guard?: string): string {
+  if (!guard) return '';
+  if (selector.includes('[data-disabled]') || selector.includes('[data-disabled-focusable]')) {
+    return '';
+  }
+  return guard;
+}
+
 function applyGroupPseudo(selector: string, pseudo: string, guard?: string): string {
+  const g = effectiveDisabledGuard(selector, guard);
   const space = selector.indexOf(' ');
   if (space === -1) {
-    return `${selector}${guard ?? ''}${pseudo}`;
+    return `${selector}${g}${pseudo}`;
   }
   const root = selector.slice(0, space);
   const rest = selector.slice(space + 1);
-  return `${root}${guard ?? ''}${pseudo} ${rest}`;
+  return `${root}${g}${pseudo} ${rest}`;
 }
 
 type FlatRule = {
@@ -120,7 +131,7 @@ function flattenStyle(style: Style, selector: string, media: string | undefined,
   for (const [key, nestedStyle] of nested) {
     const transform = CONDITIONS[key];
     if (transform.kind === 'pseudo') {
-      const nextSelector = `${selector}${transform.guard ?? ''}${transform.pseudo}`;
+      const nextSelector = `${selector}${effectiveDisabledGuard(selector, transform.guard)}${transform.pseudo}`;
       flattenStyle(nestedStyle, nextSelector, media, out);
     } else if (transform.kind === 'groupPseudo') {
       const nextSelector = applyGroupPseudo(selector, transform.pseudo, transform.guard);
