@@ -2713,6 +2713,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fluentui/ds-compiler@workspace:tools/ds-compiler":
+  version: 0.0.0-use.local
+  resolution: "@fluentui/ds-compiler@workspace:tools/ds-compiler"
+  dependencies:
+    "@types/yargs": "npm:^17.0.33"
+    yargs: "npm:^17.7.2"
+  bin:
+    ds-compiler: ./bin/ds-compiler.js
+  languageName: unknown
+  linkType: soft
+
 "@fluentui/eslint-plugin-react-components@workspace:packages/react-components/eslint-plugin-react-components":
   version: 0.0.0-use.local
   resolution: "@fluentui/eslint-plugin-react-components@workspace:packages/react-components/eslint-plugin-react-components"
