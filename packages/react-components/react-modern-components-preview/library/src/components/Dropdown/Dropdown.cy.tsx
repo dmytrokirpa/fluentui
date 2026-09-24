@@ -5,9 +5,9 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 import { useTabsterAttributes } from '@fluentui/react-tabster';
 
-import { Dropdown } from './index';
-import type { DropdownProps } from './index';
-import { Option } from '../Option';
+import { Dropdown } from '../../dropdown';
+import type { DropdownProps } from '../../dropdown';
+import { Option } from '../../dropdown';
 
 import type { JSXElement } from '@fluentui/react-utilities';
 

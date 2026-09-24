@@ -2,10 +2,10 @@ import * as React from 'react';
 import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
-import { InteractionTag, InteractionTagPrimary, InteractionTagSecondary } from '../InteractionTag';
-import { TagGroup } from './index';
-import type { TagGroupProps } from './index';
-import { Tag } from '../Tag';
+import { InteractionTag, InteractionTagPrimary, InteractionTagSecondary } from '../../interaction-tag';
+import { TagGroup } from '../../tag-group';
+import type { TagGroupProps } from '../../tag-group';
+import { Tag } from '../../tag';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mount = (element: JSXElement) => {

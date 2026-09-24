@@ -4,7 +4,7 @@ import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 
-import { MessageBar, MessageBarActions, MessageBarBody, MessageBarTitle } from './index';
+import { MessageBar, MessageBarActions, MessageBarBody, MessageBarTitle } from '../../message-bar';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mount = (element: JSXElement) => {

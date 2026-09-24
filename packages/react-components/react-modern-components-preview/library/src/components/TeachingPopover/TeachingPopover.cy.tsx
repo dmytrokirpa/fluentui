@@ -10,8 +10,8 @@ import {
   TeachingPopoverSurface,
   TeachingPopoverBody,
   TeachingPopoverTitle,
-} from './index';
-import type { TeachingPopoverProps } from './index';
+} from '../../teaching-popover';
+import type { TeachingPopoverProps } from '../../teaching-popover';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mount = (element: JSXElement) => {

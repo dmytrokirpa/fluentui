@@ -4,9 +4,9 @@ import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 
-import { Combobox } from './index';
-import type { ComboboxProps } from './index';
-import { Option } from '../Option';
+import { Combobox } from '../../combobox';
+import type { ComboboxProps } from '../../combobox';
+import { Option } from '../../combobox';
 
 import type { JSXElement } from '@fluentui/react-utilities';
 

@@ -5,11 +5,11 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 import type { JSXElement } from '@fluentui/react-utilities';
 
-import { Toolbar } from './index';
-import { ToolbarButton } from '../ToolbarButton';
-import { ToolbarDivider } from '../ToolbarDivider';
-import { ToolbarToggleButton } from '../ToolbarToggleButton';
-import { ToolbarRadioButton } from '../ToolbarRadioButton';
+import { Toolbar } from '../../toolbar';
+import { ToolbarButton } from '../../toolbar';
+import { ToolbarDivider } from '../../toolbar';
+import { ToolbarToggleButton } from '../../toolbar';
+import { ToolbarRadioButton } from '../../toolbar';
 
 const button = "[type='button']";
 

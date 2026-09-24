@@ -2,7 +2,7 @@ import * as React from 'react';
 import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
-import type { TagPickerProps } from './index';
+import type { TagPickerProps } from '../../tag-picker';
 import {
   TagPicker,
   TagPickerControl,
@@ -11,8 +11,8 @@ import {
   TagPickerList,
   TagPickerOption,
   tagPickerControlClassNames,
-} from './index';
-import { Tag } from '../Tag';
+} from '../../tag-picker';
+import { Tag } from '../../tag';
 import { Avatar } from '@fluentui/react-avatar';
 import { Button } from '@fluentui/react-button';
 

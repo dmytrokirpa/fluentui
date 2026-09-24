@@ -5,7 +5,7 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 import type { JSXElement } from '@fluentui/react-utilities';
 
-import { Dialog, DialogActions, DialogBody, DialogSurface, DialogTitle, DialogTrigger } from './index';
+import { Dialog, DialogActions, DialogBody, DialogSurface, DialogTitle, DialogTrigger } from '../../dialog';
 import { DialogContent } from '@fluentui/react-dialog';
 import { Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-popover';
 import { Tooltip } from '@fluentui/react-tooltip';

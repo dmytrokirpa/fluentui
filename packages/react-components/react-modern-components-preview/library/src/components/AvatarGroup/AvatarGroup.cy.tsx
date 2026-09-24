@@ -3,7 +3,7 @@ import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 import type { JSXElement } from '@fluentui/react-utilities';
-import { AvatarGroupItem, AvatarGroupPopover } from './index';
+import { AvatarGroupItem, AvatarGroupPopover } from '../../avatar-group';
 
 const mount = (element: JSXElement) => {
   mountBase(<FluentProvider theme={teamsLightTheme}>{element}</FluentProvider>);

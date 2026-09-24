@@ -14,7 +14,7 @@ import {
   MenuSplitGroup,
   type MenuProps,
   menuItemClassNames,
-} from './index';
+} from '../../menu';
 import { FluentProvider } from '@fluentui/react-provider';
 import { Portal } from '@fluentui/react-portal';
 import { teamsLightTheme } from '@fluentui/react-theme';

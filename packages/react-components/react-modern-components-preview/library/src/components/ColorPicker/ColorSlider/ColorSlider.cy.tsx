@@ -4,7 +4,7 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { webLightTheme } from '@fluentui/react-theme';
 import { ColorSlider } from './index';
 import type { ColorSliderProps } from './index';
-import { INITIAL_COLOR_HSV } from '@fluentui/react-color-picker/lib/utils/constants';
+import { INITIAL_COLOR_HSV } from '../colorPickerTestUtils';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mountFluent = (element: JSXElement) => {

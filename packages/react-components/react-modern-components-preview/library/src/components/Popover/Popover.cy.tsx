@@ -4,9 +4,9 @@ import { mount as mountBase } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
 
-import { Popover, PopoverTrigger, PopoverSurface } from './index';
+import { Popover, PopoverTrigger, PopoverSurface } from '../../popover';
 import { Menu, MenuTrigger, MenuPopover, MenuList, MenuItem } from '@fluentui/react-menu';
-import type { PopoverProps } from './index';
+import type { PopoverProps } from '../../popover';
 import type { JSXElement } from '@fluentui/react-utilities';
 const mount = (element: JSXElement) => {
   mountBase(<FluentProvider theme={teamsLightTheme}>{element}</FluentProvider>);

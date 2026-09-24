@@ -3,7 +3,7 @@ import { mount as mountBase } from '@fluentui/scripts-cypress';
 
 import { FluentProvider } from '@fluentui/react-provider';
 import { teamsLightTheme } from '@fluentui/react-theme';
-import { Toaster, ToastTitle, Toast, useToastController, toastClassNames, toastContainerClassNames } from './index';
+import { Toaster, ToastTitle, Toast, useToastController, toastClassNames, toastContainerClassNames } from '../../toast';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mount = (element: JSXElement) => {

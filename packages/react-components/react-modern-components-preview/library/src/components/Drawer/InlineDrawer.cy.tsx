@@ -4,7 +4,7 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { webLightTheme } from '@fluentui/react-theme';
 
 import { testDrawerBaseScenarios } from '../../../../../react-drawer/library/src/e2e/DrawerShared';
-import { InlineDrawer } from './index';
+import { InlineDrawer } from '../../drawer';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mountFluent = (element: JSXElement) => {

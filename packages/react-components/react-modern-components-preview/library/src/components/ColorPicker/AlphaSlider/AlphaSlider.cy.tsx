@@ -4,8 +4,7 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { webLightTheme } from '@fluentui/react-theme';
 import { AlphaSlider } from './index';
 import type { AlphaSliderProps } from './index';
-import { calculateTransparencyValue } from '@fluentui/react-color-picker/lib/components/AlphaSlider/alphaSliderUtils';
-import { INITIAL_COLOR_HSV } from '@fluentui/react-color-picker/lib/utils/constants';
+import { calculateTransparencyValue, INITIAL_COLOR_HSV } from '../colorPickerTestUtils';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mountFluent = (element: JSXElement) => {

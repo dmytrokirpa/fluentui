@@ -4,11 +4,11 @@ import { FluentProvider } from '@fluentui/react-provider';
 import { webLightTheme } from '@fluentui/react-theme';
 import { Button } from '@fluentui/react-button';
 import type { JSXElement } from '@fluentui/react-utilities';
-import { Card, cardClassNames } from './index';
-import { CardFooter } from '../CardFooter';
-import { CardHeader, cardHeaderClassNames } from '../CardHeader';
-import { CardPreview, cardPreviewClassNames } from '../CardPreview';
-import type { CardProps, CardOnSelectionChangeEvent } from './index';
+import { Card, cardClassNames } from '../../card';
+import { CardFooter } from '../../card';
+import { CardHeader, cardHeaderClassNames } from '../../card';
+import { CardPreview, cardPreviewClassNames } from '../../card';
+import type { CardProps, CardOnSelectionChangeEvent } from '../../card';
 
 const mountFluent = (element: JSXElement) => {
   mount(<FluentProvider theme={webLightTheme}>{element}</FluentProvider>);

@@ -5026,6 +5026,8 @@ __metadata:
 "@fluentui/react-modern-components-preview-stories@workspace:packages/react-components/react-modern-components-preview/stories":
   version: 0.0.0-use.local
   resolution: "@fluentui/react-modern-components-preview-stories@workspace:packages/react-components/react-modern-components-preview/stories"
+  dependencies:
+    "@fluentui/react-components": "npm:^9.74.9"
   languageName: unknown
   linkType: soft
 

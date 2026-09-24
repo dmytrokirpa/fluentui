@@ -2,10 +2,10 @@ import * as React from 'react';
 import { mount } from '@fluentui/scripts-cypress';
 import { FluentProvider } from '@fluentui/react-provider';
 import { webLightTheme } from '@fluentui/react-theme';
-import { Breadcrumb } from './index';
-import { BreadcrumbItem } from '../BreadcrumbItem';
-import { BreadcrumbButton } from '../BreadcrumbButton';
-import type { BreadcrumbProps } from './index';
+import { Breadcrumb } from '../../breadcrumb';
+import { BreadcrumbItem } from '../../breadcrumb';
+import { BreadcrumbButton } from '../../breadcrumb';
+import type { BreadcrumbProps } from '../../breadcrumb';
 import type { JSXElement } from '@fluentui/react-utilities';
 
 const mountFluent = (element: JSXElement) => {
