@@ -1,6 +1,7 @@
 /**
- * Regular expressions matching characters to ignore when calculating the initials.
+ * Regular expression matching complete enclosures or an unmatched enclosure tail.
  */
+const UNWANTED_ENCLOSURES_REGEX: RegExp = /[\(\[\{][^\)\]\}]*([\)\]\}]|$)/g;
 
 /**
  * Regular expression matching special ASCII characters except space, plus some unicode special characters.
@@ -40,26 +41,6 @@ function getFirstCodePoint(value: string): string {
   return codePoint === undefined ? '' : String.fromCodePoint(codePoint);
 }
 
-function removeUnwantedEnclosures(value: string): string {
-  let result = '';
-  let enclosure = '';
-
-  for (const character of value) {
-    if (enclosure) {
-      enclosure += character;
-      if (character === ')' || character === ']' || character === '}') {
-        enclosure = '';
-      }
-    } else if (character === '(' || character === '[' || character === '{') {
-      enclosure = character;
-    } else {
-      result += character;
-    }
-  }
-
-  return result + enclosure;
-}
-
 function getInitialsLatin(displayName: string, isRtl: boolean, firstInitialOnly?: boolean): string {
   let initials = '';
 
@@ -87,7 +68,7 @@ function getInitialsLatin(displayName: string, isRtl: boolean, firstInitialOnly?
 }
 
 function cleanupDisplayName(displayName: string): string {
-  displayName = removeUnwantedEnclosures(displayName);
+  displayName = displayName.replace(UNWANTED_ENCLOSURES_REGEX, (match, closing: string) => (closing ? '' : match));
   displayName = displayName.replace(UNWANTED_CHARS_REGEX, '');
   displayName = displayName.replace(MULTIPLE_WHITESPACES_REGEX, ' ');
   displayName = displayName.trim();
