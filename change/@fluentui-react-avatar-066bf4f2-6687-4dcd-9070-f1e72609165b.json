@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Fix denial of service risk when deriving initials from malformed enclosure input.",
+  "packageName": "@fluentui/react-avatar",
+  "email": "dmytrokirpa@microsoft.com"
+}

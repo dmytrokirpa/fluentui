@@ -60,6 +60,10 @@ describe('getInitials', () => {
     expect(result).toEqual('DG');
   });
 
+  it('handles a long sequence of unmatched opening enclosures', () => {
+    expect(getInitials(`${'('.repeat(10_000)}Alice Smith`, false)).toEqual('AS');
+  });
+
   it('calculates an expected initials in RTL if one was not specified', () => {
     const result = getInitials('Kat Larrson', true);
     expect(result).toEqual('LK');
