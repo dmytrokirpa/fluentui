@@ -6338,7 +6338,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fluentui/react-virtualizer@npm:9.0.0-alpha.116, @fluentui/react-virtualizer@workspace:packages/react-components/deprecated/react-virtualizer":
+"@fluentui/react-virtualizer@npm:9.0.0-alpha.116, @fluentui/react-virtualizer@npm:>=9.0.0-alpha, @fluentui/react-virtualizer@workspace:packages/react-components/deprecated/react-virtualizer":
   version: 0.0.0-use.local
   resolution: "@fluentui/react-virtualizer@workspace:packages/react-components/deprecated/react-virtualizer"
   dependencies:
@@ -6938,7 +6938,7 @@ __metadata:
     "@fluentui/react-tooltip": "npm:*"
     "@fluentui/react-tree": "npm:*"
     "@fluentui/react-utilities": "npm:*"
-    "@fluentui/react-virtualizer": "npm:9.0.0-alpha.116"
+    "@fluentui/react-virtualizer": "npm:>=9.0.0-alpha"
     "@griffel/react": "npm:^1.5.32"
     react: "npm:19.2.0"
     react-dom: "npm:19.2.0"
