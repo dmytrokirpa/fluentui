@@ -5,8 +5,10 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vm from 'node:vm';
 import webpack from 'webpack';
+import * as ts from 'typescript';
 
 import {
+  BUILT_IN_MODULES,
   ENTRY_NAME,
   PlaygroundRuntimeManifestPlugin,
   buildRuntimeEntrySource,
@@ -19,7 +21,10 @@ import {
   getMonacoTypeScriptVersion,
   getRuntimeEntryDirectory,
   isPlaygroundAddonFile,
+  webpackFinal,
 } from './webpack';
+
+import type { PresetConfig } from './public-types';
 
 describe('isPlaygroundAddonFile', () => {
   it.each([
@@ -32,7 +37,12 @@ describe('isPlaygroundAddonFile', () => {
 
 describe('getAddonOptions', () => {
   it('reads addon options passed directly to the preset hook', () => {
-    const options = { modules: { icons: '@fluentui/react-icons' }, setup: './setup', typings: ['csstype'] };
+    const options = {
+      modules: { icons: '@fluentui/react-icons' },
+      setup: './setup',
+      typings: ['csstype'],
+      typingsRoots: { icons: '/workspace/icons' },
+    };
 
     expect(getAddonOptions(options)).toEqual(expect.objectContaining(options));
   });
@@ -126,16 +136,438 @@ describe('findHtmlWebpackPluginConstructors', () => {
 });
 
 describe('collectConfiguredTypings', () => {
-  it('collects the same declarations for a package list and an equivalent import map', () => {
+  it('collects the same declarations for a package list and an equivalent import map', async () => {
     const storybookOptions = { configDir: path.resolve(__dirname, '..') };
 
-    expect(collectConfiguredTypings({ modules: ['lz-string'] }, storybookOptions, '5.4.5')).toEqual(
-      collectConfiguredTypings({ modules: { 'lz-string': 'lz-string' } }, storybookOptions, '5.4.5'),
+    expect(await collectConfiguredTypings({ modules: ['lz-string'] }, storybookOptions, '5.4.5')).toEqual(
+      await collectConfiguredTypings({ modules: { 'lz-string': 'lz-string' } }, storybookOptions, '5.4.5'),
     );
   });
 
-  it('splits declarations into always-loaded React typings and per-module additions', () => {
-    const typings = collectConfiguredTypings(
+  describe('webpack typings resolution', () => {
+    function expectEditorImports(files: Record<string, string>, source: string) {
+      const virtualFiles: Record<string, string> = {
+        ...Object.fromEntries(
+          Object.entries(files).map(([file, content]) => [file.replace(/^file:\/\//, ''), content]),
+        ),
+        '/example.ts': source,
+      };
+      const options: ts.CompilerOptions = {
+        noLib: true,
+        strict: true,
+        types: [],
+        moduleResolution: ts.ModuleResolutionKind.Node10,
+      };
+      const host: ts.CompilerHost = {
+        ...ts.createCompilerHost(options),
+        getCurrentDirectory: () => '/',
+        fileExists: file => file in virtualFiles,
+        readFile: file => virtualFiles[file],
+        directoryExists: directory => Object.keys(virtualFiles).some(file => file.startsWith(`${directory}/`)),
+        getSourceFile: (file, languageVersion) =>
+          virtualFiles[file] === undefined ? undefined : ts.createSourceFile(file, virtualFiles[file], languageVersion),
+      };
+      const program = ts.createProgram(['/example.ts'], options, host);
+      expect(
+        program
+          .getSemanticDiagnostics()
+          .map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')),
+      ).toEqual([]);
+    }
+
+    async function buildFixture(
+      files: Record<string, string>,
+      configure: (root: string) => { options: PresetConfig; resolve?: webpack.ResolveOptions },
+    ) {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'playground-resolution-'));
+      for (const [relativePath, content] of Object.entries({
+        'setup.mjs': 'export default {};',
+        ...files,
+      })) {
+        const file = path.join(root, relativePath);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, content);
+      }
+      fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
+      const { options, resolve } = configure(root);
+      const setup = path.join(root, 'setup.mjs');
+      const config = webpackFinal(
+        {
+          mode: 'development',
+          devtool: false,
+          context: root,
+          entry: setup,
+          output: { path: path.join(root, 'out'), filename: '[name].js' },
+          externals: Object.fromEntries(BUILT_IN_MODULES.map(name => [name, `commonjs ${name}`])),
+        },
+        {
+          ...options,
+          setup,
+          configDir: path.join(root, '.storybook'),
+          configType: 'DEVELOPMENT',
+        },
+      );
+      // Consumers run webpackFinal after addon presets. Typings must see this final configuration.
+      config.resolve = resolve;
+      const compiler = webpack(config);
+
+      try {
+        const stats = await new Promise<webpack.Stats>((fulfill, reject) => {
+          compiler.run((error, result) => (error || !result ? reject(error) : fulfill(result)));
+        });
+        expect(stats.toString('errors-only')).toBe('');
+        const manifest = JSON.parse(fs.readFileSync(path.join(root, 'out/playground/runtime/manifest.json'), 'utf8'));
+        const declarations = Object.fromEntries(
+          Object.entries(manifest.moduleTypings as Record<string, string[]>).map(([name, emittedFiles]) => [
+            name,
+            Object.assign(
+              {},
+              ...emittedFiles.map(file => JSON.parse(fs.readFileSync(path.join(root, 'out', file), 'utf8'))),
+            ) as Record<string, string>,
+          ]),
+        );
+        const moduleFiles = (name: string) => declarations[name];
+        const runtimeContext = { require: () => ({}), __FLUENTUI_PLAYGROUND_REGISTER_V1__: jest.fn() };
+        vm.runInNewContext(fs.readFileSync(path.join(root, 'out', `${ENTRY_NAME}.js`), 'utf8'), runtimeContext);
+        const runtime = runtimeContext.__FLUENTUI_PLAYGROUND_REGISTER_V1__.mock.calls[0][0];
+        return {
+          manifest,
+          moduleFiles,
+          base: JSON.parse(fs.readFileSync(path.join(root, 'out', manifest.typings), 'utf8')),
+          runtime,
+          warnings: stats.compilation.warnings.map(warning => warning.message),
+        };
+      } finally {
+        await new Promise<void>((fulfill, reject) => {
+          compiler.close(error => (error ? reject(error) : fulfill()));
+        });
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    }
+
+    it('collects workspace declarations through a final webpack alias instead of an installed copy', async () => {
+      const result = await buildFixture(
+        {
+          'packages/ui/package.json': JSON.stringify({
+            name: '@workspace/ui',
+            module: './lib/index.js',
+            types: './dist/index.d.ts',
+          }),
+          'packages/ui/lib/index.js': 'export const workspaceValue = "workspace";',
+          'packages/ui/lib/package.json': JSON.stringify({ type: 'module' }),
+          'packages/ui/dist/index.d.ts': 'export * from "./button";',
+          'packages/ui/dist/button.d.ts': 'export declare const workspaceValue: "workspace";',
+          'node_modules/workspace-ui/package.json': JSON.stringify({
+            name: 'workspace-ui',
+            main: './index.js',
+            types: './index.d.ts',
+          }),
+          'node_modules/workspace-ui/index.js': 'exports.installedValue = "installed";',
+          'node_modules/workspace-ui/index.d.ts': 'export declare const installedValue: "installed";',
+        },
+        root => ({
+          options: { modules: ['workspace-ui'] },
+          resolve: { alias: { 'workspace-ui$': path.join(root, 'packages/ui/lib') } },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders['workspace-ui']()).workspaceValue).toBe('workspace');
+      const files = result.moduleFiles('workspace-ui');
+      expect(files['file:///node_modules/@workspace/ui/dist/button.d.ts']).toContain('workspaceValue');
+      expect(files['file:///node_modules/workspace-ui/index.d.ts']).not.toContain('installedValue');
+      expect(files['file:///node_modules/workspace-ui/index.d.ts']).toContain('@workspace/ui');
+      expect(result.manifest.allowedModules).toContain('workspace-ui');
+      expect(result.manifest.allowedModules).not.toContain('@workspace/ui');
+      expect(result.warnings.join('\n')).not.toContain('"workspace-ui"');
+      expectEditorImports(
+        files,
+        'import { workspaceValue } from "workspace-ui"; const value: "workspace" = workspaceValue;',
+      );
+    });
+
+    it('keeps ordinary node_modules and declaration-only typings entries working', async () => {
+      const result = await buildFixture(
+        {
+          'node_modules/ordinary/package.json': JSON.stringify({
+            name: 'ordinary',
+            main: './lib/index.js',
+            typings: './types/index.d.ts',
+          }),
+          'node_modules/ordinary/lib/index.js': 'exports.value = "ordinary";',
+          'node_modules/ordinary/types/index.d.ts': 'export declare const value: "ordinary";',
+          'node_modules/types-only/package.json': JSON.stringify({
+            name: 'types-only',
+            types: './index.d.ts',
+            exports: { '.': { types: './index.d.ts' } },
+          }),
+          'node_modules/types-only/index.d.ts': 'export type Value = "ordinary";',
+          'node_modules/@types/react/package.json': JSON.stringify({
+            name: '@types/react',
+            types: './index.d.ts',
+            exports: { '.': { types: './index.d.ts' } },
+          }),
+          'node_modules/@types/react/index.d.ts': 'export type ReactValue = "fallback";',
+        },
+        () => ({ options: { modules: ['ordinary'], typings: ['types-only'] } }),
+      );
+
+      expect((await result.runtime.moduleLoaders.ordinary()).value).toBe('ordinary');
+      expect(result.moduleFiles('ordinary')['file:///node_modules/ordinary/types/index.d.ts']).toContain('value');
+      expect(result.base['file:///node_modules/types-only/index.d.ts']).toContain('Value');
+      expect(result.base['file:///node_modules/@types/react/index.d.ts']).toContain('ReactValue');
+      expect(result.base['file:///node_modules/react/package.json']).toBeUndefined();
+      expect(result.manifest.allowedModules).not.toContain('types-only');
+      expect(result.warnings.join('\n')).not.toContain('"ordinary"');
+      expect(result.warnings.join('\n')).not.toContain('"types-only"');
+      expectEditorImports(
+        { ...result.base, ...result.moduleFiles('ordinary') },
+        'import { value } from "ordinary"; import type { Value } from "types-only"; ' +
+          'import type { ReactValue } from "react"; const result: Value = value; const reactValue: ReactValue = "fallback";',
+      );
+    });
+
+    it('uses custom module directories for runtime modules, transitive declarations and declaration-only entries', async () => {
+      const result = await buildFixture(
+        {
+          'vendor/ui/package.json': JSON.stringify({ name: 'ui', main: './index.js', types: './index.d.ts' }),
+          'vendor/ui/index.js': 'exports.value = "custom";',
+          'vendor/ui/index.d.ts': 'import type { Value } from "types-only"; export declare const value: Value;',
+          'vendor/types-only/package.json': JSON.stringify({ name: 'types-only', types: './index.d.ts' }),
+          'vendor/types-only/index.d.ts': 'export type Value = "custom";',
+        },
+        root => ({
+          options: { modules: ['ui'], typings: ['types-only'] },
+          resolve: { modules: [path.join(root, 'vendor'), 'node_modules'] },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders.ui()).value).toBe('custom');
+      expect(result.base['file:///node_modules/types-only/index.d.ts']).toContain('Value');
+      expectEditorImports(
+        { ...result.base, ...result.moduleFiles('ui') },
+        'import { value } from "ui"; const result: "custom" = value;',
+      );
+    });
+
+    it('supports asynchronous resolver plugins without requiring synchronous filesystem resolution', async () => {
+      const result = await buildFixture(
+        {
+          'packages/ui/package.json': JSON.stringify({
+            name: 'workspace-ui',
+            main: './lib/index.js',
+            types: './dist/index.d.ts',
+          }),
+          'packages/ui/lib/index.js': 'exports.value = "plugin";',
+          'packages/ui/dist/index.d.ts': 'export declare const value: "plugin";',
+        },
+        root => ({
+          options: { modules: { 'public-ui': 'workspace-ui' } },
+          resolve: {
+            plugins: [
+              {
+                apply(resolver) {
+                  resolver.getHook('resolve').tapAsync('WorkspacePackage', (request, context, callback) => {
+                    if (request.request !== 'workspace-ui') {
+                      callback();
+                      return;
+                    }
+                    setImmediate(() =>
+                      resolver.doResolve(
+                        resolver.getHook('resolve'),
+                        { ...request, request: path.join(root, 'packages/ui/lib/index.js') },
+                        'workspace package',
+                        context,
+                        callback,
+                      ),
+                    );
+                  });
+                },
+              },
+            ],
+          },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders['public-ui']()).value).toBe('plugin');
+      expect(result.moduleFiles('public-ui')['file:///node_modules/workspace-ui/dist/index.d.ts']).toContain('value');
+      expect(result.manifest.allowedModules).toContain('public-ui');
+      expect(result.manifest.allowedModules).not.toContain('workspace-ui');
+      expectEditorImports(
+        result.moduleFiles('public-ui'),
+        'import { value } from "public-ui"; const result: "plugin" = value;',
+      );
+    });
+
+    it('follows a remapped runtime subpath instead of using the original subpath declarations', async () => {
+      const result = await buildFixture(
+        {
+          'packages/ui/package.json': JSON.stringify({
+            name: 'workspace-ui',
+            exports: {
+              './original': { types: './dist/original.d.ts', default: './lib/original.js' },
+              './actual': { types: './dist/actual.d.ts', default: './lib/actual.js' },
+            },
+          }),
+          'packages/ui/lib/original.js': 'export const value = "original";',
+          'packages/ui/dist/original.d.ts': 'export declare const value: "original";',
+          'packages/ui/lib/actual.js': 'export const value = "actual";',
+          'packages/ui/dist/actual.d.ts': 'export declare const value: "actual";',
+        },
+        root => ({
+          options: { modules: ['workspace-ui/original'] },
+          resolve: { alias: { 'workspace-ui/original$': path.join(root, 'packages/ui/lib/actual.js') } },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders['workspace-ui/original']()).value).toBe('actual');
+      const files = result.moduleFiles('workspace-ui/original');
+      expect(files['file:///node_modules/workspace-ui/dist/actual.d.ts']).toContain('"actual"');
+      expect(files['file:///node_modules/workspace-ui/dist/original.d.ts']).toBeUndefined();
+      expectEditorImports(files, 'import { value } from "workspace-ui/original"; const result: "actual" = value;');
+    });
+
+    it('keeps remapped public subpaths working with typesVersions', async () => {
+      const result = await buildFixture(
+        {
+          'packages/ui/package.json': JSON.stringify({
+            name: 'workspace-ui',
+            typesVersions: { '<99.0.0': { '*': ['legacy/*'] } },
+            exports: {
+              './actual': { types: './dist/actual.d.ts', default: './lib/actual.js' },
+            },
+          }),
+          'packages/ui/lib/actual.js': 'export const value = "actual";',
+          'packages/ui/dist/actual.d.ts': 'export declare const value: "modern";',
+          'packages/ui/legacy/dist/actual.d.ts': 'export declare const value: "actual";',
+        },
+        root => ({
+          options: { modules: ['workspace-ui/original'] },
+          resolve: { alias: { 'workspace-ui/original$': path.join(root, 'packages/ui/lib/actual.js') } },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders['workspace-ui/original']()).value).toBe('actual');
+      expectEditorImports(
+        result.moduleFiles('workspace-ui/original'),
+        'import { value } from "workspace-ui/original"; const result: "actual" = value;',
+      );
+    });
+
+    it('uses an explicit typings root for an absolute runtime wrapper without changing its public import', async () => {
+      const result = await buildFixture(
+        {
+          'wrapper.mjs': 'export const value = "wrapped";',
+          'packages/ui/package.json': JSON.stringify({ name: 'workspace-ui', types: './dist/index.d.ts' }),
+          'packages/ui/dist/index.d.ts': 'export declare const value: "wrapped";',
+        },
+        root => ({
+          options: {
+            modules: { 'public-ui': path.join(root, 'wrapper.mjs') },
+            typingsRoots: { 'public-ui': '../packages/ui' },
+          },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders['public-ui']()).value).toBe('wrapped');
+      expect(result.moduleFiles('public-ui')['file:///node_modules/workspace-ui/dist/index.d.ts']).toContain(
+        '"wrapped"',
+      );
+      expectEditorImports(
+        result.moduleFiles('public-ui'),
+        'import { value } from "public-ui"; const result: "wrapped" = value;',
+      );
+    });
+
+    it('selects declarations from the same conditional export as the configured runtime', async () => {
+      const result = await buildFixture(
+        {
+          'node_modules/conditional/package.json': JSON.stringify({
+            name: 'conditional',
+            exports: {
+              node: { types: './node.d.ts', default: './node.js' },
+              default: { types: './browser.d.ts', default: './browser.js' },
+            },
+          }),
+          'node_modules/conditional/node.js': 'exports.value = "node";',
+          'node_modules/conditional/node.d.ts': 'export declare const value: "node";',
+          'node_modules/conditional/browser.js': 'exports.value = "browser";',
+          'node_modules/conditional/browser.d.ts': 'export declare const value: "browser";',
+        },
+        () => ({
+          options: { modules: ['conditional'] },
+          resolve: { conditionNames: ['node', 'default'] },
+        }),
+      );
+
+      expect((await result.runtime.moduleLoaders.conditional()).value).toBe('node');
+      expectEditorImports(
+        result.moduleFiles('conditional'),
+        'import { value } from "conditional"; const result: "node" = value;',
+      );
+    });
+
+    it('uses wildcard runtime export metadata for a configured package subpath', async () => {
+      const result = await buildFixture(
+        {
+          'node_modules/wildcard/package.json': JSON.stringify({
+            name: 'wildcard',
+            exports: { './*': { types: './dist/*.d.ts', default: './lib/*.js' } },
+          }),
+          'node_modules/wildcard/lib/button.js': 'exports.value = "wildcard";',
+          'node_modules/wildcard/dist/button.d.ts': 'export declare const value: "wildcard";',
+        },
+        () => ({ options: { modules: ['wildcard/button'] } }),
+      );
+
+      expect((await result.runtime.moduleLoaders['wildcard/button']()).value).toBe('wildcard');
+      expectEditorImports(
+        result.moduleFiles('wildcard/button'),
+        'import { value } from "wildcard/button"; const result: "wildcard" = value;',
+      );
+    });
+
+    it('applies Monaco typesVersions to declaration-only packages resolved by webpack', async () => {
+      const result = await buildFixture(
+        {
+          'node_modules/types-only/package.json': JSON.stringify({
+            name: 'types-only',
+            types: './index.d.ts',
+            typesVersions: { '<99.0.0': { '*': ['legacy/*'] } },
+          }),
+          'node_modules/types-only/index.d.ts': 'export type Value = "modern";',
+          'node_modules/types-only/legacy/index.d.ts': 'export type Value = "legacy";',
+        },
+        () => ({ options: { modules: [], typings: ['types-only'] } }),
+      );
+
+      expect(result.base['file:///node_modules/types-only/index.d.ts']).toBeUndefined();
+      expect(result.base['file:///node_modules/types-only/legacy/index.d.ts']).toContain('"legacy"');
+      expectEditorImports(result.base, 'import type { Value } from "types-only"; const value: Value = "legacy";');
+    });
+
+    it('accepts explicit package roots for declaration-only entries without making them runtime modules', async () => {
+      const result = await buildFixture(
+        {
+          'packages/types/package.json': JSON.stringify({ name: 'physical-types', types: './dist/index.d.ts' }),
+          'packages/types/dist/index.d.ts': 'export type Value = "root";',
+        },
+        () => ({
+          options: {
+            modules: [],
+            typings: ['public-types'],
+            typingsRoots: { 'public-types': '../packages/types' },
+          },
+        }),
+      );
+
+      expect(result.base['file:///node_modules/physical-types/dist/index.d.ts']).toContain('"root"');
+      expect(result.manifest.allowedModules).not.toContain('public-types');
+      expectEditorImports(result.base, 'import type { Value } from "public-types"; const value: Value = "root";');
+    });
+  });
+
+  it('splits declarations into always-loaded React typings and per-module additions', async () => {
+    const typings = await collectConfiguredTypings(
       { modules: { compression: 'lz-string', react: 'react' } },
       { configDir: path.resolve(__dirname, '..') },
       '4.5.5',
@@ -146,13 +578,13 @@ describe('collectConfiguredTypings', () => {
     expect(baseFiles.some(file => file.startsWith('file:///node_modules/@types/react/'))).toBe(true);
     expect(typings.modules.react).toEqual({ files: {}, usesShared: false });
     const compression = typings.modules.compression.files;
-    expect(compression['file:///node_modules/compression/index.d.ts']).toContain('"lz-string"');
+    expect(compression['file:///node_modules/compression/index.d.ts']).toContain('lz-string');
     expect(Object.keys(compression).some(file => file.includes('/lz-string/'))).toBe(true);
     expect(Object.keys(compression).filter(file => baseFiles.includes(file))).toEqual([]);
   });
 
-  it('moves declarations needed by several modules into a shared file', () => {
-    const typings = collectConfiguredTypings(
+  it('moves declarations needed by several modules into a shared file', async () => {
+    const typings = await collectConfiguredTypings(
       { modules: { first: 'lz-string', second: 'lz-string', react: 'react' } },
       { configDir: path.resolve(__dirname, '..') },
       '4.5.5',
@@ -169,7 +601,7 @@ describe('collectConfiguredTypings', () => {
 });
 
 describe('PlaygroundRuntimeManifestPlugin', () => {
-  type Typings = ReturnType<typeof collectConfiguredTypings>;
+  type Typings = Awaited<ReturnType<typeof collectConfiguredTypings>>;
 
   const setup = () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'playground-manifest-'));

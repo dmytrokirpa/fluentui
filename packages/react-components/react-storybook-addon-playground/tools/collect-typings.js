@@ -7,6 +7,9 @@ const semver = require('semver');
 /**
  * @typedef {{ kind: 'module' | 'path' | 'types', value: string }} Specifier
  * @typedef {{ files: Record<string, string>, sources: string[], missing: string[] }} CollectResult
+ * @typedef {{ dir: string, name: string, packageJson: Record<string, any> }} PackageInfo
+ * @typedef {{ path: string } | false | null} ModuleResolution
+ * @typedef {(request: string, fromDir: string) => Promise<ModuleResolution>} PackageResolver
  */
 
 const VIRTUAL_ROOT = 'file:///node_modules';
@@ -232,10 +235,9 @@ function resolveTypesFile(packageDir, typesPath) {
   }
 
   const withoutExt = typesPath.replace(/\.(d\.)?[cm]?[jt]sx?$/, '');
-  const declarationExt = typesPath.endsWith('.mjs') ? '.d.mts' : typesPath.endsWith('.cjs') ? '.d.cts' : '.d.ts';
 
   return (
-    existingFile(path.join(packageDir, `${withoutExt}${declarationExt}`)) ||
+    existingFile(path.join(packageDir, getDeclarationPath(typesPath))) ||
     existingFile(path.join(packageDir, `${withoutExt}.d.ts`)) ||
     existingFile(path.join(packageDir, `${withoutExt}.d.cts`)) ||
     existingFile(path.join(packageDir, `${withoutExt}.d.mts`)) ||
@@ -281,6 +283,15 @@ function applyTypesVersions(packageJson, relativePath, typescriptVersion) {
   return relativePath;
 }
 
+/** @param {string} filePath */
+function getDeclarationPath(filePath) {
+  if (/\.d\.[cm]?ts$/.test(filePath)) {
+    return filePath;
+  }
+  const extension = filePath.endsWith('.mjs') ? '.d.mts' : filePath.endsWith('.cjs') ? '.d.cts' : '.d.ts';
+  return `${filePath.replace(/\.(d\.)?[cm]?[jt]sx?$/, '')}${extension}`;
+}
+
 /**
  * @param {string} filePath
  * @returns {string | null}
@@ -302,15 +313,120 @@ function readJson(filePath) {
 }
 
 /**
+ * Finds the named package owning a resolved entry, including aliases into built output with a nested package.json.
+ *
+ * @param {string} entryPath
+ * @param {Set<string>} sources
+ * @returns {string | null}
+ */
+function findResolvedPackageDir(entryPath, sources) {
+  for (let dir = path.dirname(entryPath); ; dir = path.dirname(dir)) {
+    const metadataPath = path.join(dir, 'package.json');
+    if (existingFile(metadataPath)) {
+      sources.add(fs.realpathSync(metadataPath));
+      if (typeof readJson(metadataPath).name === 'string') {
+        return fs.realpathSync(dir);
+      }
+    }
+    if (path.dirname(dir) === dir) {
+      return null;
+    }
+  }
+}
+
+/**
+ * Maps a resolved runtime export back to its declaration metadata, rather than assuming an alias keeps its subpath.
+ *
+ * @param {PackageInfo} pkg
+ * @param {string} entryPath
+ * @returns {{ subpath: string, typesPath: string | null } | null}
+ */
+function getRuntimeExport(pkg, entryPath) {
+  const realEntryPath = existingFile(entryPath) ? fs.realpathSync(entryPath) : path.resolve(entryPath);
+  const relativePath = path.relative(pkg.dir, realEntryPath).split(path.sep).join('/');
+  /**
+   * @param {unknown} entry
+   * @returns {{ typesPath: string | null, capture?: string } | null}
+   */
+  const matchExport = entry => {
+    if (typeof entry === 'string') {
+      if (/\.d\.[cm]?ts$/.test(entry)) {
+        return null;
+      }
+      const target = path.posix.normalize(entry.replace(/^\.\//, ''));
+      const star = target.indexOf('*');
+      if (star === -1) {
+        return target === relativePath ? { typesPath: null } : null;
+      }
+      const prefix = target.slice(0, star);
+      const suffix = target.slice(star + 1);
+      return relativePath.startsWith(prefix) && relativePath.endsWith(suffix)
+        ? { typesPath: null, capture: relativePath.slice(prefix.length, relativePath.length - suffix.length) }
+        : null;
+    }
+    if (Array.isArray(entry)) {
+      for (const candidate of entry) {
+        const match = matchExport(candidate);
+        if (match) {
+          return match;
+        }
+      }
+      return null;
+    }
+    if (entry && typeof entry === 'object') {
+      const conditions = /** @type {Record<string, unknown>} */ (entry);
+      for (const [key, value] of Object.entries(conditions)) {
+        const match = !key.startsWith('types') && matchExport(value);
+        if (match) {
+          const typesPath = match.typesPath ?? getTypesFromExportEntry(conditions.types);
+          return {
+            ...match,
+            typesPath: typesPath && match.capture !== undefined ? typesPath.replaceAll('*', match.capture) : typesPath,
+          };
+        }
+      }
+    }
+    return null;
+  };
+  const exportsField = pkg.packageJson.exports;
+  if (exportsField && typeof exportsField === 'object' && !Array.isArray(exportsField)) {
+    for (const [key, entry] of Object.entries(exportsField)) {
+      const match = key.startsWith('.') && matchExport(entry);
+      if (match) {
+        return {
+          subpath: key === '.' ? '' : key.slice(2).replaceAll('*', match.capture ?? ''),
+          typesPath: match.typesPath,
+        };
+      }
+    }
+  }
+  const rootExport = matchExport(exportsField);
+  if (rootExport) {
+    return { subpath: '', typesPath: rootExport.typesPath };
+  }
+  if ([pkg.packageJson.module, pkg.packageJson.main, pkg.packageJson.browser].some(entry => matchExport(entry))) {
+    return { subpath: '', typesPath: null };
+  }
+  return null;
+}
+
+/**
  * Collects the transitive closure of type declaration files needed to type-check code importing `entries`.
  *
  * Every file gets a virtual path `file:///node_modules/<package>/<relative path>` so that TypeScript's node module
  * resolution works when the files are registered as Monaco extra libs.
  *
- * @param {{ packageRoot: string, entries: string[], typescriptVersion: string }} options
- * @returns {CollectResult}
+ * @param {{
+ *   packageRoot: string,
+ *   entries: string[],
+ *   typescriptVersion: string,
+ *   moduleRequests?: Record<string, string>,
+ *   typingsRoots?: Record<string, string>,
+ *   resolvePackage?: PackageResolver
+ * }} options
+ * @returns {Promise<CollectResult>}
  */
-function collectTypings(options) {
+async function collectTypings(options) {
   const { entries, typescriptVersion } = options;
   const packageRoot = path.resolve(options.packageRoot);
 
@@ -320,7 +436,7 @@ function collectTypings(options) {
   const sources = new Set();
   /** @type {Set<string>} */
   const missing = new Set();
-  /** @type {Map<string, { dir: string, name: string, packageJson: Record<string, any> } | null>} */
+  /** @type {Map<string, (PackageInfo & { subpath: string, entryFile: string | null }) | null>} */
   const packages = new Map();
 
   /**
@@ -346,37 +462,91 @@ function collectTypings(options) {
    * Resolves the package providing types for `name` (and `subpath`): the package itself when it ships types for the
    * root or the requested subpath, `@types/*` otherwise.
    *
-   * @param {string} name
+   * @param {string} specifier
    * @param {string} fromDir
-   * @param {string} [subpath]
    */
-  function getPackage(name, fromDir, subpath = '') {
-    const cacheKey = `${name}\0${subpath}`;
+  async function getPackage(specifier, fromDir) {
+    const { name, subpath } = parseSpecifier(specifier);
+    const request = options.moduleRequests?.[specifier] ?? specifier;
+    const requestSpecifier = PACKAGE_SPECIFIER_REGEX.test(request) ? parseSpecifier(request) : null;
+    const requestSubpath = requestSpecifier?.subpath ?? subpath;
+    const cacheKey = `${specifier}\0${fromDir}`;
     const cached = packages.get(cacheKey);
     if (cached !== undefined) {
       return cached;
     }
 
-    /** @param {string} dir */
-    const load = dir => {
-      const packageJson = readJson(path.join(dir, 'package.json'));
-      return { dir, name: packageJson.name, packageJson };
+    /**
+     * @param {string} dir
+     * @param {string} [fallbackName]
+     */
+    const load = (dir, fallbackName = name) => {
+      const realDir = fs.realpathSync(dir);
+      const packageJson = readJson(path.join(realDir, 'package.json'));
+      return {
+        dir: realDir,
+        name: typeof packageJson.name === 'string' ? packageJson.name : fallbackName,
+        packageJson,
+      };
     };
 
-    const ownDir = findPackageDir(name, fromDir);
+    const explicitRoot = options.typingsRoots?.[specifier] ?? options.typingsRoots?.[name];
+    if (explicitRoot && !existingFile(path.join(explicitRoot, 'package.json'))) {
+      throw new Error(
+        `Playground typingsRoots[${JSON.stringify(specifier)}] must contain a package.json: ${explicitRoot}`,
+      );
+    }
+    const resolution = !explicitRoot && options.resolvePackage ? await options.resolvePackage(request, fromDir) : null;
+    if (resolution === false) {
+      packages.set(cacheKey, null);
+      return null;
+    }
+    const ownDir =
+      explicitRoot ||
+      (resolution
+        ? findResolvedPackageDir(resolution.path, sources)
+        : requestSpecifier && findPackageDir(requestSpecifier.name, fromDir));
     const own = ownDir ? load(ownDir) : null;
+    const resolvedExport = own && resolution ? getRuntimeExport(own, resolution.path) : null;
+    const ownSubpath = resolvedExport?.subpath ?? requestSubpath;
+    /** @type {string | null} */
+    let ownEntry = null;
+    if (own) {
+      if (resolution && /\.d\.[cm]?ts$/.test(resolution.path)) {
+        const realEntryPath = existingFile(resolution.path) ? fs.realpathSync(resolution.path) : resolution.path;
+        ownEntry = resolveVersionedTypesFile(own, path.relative(own.dir, realEntryPath));
+      } else if (resolvedExport?.typesPath) {
+        ownEntry = resolveVersionedTypesFile(own, resolvedExport.typesPath);
+      } else if (resolvedExport || explicitRoot || !resolution) {
+        ownEntry = resolveEntryFile(own, ownSubpath);
+      } else {
+        ownEntry =
+          resolveTypesFile(path.dirname(resolution.path), path.basename(resolution.path)) ||
+          resolveEntryFile(own, ownSubpath);
+      }
+    }
     const hasOwnTypes =
       own &&
-      (own.packageJson.types ||
-        own.packageJson.typings ||
-        existingFile(path.join(own.dir, 'index.d.ts')) ||
-        resolveEntryFile(own, '') ||
-        (subpath && resolveEntryFile(own, subpath)));
+      (own.packageJson.types || own.packageJson.typings || existingFile(path.join(own.dir, 'index.d.ts')) || ownEntry);
 
-    let result = hasOwnTypes ? own : null;
+    let result = hasOwnTypes && own ? { ...own, subpath: ownSubpath, entryFile: ownEntry || null } : null;
     if (!result && !name.startsWith('@types/')) {
-      const typesDir = findPackageDir(getTypesPackageName(name), fromDir);
-      result = typesDir ? load(typesDir) : null;
+      const typesName = getTypesPackageName(own?.name ?? requestSpecifier?.name ?? name);
+      const typesResolution = options.resolvePackage ? await options.resolvePackage(typesName, fromDir) : null;
+      const typesDir =
+        typesResolution === false
+          ? null
+          : typesResolution
+          ? findResolvedPackageDir(typesResolution.path, sources)
+          : findPackageDir(typesName, own?.dir ?? fromDir);
+      if (typesDir) {
+        const typesPackage = load(typesDir, typesName);
+        result = {
+          ...typesPackage,
+          subpath: ownSubpath,
+          entryFile: resolveEntryFile(typesPackage, ownSubpath),
+        };
+      }
     }
 
     packages.set(cacheKey, result);
@@ -492,17 +662,63 @@ function collectTypings(options) {
       relImport = `./${relImport}`;
     }
 
-    const target = JSON.stringify(relImport);
+    files[virtualPath] = createDeclarationReexport(
+      relImport,
+      files[toVirtualPath(pkg, entryFile)] ?? fs.readFileSync(entryFile, 'utf8'),
+    );
+  }
+
+  /**
+   * @param {string} importPath
+   * @param {string} content
+   */
+  function createDeclarationReexport(importPath, content) {
+    const target = JSON.stringify(importPath);
     // `export *` never re-exports a default export, forward it explicitly.
-    switch (getDefaultExportKind(files[toVirtualPath(pkg, entryFile)] ?? fs.readFileSync(entryFile, 'utf8'))) {
+    switch (getDefaultExportKind(content)) {
       case 'equals':
-        files[virtualPath] = `import entry = require(${target});\nexport = entry;\n`;
-        break;
+        return `import entry = require(${target});\nexport = entry;\n`;
       case 'default':
-        files[virtualPath] = `export * from ${target};\nexport { default } from ${target};\n`;
-        break;
+        return `export * from ${target};\nexport { default } from ${target};\n`;
       default:
-        files[virtualPath] = `export * from ${target};\n`;
+        return `export * from ${target};\n`;
+    }
+  }
+
+  /**
+   * Keeps editor imports public even when Webpack resolves a different package, subpath or absolute request.
+   *
+   * @param {string} specifier
+   * @param {PackageInfo} pkg
+   * @param {string} entryFile
+   */
+  function addImportAlias(specifier, pkg, entryFile) {
+    const { name, subpath } = parseSpecifier(specifier);
+    const aliasFiles = new Set([subpath ? `${subpath}.d.ts` : 'index.d.ts']);
+    if (subpath && name === pkg.name) {
+      // Keep versioned lookups of a public subpath aligned without changing shared package metadata.
+      aliasFiles.add(getDeclarationPath(applyTypesVersions(pkg.packageJson, subpath, typescriptVersion)));
+    }
+    const entryRelativePath = `${pkg.name}/${path.relative(pkg.dir, entryFile).split(path.sep).join('/')}`;
+    for (const aliasFile of aliasFiles) {
+      const aliasRelativePath = path.posix.join(name, aliasFile.split(path.sep).join('/'));
+      let importPath = path.posix.relative(
+        path.posix.dirname(aliasRelativePath),
+        entryRelativePath.replace(/\.d\.[cm]?ts$/, ''),
+      );
+      if (!importPath.startsWith('.')) {
+        importPath = `./${importPath}`;
+      }
+      if (aliasRelativePath !== entryRelativePath) {
+        files[`${VIRTUAL_ROOT}/${aliasRelativePath}`] = createDeclarationReexport(
+          importPath,
+          files[toVirtualPath(pkg, entryFile)],
+        );
+      }
+    }
+    const metadataPath = `${VIRTUAL_ROOT}/${name}/package.json`;
+    if (!files[metadataPath] || (!subpath && name === pkg.name)) {
+      files[metadataPath] = JSON.stringify({ name, ...(!subpath && { types: './index.d.ts' }) });
     }
   }
 
@@ -510,14 +726,14 @@ function collectTypings(options) {
    * @param {string} specifier
    * @param {string} fromDir
    */
-  function addModule(specifier, fromDir) {
+  async function addModule(specifier, fromDir) {
     if (!PACKAGE_SPECIFIER_REGEX.test(specifier)) {
       // regex false positive (e.g. `from '…'` inside a doc comment)
       return;
     }
 
     const { name, subpath } = parseSpecifier(specifier);
-    const pkg = getPackage(name, fromDir, subpath);
+    const pkg = await getPackage(specifier, fromDir);
     if (!pkg) {
       missing.add(specifier);
       return;
@@ -525,11 +741,18 @@ function collectTypings(options) {
 
     addPackageJson(pkg, path.join(pkg.dir, 'package.json'));
 
-    const entryFile = resolveEntryFile(pkg, subpath);
+    const { entryFile } = pkg;
     if (entryFile) {
-      addFile(pkg, entryFile);
-      if (subpath || (!pkg.packageJson.types && !pkg.packageJson.typings)) {
-        addSubpathShim(pkg, subpath, entryFile);
+      await addFile(pkg, entryFile);
+      if (pkg.subpath || (!pkg.packageJson.types && !pkg.packageJson.typings)) {
+        addSubpathShim(pkg, pkg.subpath, entryFile);
+      }
+      if (
+        (name !== pkg.name && getTypesPackageName(name) !== pkg.name) ||
+        subpath !== pkg.subpath ||
+        (name === pkg.name && entryFile !== resolveEntryFile(pkg, subpath))
+      ) {
+        addImportAlias(specifier, pkg, entryFile);
       }
     } else {
       missing.add(specifier);
@@ -540,7 +763,7 @@ function collectTypings(options) {
    * @param {{ dir: string, name: string, packageJson: Record<string, any> }} pkg
    * @param {string} realFile
    */
-  function addFile(pkg, realFile) {
+  async function addFile(pkg, realFile) {
     const virtualPath = toVirtualPath(pkg, realFile);
     if (files[virtualPath] !== undefined) {
       return;
@@ -553,21 +776,23 @@ function collectTypings(options) {
     const dir = path.dirname(realFile);
     for (const specifier of getSpecifiers(content)) {
       if (specifier.kind === 'types') {
-        addModule(specifier.value, dir);
+        await addModule(specifier.value, dir);
       } else if (specifier.kind === 'path' || specifier.value.startsWith('.')) {
         const target = resolveTypesFile(dir, specifier.value);
 
         if (target) {
-          addFile(pkg, target);
+          await addFile(pkg, target);
         }
         // unresolved relative specifiers are almost always regex false positives inside doc comments
       } else {
-        addModule(specifier.value, dir);
+        await addModule(specifier.value, dir);
       }
     }
   }
 
-  entries.forEach(entry => addModule(entry, packageRoot));
+  for (const entry of entries) {
+    await addModule(entry, packageRoot);
+  }
 
   return { files, sources: Array.from(sources), missing: Array.from(missing) };
 }

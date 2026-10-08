@@ -20,6 +20,13 @@ export type PlaygroundRuntimeMessage =
   | {
       source: 'fluentui-playground';
       token: string;
+      type: 'script-request';
+      requestId: number;
+      url: string;
+    }
+  | {
+      source: 'fluentui-playground';
+      token: string;
       /** The runtime failed before registering, e.g. a setup module threw or a runtime script did not load. */
       type: 'init-error';
       message: string;
@@ -72,7 +79,7 @@ export function resolveManifestPath(requested: string | null, pageUrl: string, f
  * Fetches the Storybook-emitted playground runtime manifest and resolves asset URLs against the Storybook root.
  */
 export async function loadRuntimeManifest(
-  targetWindow: Window,
+  targetWindow: Pick<Window, 'fetch'> & { location: Pick<Location, 'href'> },
   manifestPath: string,
 ): Promise<ResolvedPlaygroundRuntimeManifest> {
   const manifestUrl = new URL(manifestPath, targetWindow.location.href);
@@ -90,6 +97,7 @@ export async function loadRuntimeManifest(
     ...manifest,
     baseUrl: storybookRoot.href,
     scripts: manifest.scripts.map(script => new URL(script, storybookRoot).href),
+    scriptFiles: manifest.scriptFiles?.map(script => new URL(script, storybookRoot).href),
     styles: manifest.styles.map(style => new URL(style, storybookRoot).href),
     typings: new URL(manifest.typings, storybookRoot).href,
     moduleTypings: manifest.moduleTypings
@@ -100,5 +108,42 @@ export async function loadRuntimeManifest(
           ]),
         )
       : undefined,
+  };
+}
+
+/** Fetches only manifest-listed, same-origin runtime scripts; never evaluates code in the shell. */
+export function createRuntimeScriptLoader(
+  targetWindow: Pick<Window, 'fetch'> & { location: Pick<Location, 'origin'> },
+  manifest: ResolvedPlaygroundRuntimeManifest,
+  signal?: AbortSignal,
+): (url: string) => Promise<string> {
+  const allowed = new Set([...(manifest.scriptFiles ?? []), ...manifest.scripts]);
+  const requests = new Map<string, Promise<string>>();
+
+  return async url => {
+    if (!allowed.has(url) || new URL(url).origin !== targetWindow.location.origin) {
+      throw new Error(`Playground runtime script is not an allowed same-origin asset: ${url}`);
+    }
+
+    let request = requests.get(url);
+    if (!request) {
+      request = targetWindow
+        .fetch(url, { mode: 'same-origin', credentials: 'same-origin', redirect: 'error', signal })
+        .then(async response => {
+          if (!response.ok) {
+            throw new Error(
+              `Failed to load playground runtime script "${url}" (${response.status} ${response.statusText})`,
+            );
+          }
+          if (response.headers.get('content-type')?.toLowerCase().startsWith('text/html')) {
+            throw new Error(`Playground runtime script "${url}" returned HTML instead of JavaScript.`);
+          }
+          return response.text();
+        });
+      requests.set(url, request);
+      request.catch(() => requests.delete(url));
+    }
+
+    return request;
   };
 }
