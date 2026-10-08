@@ -20,8 +20,8 @@ flowchart LR
   Runtime -->|allowed packages and setup| Preview
 ```
 
-The shell is built and published with the addon. Each consuming Storybook builds its own runtime from installed
-packages; the browser never installs packages or fetches code from a runtime CDN. See the
+The shell is built and published with the addon. Each consuming Storybook builds its own runtime from its configured
+package resolution; the browser never installs packages or fetches code from a runtime CDN. See the
 [specification and proposed follow-ups](docs/Spec.md) for the source pipeline, runtime boundaries, and roadmap.
 
 ## Features
@@ -46,6 +46,9 @@ yarn add @fluentui/react-storybook-addon-playground
 
 The optional `typescript` peer used for declaration parsing must be version 5.0 or newer. The editor itself uses the
 TypeScript version bundled with its prebuilt Monaco shell.
+
+Use the Webpack 5 Storybook builder and matching versions of `@storybook/react` and `@storybook/addon-docs`
+(9.1.17 or newer, including Storybook 10).
 
 ## Usage
 
@@ -98,6 +101,65 @@ use `@fluentui/react-icons` skip its large declarations. Declaration collection 
 falls back to `@types` packages when a runtime package does not ship declarations, and parses imports with the
 project's `typescript` (an optional peer; a regular-expression parser is used without it).
 
+### Workspace packages and declaration roots
+
+Declaration collection uses the **final Storybook Webpack compiler's resolution**, including `resolve.alias`,
+`resolve.modules`, dependency-specific resolution options and asynchronous resolver plugins. Aliases added by the
+consumer's `webpackFinal` are honored. The collector locates the package metadata owning the resolved entry, then follows
+its `types`/`typings`, typed `exports`, `typesVersions` and transitive declarations. Built output may live in `lib` while
+declarations live in `dist`; workspace packages do not need a self-link under `node_modules`.
+
+For example, a library's `.storybook/main.js` can resolve its public package import to built output:
+
+```js
+const path = require('path');
+
+module.exports = {
+  addons: [
+    {
+      name: '@fluentui/react-storybook-addon-playground',
+      options: { modules: ['@workspace/ui'] },
+    },
+  ],
+  webpackFinal(config) {
+    config.resolve ??= {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@workspace/ui$': path.resolve(__dirname, '../lib'),
+    };
+    return config;
+  },
+};
+```
+
+Both the runtime and editor declarations resolve from that workspace package. Examples keep importing `@workspace/ui`,
+even when Webpack resolves a package with a different physical name. Import maps likewise retain their public keys,
+including maps to absolute runtime entry files.
+
+If a local wrapper or nonstandard build layout needs declarations from a different package root, use
+`options.typingsRoots`. Keys are **public Playground import names**, or declaration-only `typings` entries; values are
+directories containing the package's `package.json` and declaration tree. Relative roots are resolved from the
+Storybook config directory:
+
+```js
+options: {
+  modules: {
+    '@workspace/ui': path.resolve(__dirname, './playground-ui.mjs'),
+  },
+  typingsRoots: {
+    '@workspace/ui': '..', // package.json alongside lib/ and dist/
+  },
+  // typings: ['declaration-only-package'],
+  // typingsRoots can also specify that declaration-only package's root.
+}
+```
+
+`typingsRoots` changes only declaration collection, not Webpack's runtime imports. The selected declarations must
+describe the corresponding configured runtime module. Invalid roots fail the build; missing declarations produce a
+Webpack warning with this option as a recovery path. Ordinary `node_modules` packages and `@types` fallbacks continue
+to work, and declaration-only entries remain non-importable at runtime. Collected declarations and package metadata
+are watched and recollected when they change.
+
 The addon reads its options from Storybook's preset options, generates its runtime entry in
 `node_modules/.cache/fluentui-playground-runtime/` (next to the Storybook config), and keeps the runtime out of Storybook
 pages through `html-webpack-plugin` hooks. The editor packages (`monaco-editor` 0.52 with TypeScript 5.4, Prettier,
@@ -128,6 +190,26 @@ links use the same live-update behavior.
   preview; the next valid edit renders again, and Restart preview is available to reset a broken environment.
 
 The sandbox remains `allow-scripts` only; live updates never add `allow-same-origin`.
+
+### Deployment resource policies
+
+The preview's `about:srcdoc` document has an opaque origin. With `Cross-Origin-Embedder-Policy: require-corp`, direct
+script requests from that document can be blocked even when the runtime is hosted alongside Storybook. This can affect
+both initial files such as `runtime~playground-runtime.*.js` and lazily loaded module chunks.
+
+For same-origin runtime JavaScript, the addon avoids those requests: the build manifest lists all eager and lazy
+runtime script files, the shell fetches their text from its own origin, and execution remains entirely inside the
+sandbox. Lazy chunks still load only when imported. Shared Webpack chunks retain their normal loader on Storybook pages.
+No `allow-same-origin`, global `Cross-Origin-Resource-Policy: cross-origin` header, or consumer script loader is needed.
+
+Only exact script URLs listed in the manifest can be fetched through this channel. Requests are authenticated by the
+preview window and session token, cross-origin URLs and redirects are rejected, failed requests report an error, and
+disposing the preview aborts pending fetches. The shell never evaluates the returned JavaScript.
+
+Rebuild and deploy **both the addon shell and the consuming Storybook runtime** together. Older manifests without
+`scriptFiles` retain direct script loading and therefore still need appropriate hosting permissions. External/CDN
+runtime scripts, styles, fonts and media remain subject to their own resource policies. When using COEP, serve Monaco's
+worker scripts with a compatible COEP response header as well; otherwise the browser can block editor workers.
 
 ### Preview sandbox
 
@@ -192,6 +274,22 @@ CSS module tabs are enabled by the source transform's `cssModules` option: the t
 attaches `parameters.cssModuleSources`, which the playground passes through its URL state into the editor. The
 export-to-sandbox addon currently registers that shared Babel transform; it is not the playground's execution engine.
 Separating source extraction from external sandbox export is a [proposed architectural follow-up](docs/Spec.md#follow-ups).
+
+### Docs source actions
+
+On Storybook Docs versions that support `parameters.docs.components.Canvas` overrides, the addon composes the public
+Canvas block and supplies its button through
+[`additionalActions`](https://storybook.js.org/docs/api/doc-blocks/doc-block-canvas#additionalactions). Storybook owns
+the action's rendering and placement alongside Show/Hide code and Copy code. Existing Canvas actions and source controls
+are preserved, and the decorator does not clone, move or replace these React-owned buttons.
+
+Supported earlier Docs versions that do not honor Canvas overrides use a compatibility fallback inside the addon.
+It locates the source controls under the story's Docs anchor, covering both the earlier `.docs-story` action area and
+Storybook 10's separate `.sbdocs-preview-actions` row, including primary-story anchors. The button inherits the source
+control's Storybook classes. No consumer decorator, DOM relocation shim or custom Docs page is required.
+
+A consumer-supplied Canvas override takes precedence over the addon's override. The decorator fallback still works
+when that custom block retains the standard Storybook source controls and story anchors.
 
 ### Disabling per story
 

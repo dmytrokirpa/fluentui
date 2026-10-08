@@ -16,6 +16,7 @@ export interface PlaygroundRuntimeManifest {
     // (undocumented)
     buildId: string;
     moduleTypings?: Record<string, string[]>;
+    scriptFiles?: string[];
     // (undocumented)
     scripts: string[];
     // (undocumented)

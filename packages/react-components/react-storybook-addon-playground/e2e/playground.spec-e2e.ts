@@ -40,6 +40,93 @@ function setupPage(page: Page) {
 }
 
 test.describe('playground', () => {
+  test('loads eager and lazy runtime chunks when deployment requires cross-origin resource permission', async ({
+    page,
+  }) => {
+    const { pageErrors, previewButton, replaceActiveFile } = setupPage(page);
+    const manifest: { scripts: string[]; scriptFiles: string[] } = await (
+      await page.request.get('/playground/runtime/manifest.json')
+    ).json();
+    const scriptPaths = new Set(manifest.scriptFiles.map(file => `/${file}`));
+    expect(manifest.scripts.some(file => file.startsWith('runtime~playground-runtime.'))).toBe(true);
+    expect(manifest.scripts.length).toBeGreaterThan(1);
+    expect(manifest.scriptFiles.some(file => file.startsWith('storybook.'))).toBe(false);
+    const requests: Array<{ path: string; fromShell: boolean; type: string }> = [];
+    page.on('request', request => {
+      const { pathname } = new URL(request.url());
+      if (scriptPaths.has(pathname)) {
+        requests.push({
+          path: pathname,
+          fromShell: request.frame() === page.mainFrame(),
+          type: request.resourceType(),
+        });
+      }
+    });
+
+    await page.goto(
+      `${PLAYGROUND_URL}?coep=require-corp${createPlaygroundHash({
+        code: `${IMPORTS}export default () => <Button>Initial</Button>;`,
+      })}`,
+    );
+    await expect(previewButton('Initial')).toBeVisible();
+    expect(await page.evaluate(() => globalThis.crossOriginIsolated)).toBe(true);
+    expect(requests.some(request => /playground-module-2\./.test(request.path))).toBe(false);
+
+    await replaceActiveFile(
+      `${IMPORTS}import { compressToBase64 } from 'lz-string';\n` +
+        `export default () => <Button data-value={compressToBase64('isolated')}>Lazy isolated</Button>;`,
+    );
+    await expect(previewButton('Lazy isolated')).toHaveAttribute('data-value', /\S+/);
+    expect(requests.some(request => /playground-module-2\./.test(request.path))).toBe(true);
+    expect(requests.length).toBeGreaterThan(1);
+    expect(requests.every(request => request.fromShell && request.type === 'fetch')).toBe(true);
+    await expect(page.locator('iframe')).toHaveAttribute('sandbox', 'allow-scripts');
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('preserves native loading for Storybook entries sharing the runtime and vendor chunks', async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    const manifest: { scripts: string[] } = await (await page.request.get('/playground/runtime/manifest.json')).json();
+    const sharedRuntime = manifest.scripts.find(file => file.startsWith('runtime~playground-runtime.'));
+    expect(sharedRuntime).toBeDefined();
+    await page.goto('/storybook-fixture.html?coep=require-corp');
+
+    await expect(page.locator(`script[src="${sharedRuntime}"]`)).toHaveCount(1);
+    const button = page.getByRole('button', { name: /^React / });
+    await expect(button).toBeVisible();
+    await button.click();
+    await expect(page.getByRole('button', { name: 'Native runtime ready' })).toHaveAttribute('data-value', /\S+/);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('reports failed runtime fetches and recovers after restarting the isolated preview', async ({ page }) => {
+    const { previewButton, errorAlert } = setupPage(page);
+    const manifest: { scripts: string[] } = await (await page.request.get('/playground/runtime/manifest.json')).json();
+    let fail = true;
+    await page.route(`**/${manifest.scripts[0]}`, async route => {
+      if (fail) {
+        await route.fulfill({ status: 503, contentType: 'text/plain', body: 'Runtime temporarily unavailable' });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.goto(
+      `${PLAYGROUND_URL}?coep=require-corp${createPlaygroundHash({
+        code: `${IMPORTS}export default () => <Button>Recovered runtime</Button>;`,
+      })}`,
+    );
+    await expect(errorAlert('503')).toBeVisible();
+    await expect(previewButton('Recovered runtime')).toHaveCount(0);
+
+    fail = false;
+    await page.getByRole('button', { name: 'Restart preview' }).click();
+    await expect(previewButton('Recovered runtime')).toBeVisible();
+    await expect(errorAlert('503')).toHaveCount(0);
+    await expect(page.locator('iframe')).toHaveAttribute('sandbox', 'allow-scripts');
+  });
+
   test('renders the default setup with a sandboxed preview, typings and live theme updates', async ({ page }) => {
     const { pageErrors, previewButton, previewFrame, replaceActiveFile } = setupPage(page);
 

@@ -25,6 +25,11 @@ export interface PlaygroundSetupMetadata {
 
 export interface PlaygroundRuntimeManifest {
   scripts: string[];
+  /**
+   * All emitted runtime JavaScript files, including lazy chunks. The shell can fetch only these scripts on behalf of
+   * its opaque-origin preview. Older manifests omit this list and use direct script loading.
+   */
+  scriptFiles?: string[];
   styles: string[];
   /** Declarations that are always loaded (React and the `typings` addon option). */
   typings: string;

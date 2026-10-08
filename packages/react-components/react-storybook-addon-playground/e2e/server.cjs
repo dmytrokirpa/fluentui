@@ -64,7 +64,17 @@ async function main() {
         return;
       }
 
-      response.writeHead(200, { 'Content-Type': CONTENT_TYPES[path.extname(filePath)] ?? 'application/octet-stream' });
+      const headers = {
+        'Content-Type': CONTENT_TYPES[path.extname(filePath)] ?? 'application/octet-stream',
+        ...(path.extname(filePath) === '.js' ? { 'Cross-Origin-Embedder-Policy': 'require-corp' } : {}),
+        ...(new URL(request.url ?? '/', 'http://localhost').searchParams.get('coep') === 'require-corp'
+          ? {
+              'Cross-Origin-Embedder-Policy': 'require-corp',
+              'Cross-Origin-Opener-Policy': 'same-origin',
+            }
+          : {}),
+      };
+      response.writeHead(200, headers);
       fs.createReadStream(filePath).pipe(response);
     })
     .listen(Number(values.port), () => {
@@ -80,17 +90,21 @@ async function buildRuntime() {
   const baseConfig = {
     mode: 'production',
     context: packageRoot,
-    entry: {},
+    entry: { storybook: path.join(__dirname, 'storybook-entry.js') },
     devtool: false,
     output: {
       path: siteDir,
-      publicPath: '',
+      publicPath: 'auto',
       filename: '[name].[contenthash].js',
       chunkFilename: '[name].[contenthash].js',
       clean: true,
     },
     // Only Storybook's production chunking semantics matter here; skipping minification keeps the build fast.
-    optimization: { minimize: false },
+    optimization: {
+      minimize: false,
+      runtimeChunk: { name: 'runtime~playground-runtime' },
+      splitChunks: { chunks: 'all' },
+    },
     module: {
       rules: [{ test: /\.m?js$/, resolve: { fullySpecified: false } }],
     },
@@ -105,15 +119,30 @@ async function buildRuntime() {
     presetsList: [{ name: path.join(packageRoot, 'preset.js'), options: ADDON_OPTIONS }],
   });
 
-  await new Promise((resolve, reject) => {
+  /** @type {import('webpack').Stats} */
+  const result = await new Promise((resolve, reject) => {
     webpack(config, (error, stats) => {
       if (error || !stats || stats.hasErrors()) {
         reject(error ?? new Error(stats?.toString('errors-only') ?? 'Unknown webpack error'));
         return;
       }
-      resolve(undefined);
+      resolve(stats);
     });
   });
+
+  const storybookScripts = result.compilation.entrypoints
+    .get('storybook')
+    ?.getFiles()
+    .filter(file => file.endsWith('.js'));
+  if (!storybookScripts?.length) {
+    throw new Error('Storybook fixture scripts were not emitted.');
+  }
+  fs.writeFileSync(
+    path.join(siteDir, 'storybook-fixture.html'),
+    `<!DOCTYPE html><html><body><button id="storybook-load"></button>${storybookScripts
+      .map(script => `<script src=${JSON.stringify(script)}></script>`)
+      .join('')}</body></html>`,
+  );
 
   console.log(`Playground e2e runtime built into ${siteDir}`);
 }

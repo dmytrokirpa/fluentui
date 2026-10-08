@@ -160,7 +160,69 @@ describe('collect-typings', () => {
   });
 
   describe('collectTypings', () => {
-    it('collects the transitive closure of declaration files with virtual node_modules paths', () => {
+    it.each([
+      ['export declare const value: true;', 'export * from "../actual/ts5.0/index";\n'],
+      [
+        'export default function value(): true;',
+        'export * from "../actual/ts5.0/index";\nexport { default } from "../actual/ts5.0/index";\n',
+      ],
+      [
+        'declare function value(): true; export = value;',
+        'import entry = require("../actual/ts5.0/index");\nexport = entry;\n',
+      ],
+    ])('preserves public aliases, the selected typesVersions tree and export kind: %s', async (declaration, alias) => {
+      const root = createFixture({
+        'node_modules/actual/package.json': JSON.stringify({
+          name: 'actual',
+          types: './index.d.ts',
+          typesVersions: { '<=5.0': { '*': ['ts5.0/*'] } },
+        }),
+        'node_modules/actual/index.d.ts': 'export declare const modern: true;',
+        'node_modules/actual/ts5.0/index.d.ts': declaration,
+      });
+
+      try {
+        const result = await collectTypings({
+          packageRoot: root,
+          entries: ['public-package'],
+          moduleRequests: { 'public-package': 'actual' },
+          typescriptVersion: '4.5.5',
+        });
+
+        expect(result.missing).toEqual([]);
+        expect(result.files['file:///node_modules/public-package/index.d.ts']).toBe(alias);
+        expect(result.files['file:///node_modules/actual/ts5.0/index.d.ts']).toBe(declaration);
+        expect(result.files['file:///node_modules/actual/index.d.ts']).toBeUndefined();
+        expect(JSON.parse(result.files['file:///node_modules/public-package/package.json'])).toEqual({
+          name: 'public-package',
+          types: './index.d.ts',
+        });
+      } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    });
+
+    it('reports an invalid explicit typings root instead of falling back to an installed package', async () => {
+      const root = createFixture({
+        'node_modules/ui/package.json': JSON.stringify({ name: 'ui', types: './index.d.ts' }),
+        'node_modules/ui/index.d.ts': 'export declare const stale: true;',
+      });
+
+      try {
+        await expect(
+          collectTypings({
+            packageRoot: root,
+            entries: ['ui'],
+            typingsRoots: { ui: path.join(root, 'not-a-package') },
+            typescriptVersion: '5.4.5',
+          }),
+        ).rejects.toThrow(/typingsRoots\["ui"\] must contain a package.json/);
+      } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    });
+
+    it('collects the transitive closure of declaration files with virtual node_modules paths', async () => {
       const root = createFixture({
         'node_modules/ui-lib/package.json': JSON.stringify({ name: 'ui-lib', typings: './dist/index.d.ts' }),
         'node_modules/ui-lib/dist/index.d.ts': `
@@ -191,7 +253,7 @@ describe('collect-typings', () => {
         'node_modules/style-lib/index.d.ts': `export type Property = string;`,
       });
 
-      const result = collectTypings({
+      const result = await collectTypings({
         packageRoot: path.join(root, 'app'),
         entries: ['ui-lib', 'ui-lib/unstable', 'missing-lib'],
         typescriptVersion: '4.5.5',
@@ -221,7 +283,7 @@ describe('collect-typings', () => {
       fs.rmSync(root, { recursive: true, force: true });
     });
 
-    it('resolves subpath types from package.json exports and shims classic node resolution', () => {
+    it('resolves subpath types from package.json exports and shims classic node resolution', async () => {
       const root = createFixture({
         'node_modules/headless/package.json': JSON.stringify({
           name: 'headless',
@@ -235,7 +297,7 @@ describe('collect-typings', () => {
         'node_modules/headless/dist/button.d.ts': `export declare const Button: () => null;`,
       });
 
-      const result = collectTypings({
+      const result = await collectTypings({
         packageRoot: path.join(root, 'app'),
         entries: ['headless', 'headless/button'],
         typescriptVersion: '4.5.5',
@@ -248,7 +310,7 @@ describe('collect-typings', () => {
       fs.rmSync(root, { recursive: true, force: true });
     });
 
-    it('forwards default exports from subpath shims', () => {
+    it('forwards default exports from subpath shims', async () => {
       const root = createFixture({
         'node_modules/defaults/package.json': JSON.stringify({
           name: 'defaults',
@@ -265,7 +327,7 @@ describe('collect-typings', () => {
       });
 
       try {
-        const result = collectTypings({
+        const result = await collectTypings({
           packageRoot: path.join(root, 'app'),
           entries: ['defaults/button', 'defaults/legacy'],
           typescriptVersion: '4.5.5',
@@ -283,7 +345,7 @@ describe('collect-typings', () => {
       }
     });
 
-    it('uses typed subpath exports of a package without root types instead of @types', () => {
+    it('uses typed subpath exports of a package without root types instead of @types', async () => {
       const root = createFixture({
         'node_modules/subpaths/package.json': JSON.stringify({
           name: 'subpaths',
@@ -295,7 +357,7 @@ describe('collect-typings', () => {
       });
 
       try {
-        const result = collectTypings({
+        const result = await collectTypings({
           packageRoot: path.join(root, 'app'),
           entries: ['subpaths/button', 'subpaths'],
           typescriptVersion: '4.5.5',
@@ -311,7 +373,7 @@ describe('collect-typings', () => {
       }
     });
 
-    it('uses a resolvable root exports target before falling back to @types', () => {
+    it('uses a resolvable root exports target before falling back to @types', async () => {
       const root = createFixture({
         'node_modules/exports-only/package.json': JSON.stringify({
           name: 'exports-only',
@@ -326,7 +388,7 @@ describe('collect-typings', () => {
       });
 
       try {
-        const result = collectTypings({
+        const result = await collectTypings({
           packageRoot: path.join(root, 'app'),
           entries: ['exports-only'],
           typescriptVersion: '4.5.5',
@@ -341,7 +403,7 @@ describe('collect-typings', () => {
       }
     });
 
-    it('applies typesVersions to export types so Monaco TS <=5.0 gets the legacy React tree', () => {
+    it('applies typesVersions to export types so Monaco TS <=5.0 gets the legacy React tree', async () => {
       const root = createFixture({
         'node_modules/@types/react/package.json': JSON.stringify({
           name: '@types/react',
@@ -375,7 +437,7 @@ describe('collect-typings', () => {
         'node_modules/react/jsx-runtime.js': `exports.jsx = () => {};`,
       });
 
-      const result = collectTypings({
+      const result = await collectTypings({
         packageRoot: path.join(root, 'app'),
         entries: ['react', 'react/jsx-runtime'],
         typescriptVersion: '4.5.5',
@@ -395,7 +457,7 @@ describe('collect-typings', () => {
       fs.rmSync(root, { recursive: true, force: true });
     });
 
-    it('prefers declarations beside JavaScript exports and relative imports', () => {
+    it('prefers declarations beside JavaScript exports and relative imports', async () => {
       const root = createFixture({
         'node_modules/adjacent/package.json': JSON.stringify({
           name: 'adjacent',
@@ -421,7 +483,7 @@ describe('collect-typings', () => {
       });
 
       try {
-        const result = collectTypings({
+        const result = await collectTypings({
           packageRoot: root,
           entries: ['adjacent', 'js-export', 'js-only'],
           typescriptVersion: '4.5.5',

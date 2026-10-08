@@ -67,6 +67,7 @@ export interface PlaygroundRuntimeManifest {
     // (undocumented)
     buildId: string;
     moduleTypings?: Record<string, string[]>;
+    scriptFiles?: string[];
     // (undocumented)
     scripts: string[];
     // (undocumented)
@@ -132,6 +133,7 @@ export interface PresetConfig {
     modules: string[] | Record<string, string>;
     setup?: string;
     typings?: string[];
+    typingsRoots?: Record<string, string>;
 }
 
 // @public

@@ -89,6 +89,9 @@ Implemented behavior:
   stale results. JavaScript edits remount the example, CSS-only edits preserve its state, and Restart creates a clean sandbox.
 - Opaque-origin sandbox with a restrictive CSP allowing runtime origins while blocking other application network
   requests, console forwarding to a console panel, and viewport presets.
+- Manifest-allowlisted same-origin JavaScript is fetched by the shell and executed only inside the sandbox, including
+  lazy chunks. This supports COEP-restricted deployments without relaxing iframe isolation or globally exposing assets
+  through CORP headers, and leaves native script loading intact on Storybook pages sharing Webpack runtime chunks.
 - Multiple CSS modules that can be added, renamed and removed; CSS edits apply without remounting the preview.
 - Non-blocking type diagnostics with an error badge.
 - Webpack integration: addon options come from Storybook's preset options, every `html-webpack-plugin` instance is tapped
@@ -96,6 +99,10 @@ Implemented behavior:
   listed directly in `modules`; import maps remain available for aliases. Repository Storybooks load the compiled addon,
   and the v9 docsite uses graph-driven Nx build prerequisites instead of a growing manual package list.
 - Typings are collected with the TypeScript parser and split into base, shared, and per-module files; the editor only fetches typings for modules the source imports.
+- Runtime and declaration collection share the final Webpack resolver, including workspace aliases and custom module
+  directories. `typingsRoots` can explicitly select declaration package roots without a `node_modules` self-link.
+- Docs Canvas overrides render the Playground action through Storybook's `additionalActions` API where supported;
+  an addon-owned fallback covers earlier action areas and Storybook 10's separate Docs source-actions row.
 - A Playwright e2e suite that covers the production runtime and shell.
 - Monaco 0.52 with TypeScript 5.4 (the last release before Monaco's AMD deprecation and the move of the TypeScript API to a top-level namespace).
 - Enabled on the public v9 docsite (`apps/public-docsite-v9`) with `@fluentui/react-components`, icons, motion components
