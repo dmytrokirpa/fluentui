@@ -1,0 +1,31 @@
+{
+  "name": "ds-compiler",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/ds-compiler/src",
+  "projectType": "library",
+  "tags": ["platform:any", "tools", "spike"],
+  "targets": {
+    "build-recipes": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "command": "yarn ts-node --transpile-only ./src/cli/main.ts build",
+        "cwd": "tools/ds-compiler"
+      }
+    },
+    "check-recipes": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn ts-node --transpile-only ./src/cli/main.ts check",
+        "cwd": "tools/ds-compiler"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "tools/ds-compiler/jest.config.ts",
+        "passWithNoTests": false
+      }
+    }
+  }
+}

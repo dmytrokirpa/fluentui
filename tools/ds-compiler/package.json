@@ -1,0 +1,14 @@
+{
+  "name": "@fluentui/ds-compiler",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Spike: compile design-system recipes into headless React wrappers + CSS (Fluent 2 first).",
+  "type": "commonjs",
+  "bin": "./bin/ds-compiler.js",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "ts-node --transpile-only ./src/cli/main.ts build",
+    "check": "ts-node --transpile-only ./src/cli/main.ts check",
+    "test": "cd ../.. && yarn jest tools/ds-compiler --config tools/ds-compiler/jest.config.ts"
+  }
+}
