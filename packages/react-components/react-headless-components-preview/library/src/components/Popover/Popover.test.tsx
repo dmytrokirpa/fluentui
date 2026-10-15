@@ -40,6 +40,29 @@ describe('Popover', () => {
       }
     });
 
+    it('opens and closes when the environment does not support the :popover-open selector', async () => {
+      const nativeMatches = Element.prototype.matches;
+      const matches = jest
+        .spyOn(Element.prototype, 'matches')
+        .mockImplementation(function (this: Element, selector: string) {
+          if (selector.includes(':popover-open')) {
+            throw new SyntaxError(`'${selector}' is not a valid selector`);
+          }
+          return nativeMatches.call(this, selector);
+        });
+      try {
+        const { getByRole, getByText, rerender } = render(<Example open />);
+        const surface = getByRole('group', { hidden: true });
+        getByText('Inside').focus();
+
+        rerender(<Example open={false} />);
+        await waitFor(() => expect(surface.isConnected).toBe(false));
+        expect(getByText('Trigger')).toHaveFocus();
+      } finally {
+        matches.mockRestore();
+      }
+    });
+
     it('preserves focus outside the shadow root during controlled close', () => {
       const { container } = render(
         <>

@@ -17,6 +17,18 @@ type ToggleEvent = Event & { newState?: 'open' | 'closed' };
 const isDialogElement = (el: Element | null): el is HTMLDialogElement =>
   !!el && typeof (el as HTMLDialogElement).showModal === 'function';
 
+/**
+ * Returns whether the surface is in the popover top layer, or `undefined` when the environment
+ * provides `showPopover` (e.g. via a polyfill) without supporting the `:popover-open` selector.
+ */
+const isPopoverOpen = (surface: HTMLElement): boolean | undefined => {
+  try {
+    return surface.matches(':popover-open');
+  } catch {
+    return undefined;
+  }
+};
+
 const getActiveElement = (surface: HTMLElement): Element | null => {
   const root = surface.getRootNode();
   const ShadowRootConstructor = surface.ownerDocument.defaultView?.ShadowRoot;
@@ -44,8 +56,15 @@ export const usePopover = (props: PopoverProps): PopoverState => {
     initialState: false,
   });
 
+  // Keeps the surface mounted after `open` turns false until the native `close`/`toggle` event fires,
+  // so the browser can close the top-layer element and focus can be restored before unmounting.
   const [shouldRenderSurface, setShouldRenderSurface] = React.useState(open);
+  // Whether focus was inside the surface when closing started; read by `finishSurfaceClose`:
+  // - `null`: not captured yet (fall back to checking the active element at close time)
+  // - `true`: focus was inside, restore it to the trigger if it was not moved elsewhere meanwhile
+  // - `false`: focus was already outside, leave it alone
   const focusWasInsideOnNativeClose = React.useRef<boolean | null>(null);
+  // The surface that was successfully shown natively and whose close event is still pending.
   const openedSurface = React.useRef<HTMLElement | null>(null);
 
   const [contextTarget, setContextTarget] = React.useState<{ x: number; y: number } | undefined>(undefined);
@@ -119,7 +138,12 @@ export const usePopover = (props: PopoverProps): PopoverState => {
     const toggle = event as ToggleEvent;
     const nextOpen = toggle.newState === 'open';
     const surface = contentRef.current;
-    if (event.currentTarget !== surface || !surface || surface.matches(':popover-open') !== nextOpen) {
+    if (event.currentTarget !== surface || !surface) {
+      return;
+    }
+    // Ignore stale queued toggle events that no longer match the native state.
+    const isOpen = isPopoverOpen(surface);
+    if (isOpen !== undefined && isOpen !== nextOpen) {
       return;
     }
     if (!nextOpen) {
@@ -207,9 +231,9 @@ export const usePopover = (props: PopoverProps): PopoverState => {
         if (isDialogElement(surface) && surface.open) {
           openedSurface.current = surface;
         }
-      } else if (typeof surface.showPopover === 'function' && !surface.matches(':popover-open')) {
+      } else if (typeof surface.showPopover === 'function' && !isPopoverOpen(surface)) {
         surface.showPopover();
-        if (surface.matches(':popover-open')) {
+        if (isPopoverOpen(surface) !== false) {
           openedSurface.current = surface;
         }
       }
@@ -224,7 +248,7 @@ export const usePopover = (props: PopoverProps): PopoverState => {
         finishSurfaceClose();
       }
     } else if (typeof surface.hidePopover === 'function') {
-      if (surface.matches(':popover-open')) {
+      if (isPopoverOpen(surface) ?? openedSurface.current === surface) {
         focusWasInsideOnNativeClose.current = surface.contains(getActiveElement(surface));
         surface.hidePopover();
       } else if (openedSurface.current !== surface) {
