@@ -263,6 +263,9 @@ describe('List', () => {
         </ListItem>
         <ListItem value="two">
           <span role="gridcell">Two</span>
+          <span role="gridcell">
+            <button focusgroup="none">More</button>
+          </span>
         </ListItem>
       </List>,
     );
@@ -272,7 +275,9 @@ describe('List', () => {
       expect(row).toHaveAttribute('tabindex', '0');
       expect(row).not.toHaveAttribute('focusgroup');
     }
-    expect(getByRole('button')).not.toHaveAttribute('tabindex');
+    for (const button of getAllByRole('button')) {
+      expect(button).not.toHaveAttribute('tabindex');
+    }
   });
 
   it('opts the composite checkmark cell out of row navigation', () => {

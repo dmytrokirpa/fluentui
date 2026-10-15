@@ -18,7 +18,7 @@ import { ListProps } from '@fluentui/react-list';
 import { ListSlots } from '@fluentui/react-list';
 import type { ListState as ListState_2 } from '@fluentui/react-list';
 import { OnListSelectionChangeData } from '@fluentui/react-list';
-import * as React_2 from 'react';
+import type * as React_2 from 'react';
 import { renderList_unstable as renderList } from '@fluentui/react-list';
 import { useListContext_unstable as useListContext } from '@fluentui/react-list';
 
