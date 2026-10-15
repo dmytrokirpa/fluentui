@@ -1,18 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { SwitchProps } from './Switch.types';
 import { useSwitch } from './useSwitch';
 import { renderSwitch } from './renderSwitch';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A switch component for toggling values.
  */
-export const Switch: ForwardRefComponent<SwitchProps> = React.forwardRef((props, ref) => {
-  const state = useSwitch(props, ref);
+export const Switch: ForwardRefComponent<SwitchProps> = /*#__PURE__*/ composeComponent(useSwitch, renderSwitch);
 
-  return renderSwitch(state);
-});
-
-Switch.displayName = 'Switch';
+if (process.env.NODE_ENV !== 'production') {
+  Switch.displayName = 'Switch';
+}

@@ -1,20 +1,21 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { useDropdown } from './useDropdown';
 import { renderDropdown } from './renderDropdown';
 import type { DropdownProps } from './Dropdown.types';
 import { useDropdownContextValues } from './useDropdownContextValues';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * Dropdown component - TODO: add more docs
  */
-export const Dropdown: ForwardRefComponent<DropdownProps> = React.forwardRef((props, ref) => {
-  const state = useDropdown(props, ref);
-  const contextValues = useDropdownContextValues(state);
+export const Dropdown: ForwardRefComponent<DropdownProps> = /*#__PURE__*/ composeComponent(
+  useDropdown,
+  renderDropdown,
+  useDropdownContextValues,
+);
 
-  return renderDropdown(state, contextValues);
-});
-
-Dropdown.displayName = 'Dropdown';
+if (process.env.NODE_ENV !== 'production') {
+  Dropdown.displayName = 'Dropdown';
+}

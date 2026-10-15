@@ -1,18 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { SpinButtonProps } from './SpinButton.types';
 import { useSpinButton } from './useSpinButton';
 import { renderSpinButton } from './renderSpinButton';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A spin button component for incrementing/decrementing values.
  */
-export const SpinButton: ForwardRefComponent<SpinButtonProps> = React.forwardRef((props, ref) => {
-  const state = useSpinButton(props, ref);
+export const SpinButton: ForwardRefComponent<SpinButtonProps> = /*#__PURE__*/ composeComponent(
+  useSpinButton,
+  renderSpinButton,
+);
 
-  return renderSpinButton(state);
-});
-
-SpinButton.displayName = 'SpinButton';
+if (process.env.NODE_ENV !== 'production') {
+  SpinButton.displayName = 'SpinButton';
+}

@@ -1,18 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { TextareaProps } from './Textarea.types';
 import { useTextarea } from './useTextarea';
 import { renderTextarea } from './renderTextarea';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A textarea component for multi-line text input.
  */
-export const Textarea: ForwardRefComponent<TextareaProps> = React.forwardRef((props, ref) => {
-  const state = useTextarea(props, ref);
+export const Textarea: ForwardRefComponent<TextareaProps> = /*#__PURE__*/ composeComponent(useTextarea, renderTextarea);
 
-  return renderTextarea(state);
-});
-
-Textarea.displayName = 'Textarea';
+if (process.env.NODE_ENV !== 'production') {
+  Textarea.displayName = 'Textarea';
+}

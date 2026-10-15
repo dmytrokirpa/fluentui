@@ -1,18 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { MessageBarTitleProps } from './MessageBarTitle.types';
 import { useMessageBarTitle } from './useMessageBarTitle';
 import { renderMessageBarTitle } from './renderMessageBarTitle';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * Represents the title region of a MessageBar.
  */
-export const MessageBarTitle: ForwardRefComponent<MessageBarTitleProps> = React.forwardRef((props, ref) => {
-  const state = useMessageBarTitle(props, ref);
+export const MessageBarTitle: ForwardRefComponent<MessageBarTitleProps> = /*#__PURE__*/ composeComponent(
+  useMessageBarTitle,
+  renderMessageBarTitle,
+);
 
-  return renderMessageBarTitle(state);
-});
-
-MessageBarTitle.displayName = 'MessageBarTitle';
+if (process.env.NODE_ENV !== 'production') {
+  MessageBarTitle.displayName = 'MessageBarTitle';
+}

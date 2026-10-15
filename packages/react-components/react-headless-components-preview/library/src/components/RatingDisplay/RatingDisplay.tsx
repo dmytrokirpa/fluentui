@@ -1,21 +1,22 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import type { RatingDisplayProps } from './RatingDisplay.types';
 import { useRatingDisplay } from './useRatingDisplay';
 import { renderRatingDisplay } from './renderRatingDisplay';
 import { useRatingDisplayContextValues } from './useRatingDisplayContextValues';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A rating component for displaying star ratings.
  */
-export const RatingDisplay: ForwardRefComponent<RatingDisplayProps> = React.forwardRef((props, ref) => {
-  const state = useRatingDisplay(props, ref);
-  const contextValues = useRatingDisplayContextValues(state);
+export const RatingDisplay: ForwardRefComponent<RatingDisplayProps> = /*#__PURE__*/ composeComponent(
+  useRatingDisplay,
+  renderRatingDisplay,
+  useRatingDisplayContextValues,
+);
 
-  return renderRatingDisplay(state, contextValues);
-});
-
-RatingDisplay.displayName = 'RatingDisplay';
+if (process.env.NODE_ENV !== 'production') {
+  RatingDisplay.displayName = 'RatingDisplay';
+}

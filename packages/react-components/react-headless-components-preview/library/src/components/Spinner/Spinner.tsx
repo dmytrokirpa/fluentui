@@ -1,18 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { SpinnerProps } from './Spinner.types';
 import { useSpinner } from './useSpinner';
 import { renderSpinner } from './renderSpinner';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A spinner component for loading indicators.
  */
-export const Spinner: ForwardRefComponent<SpinnerProps> = React.forwardRef((props, ref) => {
-  const state = useSpinner(props, ref);
+export const Spinner: ForwardRefComponent<SpinnerProps> = /*#__PURE__*/ composeComponent(useSpinner, renderSpinner);
 
-  return renderSpinner(state);
-});
-
-Spinner.displayName = 'Spinner';
+if (process.env.NODE_ENV !== 'production') {
+  Spinner.displayName = 'Spinner';
+}

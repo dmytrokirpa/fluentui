@@ -1,18 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { ToggleButtonProps } from './ToggleButton.types';
 import { useToggleButton } from './useToggleButton';
 import { renderToggleButton } from './renderToggleButton';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A button component that can be toggled between checked and unchecked states.
  */
-export const ToggleButton: ForwardRefComponent<ToggleButtonProps> = React.forwardRef((props, ref) => {
-  const state = useToggleButton(props, ref);
+export const ToggleButton: ForwardRefComponent<ToggleButtonProps> = /*#__PURE__*/ composeComponent(
+  useToggleButton,
+  renderToggleButton,
+);
 
-  return renderToggleButton(state);
-});
-
-ToggleButton.displayName = 'ToggleButton';
+if (process.env.NODE_ENV !== 'production') {
+  ToggleButton.displayName = 'ToggleButton';
+}

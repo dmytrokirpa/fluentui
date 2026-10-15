@@ -1,18 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { InputProps } from './Input.types';
 import { useInput } from './useInput';
 import { renderInput } from './renderInput';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * An input component for text and other input types.
  */
-export const Input: ForwardRefComponent<InputProps> = React.forwardRef((props, ref) => {
-  const state = useInput(props, ref);
+export const Input: ForwardRefComponent<InputProps> = /*#__PURE__*/ composeComponent(useInput, renderInput);
 
-  return renderInput(state);
-});
-
-Input.displayName = 'Input';
+if (process.env.NODE_ENV !== 'production') {
+  Input.displayName = 'Input';
+}

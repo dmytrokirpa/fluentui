@@ -1,22 +1,23 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import { useTagPickerGroup } from './useTagPickerGroup';
 import { renderTagPickerGroup } from './renderTagPickerGroup';
 import { useTagPickerGroupContextValues } from './useTagPickerGroupContextValues';
 import type { TagPickerGroupProps } from './TagPickerGroup.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * Displays the selected options of a TagPicker as a group of dismissible tags. Uses the
  * native `focusgroup` attribute for arrow-key navigation across the tags.
  */
-export const TagPickerGroup: ForwardRefComponent<TagPickerGroupProps> = React.forwardRef((props, ref) => {
-  const state = useTagPickerGroup(props, ref);
-  const contextValues = useTagPickerGroupContextValues(state);
+export const TagPickerGroup: ForwardRefComponent<TagPickerGroupProps> = /*#__PURE__*/ composeComponent(
+  useTagPickerGroup,
+  renderTagPickerGroup,
+  useTagPickerGroupContextValues,
+);
 
-  return renderTagPickerGroup(state, contextValues);
-});
-
-TagPickerGroup.displayName = 'TagPickerGroup';
+if (process.env.NODE_ENV !== 'production') {
+  TagPickerGroup.displayName = 'TagPickerGroup';
+}

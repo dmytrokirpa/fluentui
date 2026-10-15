@@ -1,14 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { SwatchPickerRowProps } from './SwatchPickerRow.types';
 import { useSwatchPickerRow } from './useSwatchPickerRow';
 import { renderSwatchPickerRow } from './renderSwatchPickerRow';
+import { composeComponent } from '../../../utils/composeComponent';
 
-export const SwatchPickerRow: ForwardRefComponent<SwatchPickerRowProps> = React.forwardRef((props, ref) => {
-  const state = useSwatchPickerRow(props, ref);
-  return renderSwatchPickerRow(state);
-});
+export const SwatchPickerRow: ForwardRefComponent<SwatchPickerRowProps> = /*#__PURE__*/ composeComponent(
+  useSwatchPickerRow,
+  renderSwatchPickerRow,
+);
 
-SwatchPickerRow.displayName = 'SwatchPickerRow';
+if (process.env.NODE_ENV !== 'production') {
+  SwatchPickerRow.displayName = 'SwatchPickerRow';
+}

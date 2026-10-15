@@ -1,14 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { TeachingPopoverBodyProps } from './TeachingPopoverBody.types';
 import { useTeachingPopoverBody } from './useTeachingPopoverBody';
 import { renderTeachingPopoverBody } from './renderTeachingPopoverBody';
+import { composeComponent } from '../../../utils/composeComponent';
 
-export const TeachingPopoverBody: ForwardRefComponent<TeachingPopoverBodyProps> = React.forwardRef((props, ref) => {
-  const state = useTeachingPopoverBody(props, ref);
-  return renderTeachingPopoverBody(state);
-});
+export const TeachingPopoverBody: ForwardRefComponent<TeachingPopoverBodyProps> = /*#__PURE__*/ composeComponent(
+  useTeachingPopoverBody,
+  renderTeachingPopoverBody,
+);
 
-TeachingPopoverBody.displayName = 'TeachingPopoverBody';
+if (process.env.NODE_ENV !== 'production') {
+  TeachingPopoverBody.displayName = 'TeachingPopoverBody';
+}

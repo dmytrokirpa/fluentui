@@ -1,20 +1,22 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import type { InteractionTagPrimaryProps } from './InteractionTagPrimary.types';
 import { useInteractionTagPrimary } from './useInteractionTagPrimary';
 import { useInteractionTagPrimaryContextValues } from './useInteractionTagPrimaryContextValues';
 import { renderInteractionTagPrimary } from './renderInteractionTagPrimary';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * The primary, focusable action of an `InteractionTag`.
  */
-export const InteractionTagPrimary: ForwardRefComponent<InteractionTagPrimaryProps> = React.forwardRef((props, ref) => {
-  const state = useInteractionTagPrimary(props, ref);
-  const contextValues = useInteractionTagPrimaryContextValues(state);
-  return renderInteractionTagPrimary(state, contextValues);
-});
+export const InteractionTagPrimary: ForwardRefComponent<InteractionTagPrimaryProps> = /*#__PURE__*/ composeComponent(
+  useInteractionTagPrimary,
+  renderInteractionTagPrimary,
+  useInteractionTagPrimaryContextValues,
+);
 
-InteractionTagPrimary.displayName = 'InteractionTagPrimary';
+if (process.env.NODE_ENV !== 'production') {
+  InteractionTagPrimary.displayName = 'InteractionTagPrimary';
+}

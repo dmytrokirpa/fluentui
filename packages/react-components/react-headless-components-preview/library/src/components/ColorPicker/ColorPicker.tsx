@@ -1,20 +1,21 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { ColorPickerProps } from './ColorPicker.types';
 import { useColorPicker } from './useColorPicker';
 import { useColorPickerContextValues } from './useColorPickerContextValues';
 import { renderColorPicker } from './renderColorPicker';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * Coordinates headless color controls and reports their color changes.
  */
-export const ColorPicker: ForwardRefComponent<ColorPickerProps> = React.forwardRef((props, ref) => {
-  const state = useColorPicker(props, ref);
-  const contextValues = useColorPickerContextValues(state);
+export const ColorPicker: ForwardRefComponent<ColorPickerProps> = /*#__PURE__*/ composeComponent(
+  useColorPicker,
+  renderColorPicker,
+  useColorPickerContextValues,
+);
 
-  return renderColorPicker(state, contextValues);
-});
-
-ColorPicker.displayName = 'ColorPicker';
+if (process.env.NODE_ENV !== 'production') {
+  ColorPicker.displayName = 'ColorPicker';
+}

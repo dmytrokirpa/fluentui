@@ -1,18 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { ColorSliderProps } from './ColorSlider.types';
 import { useColorSlider } from './useColorSlider';
 import { renderColorSlider } from './renderColorSlider';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * A headless slider for selecting a hue, saturation, or value color channel.
  */
-export const ColorSlider: ForwardRefComponent<ColorSliderProps> = React.forwardRef((props, ref) => {
-  const state = useColorSlider(props, ref);
+export const ColorSlider: ForwardRefComponent<ColorSliderProps> = /*#__PURE__*/ composeComponent(
+  useColorSlider,
+  renderColorSlider,
+);
 
-  return renderColorSlider(state);
-});
-
-ColorSlider.displayName = 'ColorSlider';
+if (process.env.NODE_ENV !== 'production') {
+  ColorSlider.displayName = 'ColorSlider';
+}

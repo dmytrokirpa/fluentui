@@ -1,20 +1,21 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import type { CardProps } from './Card.types';
 import { useCard, useCardContextValue } from './useCard';
 import { renderCard } from './renderCard';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A card provides scaffolding for hosting actions and content for a single topic.
  */
-export const Card: ForwardRefComponent<CardProps> = React.forwardRef((props, ref) => {
-  const state = useCard(props, ref);
-  const contextValue = useCardContextValue(state);
+export const Card: ForwardRefComponent<CardProps> = /*#__PURE__*/ composeComponent(
+  useCard,
+  renderCard,
+  useCardContextValue,
+);
 
-  return renderCard(state, contextValue);
-});
-
-Card.displayName = 'Card';
+if (process.env.NODE_ENV !== 'production') {
+  Card.displayName = 'Card';
+}

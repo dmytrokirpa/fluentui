@@ -177,34 +177,39 @@ Tabster, positioning, portals, native popovers, or nested trigger composition.
 ### Component
 
 - Add `'use client';` to component and hook modules that use React client APIs.
-- Use `ForwardRefComponent<Props>` with `React.forwardRef` for ref-capable
-  primitives. Never use `React.FC`.
+- Use `ForwardRefComponent<Props>` for ref-capable primitives, built with the
+  shared `composeComponent` helper (`src/utils/composeComponent.ts`) rather than
+  a hand-written `React.forwardRef`. Never use `React.FC`.
 - For provider-only components with no meaningful DOM ref, use a normally typed
   function returning `JSXElement`; do not invent a fake ref and do not use
   `React.FC`.
 - Keep the component thin: state hook, optional context-values hook, renderer.
-- Set `displayName` on every exported React component.
+- Set `displayName` on every exported React component, in development only:
+  the strings are dead weight in production bundles.
 - Add concise JSDoc describing purpose and any required accessibility contract.
 - Do not import icons or add default icons in base hooks or headless renderers.
-  If an icon is needed in a styled wrapper or story, import it there and define
-  `bundleIcon` at module scope, never inside a hook or render function.
+- Annotate the export with `ForwardRefComponent<Props>` so the public type does
+  not depend on inference, and keep the `/*#__PURE__*/` annotation so the call
+  is tree-shakeable.
 
 ```tsx
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import { composeComponent } from '../../utils/composeComponent';
 
-export const ComponentName: ForwardRefComponent<ComponentNameProps> = React.forwardRef((props, ref) => {
-  const state = useComponentName(props, ref);
-  return renderComponentName(state);
-});
+export const ComponentName: ForwardRefComponent<ComponentNameProps> = /*#__PURE__*/ composeComponent(
+  useComponentName,
+  renderComponentName,
+);
 
-ComponentName.displayName = 'ComponentName';
+if (process.env.NODE_ENV !== 'production') {
+  ComponentName.displayName = 'ComponentName';
+}
 ```
 
-For compound roots, derive and pass context values between the state hook and
-renderer.
+For compound roots, pass the context-values hook as the third argument:
+`composeComponent(useComponentName, renderComponentName, useComponentNameContextValues)`.
 
 ### Hook
 

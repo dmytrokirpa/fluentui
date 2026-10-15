@@ -1,19 +1,20 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { AccordionHeaderProps } from './AccordionHeader.types';
 import { useAccordionHeader, useAccordionHeaderContextValues } from './useAccordionHeader';
 import { renderAccordionHeader } from './renderAccordionHeader';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * Represents the heading of an accordion item, containing a button that toggles the panel open or closed.
  */
-export const AccordionHeader: ForwardRefComponent<AccordionHeaderProps> = React.forwardRef((props, ref) => {
-  const state = useAccordionHeader(props, ref);
-  const contextValues = useAccordionHeaderContextValues(state);
+export const AccordionHeader: ForwardRefComponent<AccordionHeaderProps> = /*#__PURE__*/ composeComponent(
+  useAccordionHeader,
+  renderAccordionHeader,
+  useAccordionHeaderContextValues,
+);
 
-  return renderAccordionHeader(state, contextValues);
-});
-
-AccordionHeader.displayName = 'AccordionHeader';
+if (process.env.NODE_ENV !== 'production') {
+  AccordionHeader.displayName = 'AccordionHeader';
+}

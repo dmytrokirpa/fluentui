@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { useDialogTitle } from './useDialogTitle';
 import { renderDialogTitle } from './renderDialogTitle';
 import type { DialogTitleProps } from './DialogTitle.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * `DialogTitle` renders a heading element whose `id` is automatically wired to
@@ -13,9 +13,11 @@ import type { DialogTitleProps } from './DialogTitle.types';
  * Defaults to `<h2>`. Override the element via the `root` slot:
  * `<DialogTitle root="h1" />`
  */
-export const DialogTitle: ForwardRefComponent<DialogTitleProps> = React.forwardRef((props, ref) => {
-  const state = useDialogTitle(props, ref);
-  return renderDialogTitle(state);
-});
+export const DialogTitle: ForwardRefComponent<DialogTitleProps> = /*#__PURE__*/ composeComponent(
+  useDialogTitle,
+  renderDialogTitle,
+);
 
-DialogTitle.displayName = 'DialogTitle';
+if (process.env.NODE_ENV !== 'production') {
+  DialogTitle.displayName = 'DialogTitle';
+}

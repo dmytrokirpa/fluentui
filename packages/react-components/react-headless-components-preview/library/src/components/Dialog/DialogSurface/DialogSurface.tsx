@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { useDialogSurface } from './useDialogSurface';
 import { renderDialogSurface } from './renderDialogSurface';
 import type { DialogSurfaceProps } from './DialogSurface.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * `DialogSurface` renders the native HTML `<dialog>` element.
@@ -16,9 +16,11 @@ import type { DialogSurfaceProps } from './DialogSurface.types';
  * The native `::backdrop` pseudo-element provides the modal backdrop.
  * Focus is trapped automatically when the dialog is opened as modal.
  */
-export const DialogSurface: ForwardRefComponent<DialogSurfaceProps> = React.forwardRef((props, ref) => {
-  const state = useDialogSurface(props, ref);
-  return renderDialogSurface(state);
-});
+export const DialogSurface: ForwardRefComponent<DialogSurfaceProps> = /*#__PURE__*/ composeComponent(
+  useDialogSurface,
+  renderDialogSurface,
+);
 
-DialogSurface.displayName = 'DialogSurface';
+if (process.env.NODE_ENV !== 'production') {
+  DialogSurface.displayName = 'DialogSurface';
+}

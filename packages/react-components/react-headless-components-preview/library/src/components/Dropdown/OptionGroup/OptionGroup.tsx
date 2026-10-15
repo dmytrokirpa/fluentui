@@ -1,19 +1,20 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import { useOptionGroup } from './useOptionGroup';
 import { renderOptionGroup } from './renderOptionGroup';
 import type { OptionGroupProps } from './OptionGroup.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * OptionGroup component used inside Listbox.
  */
-export const OptionGroup: ForwardRefComponent<OptionGroupProps> = React.forwardRef((props, ref) => {
-  const state = useOptionGroup(props, ref);
+export const OptionGroup: ForwardRefComponent<OptionGroupProps> = /*#__PURE__*/ composeComponent(
+  useOptionGroup,
+  renderOptionGroup,
+);
 
-  return renderOptionGroup(state);
-});
-
-OptionGroup.displayName = 'OptionGroup';
+if (process.env.NODE_ENV !== 'production') {
+  OptionGroup.displayName = 'OptionGroup';
+}

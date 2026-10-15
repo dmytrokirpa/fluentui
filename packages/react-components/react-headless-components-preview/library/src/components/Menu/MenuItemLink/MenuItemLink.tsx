@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { useMenuItemLink } from './useMenuItemLink';
 import { renderMenuItemLink } from './renderMenuItemLink';
 import type { MenuItemLinkProps } from './MenuItemLink.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * Headless MenuItemLink component.
@@ -12,12 +12,11 @@ import type { MenuItemLinkProps } from './MenuItemLink.types';
  * Renders an anchor (`<a>`) with `role="menuitem"` for navigational menu
  * items. Click follows the supplied `href`.
  */
-export const MenuItemLink: ForwardRefComponent<MenuItemLinkProps> = React.forwardRef<
-  HTMLAnchorElement,
-  MenuItemLinkProps
->((props, ref) => {
-  const state = useMenuItemLink(props, ref);
-  return renderMenuItemLink(state);
-}) as ForwardRefComponent<MenuItemLinkProps>;
+export const MenuItemLink: ForwardRefComponent<MenuItemLinkProps> = /*#__PURE__*/ composeComponent(
+  useMenuItemLink,
+  renderMenuItemLink,
+);
 
-MenuItemLink.displayName = 'MenuItemLink';
+if (process.env.NODE_ENV !== 'production') {
+  MenuItemLink.displayName = 'MenuItemLink';
+}

@@ -1,19 +1,17 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 
 import type { LinkProps } from './Link.types';
 import { useLink } from './useLink';
 import { renderLink } from './renderLink';
+import { composeComponent } from '../../utils/composeComponent';
 
 /**
  * A link component for navigation.
  */
-export const Link: ForwardRefComponent<LinkProps> = React.forwardRef((props, ref) => {
-  const state = useLink(props, ref);
+export const Link: ForwardRefComponent<LinkProps> = /*#__PURE__*/ composeComponent(useLink, renderLink);
 
-  return renderLink(state);
-});
-
-Link.displayName = 'Link';
+if (process.env.NODE_ENV !== 'production') {
+  Link.displayName = 'Link';
+}

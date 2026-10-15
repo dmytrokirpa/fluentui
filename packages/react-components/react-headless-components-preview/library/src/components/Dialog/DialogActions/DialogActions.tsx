@@ -1,17 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { useDialogActions } from './useDialogActions';
 import { renderDialogActions } from './renderDialogActions';
 import type { DialogActionsProps } from './DialogActions.types';
+import { composeComponent } from '../../../utils/composeComponent';
 
 /**
  * `DialogActions` is a `<footer>` container for dialog action buttons (1–3 actions).
  */
-export const DialogActions: ForwardRefComponent<DialogActionsProps> = React.forwardRef((props, ref) => {
-  const state = useDialogActions(props, ref);
-  return renderDialogActions(state);
-});
+export const DialogActions: ForwardRefComponent<DialogActionsProps> = /*#__PURE__*/ composeComponent(
+  useDialogActions,
+  renderDialogActions,
+);
 
-DialogActions.displayName = 'DialogActions';
+if (process.env.NODE_ENV !== 'production') {
+  DialogActions.displayName = 'DialogActions';
+}

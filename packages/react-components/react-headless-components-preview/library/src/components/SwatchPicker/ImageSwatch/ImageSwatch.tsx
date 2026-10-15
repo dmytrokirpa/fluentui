@@ -1,14 +1,16 @@
 'use client';
 
-import * as React from 'react';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { ImageSwatchProps } from './ImageSwatch.types';
 import { useImageSwatch } from './useImageSwatch';
 import { renderImageSwatch } from './renderImageSwatch';
+import { composeComponent } from '../../../utils/composeComponent';
 
-export const ImageSwatch: ForwardRefComponent<ImageSwatchProps> = React.forwardRef((props, ref) => {
-  const state = useImageSwatch(props, ref);
-  return renderImageSwatch(state);
-});
+export const ImageSwatch: ForwardRefComponent<ImageSwatchProps> = /*#__PURE__*/ composeComponent(
+  useImageSwatch,
+  renderImageSwatch,
+);
 
-ImageSwatch.displayName = 'ImageSwatch';
+if (process.env.NODE_ENV !== 'production') {
+  ImageSwatch.displayName = 'ImageSwatch';
+}
