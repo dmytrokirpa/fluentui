@@ -47,8 +47,9 @@ yarn add @fluentui/react-storybook-addon-playground
 The optional `typescript` peer used for declaration parsing must be version 5.0 or newer. The editor itself uses the
 TypeScript version bundled with its prebuilt Monaco shell.
 
-Use the Webpack 5 Storybook builder and matching versions of `@storybook/react` and `@storybook/addon-docs`
-(9.1.17 or newer, including Storybook 10).
+Use the Webpack 5 Storybook builder and `@storybook/react` 9.1.17 or newer, including Storybook 10.
+`@storybook/addon-docs` is an optional peer: when it is installed (a matching version), the addon also registers its
+[Docs Canvas integration](#docs-source-actions).
 
 ## Usage
 
@@ -256,7 +257,9 @@ const cssBuildSettings = {
 Keep the CSS rule's `sideEffects: true` so stylesheet imports survive production tree-shaking even when their owning
 package marks JavaScript as side-effect-free.
 
-With `inlineStyles`, the manifest contains all extracted runtime CSS, including lazy CSS. Build-owned font/image
+With `inlineStyles`, the build emits all extracted runtime CSS, including lazy CSS, into a content-hashed
+`playground/runtime/inline-styles.<hash>.json` file referenced by the manifest's `inlineStylesFile`, so the manifest
+stays small and the inlined fonts are cacheable. Build-owned font/image
 `url(...)` references are resolved relative to each emitted stylesheet and replaced with data URLs. `image-set()`
 string URLs are handled too. Only this compilation's emitted assets are read: the build never fetches remote URLs
 or arbitrary files. Missing assets, unsupported asset types and unresolved `@import` rules fail the build rather than
@@ -346,13 +349,15 @@ Separating source extraction from external sandbox export is a [proposed archite
 
 ### Docs source actions
 
-On Storybook Docs versions that support `parameters.docs.components.Canvas` overrides, the addon composes the public
+When `@storybook/addon-docs` is installed, the addon registers a `parameters.docs.components.Canvas` override.
+Storybook 10 honors it in autodocs and MDX; Storybook 9.1 ignores it and relies on the fallback below.
+Where the override is honored, the addon composes the public
 Canvas block and supplies its button through
 [`additionalActions`](https://storybook.js.org/docs/api/doc-blocks/doc-block-canvas#additionalactions). Storybook owns
 the action's rendering and placement alongside Show/Hide code and Copy code. Existing Canvas actions and source controls
 are preserved, and the decorator does not clone, move or replace these React-owned buttons.
 
-Supported earlier Docs versions that do not honor Canvas overrides use a compatibility fallback inside the addon.
+Storybook 9.1, which does not honor Canvas overrides, uses a compatibility fallback inside the addon.
 It locates the source controls under the story's Docs anchor, covering both the earlier `.docs-story` action area and
 Storybook 10's separate `.sbdocs-preview-actions` row, including primary-story anchors. The button inherits the source
 control's Storybook classes. No consumer decorator, DOM relocation shim or custom Docs page is required.

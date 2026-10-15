@@ -1,9 +1,9 @@
-import { createRuntimeScriptLoader, loadRuntimeManifest, resolveManifestPath } from './runtime';
+import { createRuntimeScriptLoader, DEFAULT_MANIFEST_PATH, loadRuntimeManifest } from './runtime';
 import type { ResolvedPlaygroundRuntimeManifest } from './runtime';
 import type { PlaygroundRuntimeManifest } from '../setup';
 
 const PAGE = 'https://example.com/storybook/playground/app/playground.html?manifest=x#code=abc';
-const FALLBACK = '../runtime/manifest.json';
+const FALLBACK = DEFAULT_MANIFEST_PATH;
 const rawManifest: PlaygroundRuntimeManifest = {
   allowedModules: ['react'],
   buildId: 'test',
@@ -21,29 +21,27 @@ const manifestResponse = {
   json: async () => rawManifest,
 };
 
-describe('resolveManifestPath', () => {
-  it('uses the fallback without an override', () => {
-    expect(resolveManifestPath(null, PAGE, FALLBACK)).toBe(FALLBACK);
-    expect(resolveManifestPath('', PAGE, FALLBACK)).toBe(FALLBACK);
-  });
+describe('runtime manifest location', () => {
+  const load = (manifestPath: string, page = PAGE) => {
+    const fetch = jest.fn().mockResolvedValue(manifestResponse);
+    return loadRuntimeManifest({ fetch, location: { href: page } }, manifestPath).then(
+      () => fetch.mock.calls[0][0].href,
+    );
+  };
 
-  it('accepts only the selected build manifest when the shell is mounted alongside the runtime', () => {
-    expect(resolveManifestPath('/storybook/playground/runtime/manifest.json', PAGE, FALLBACK)).toBe(
+  it('accepts only the selected build manifest when the shell is mounted alongside the runtime', async () => {
+    await expect(load('/storybook/playground/runtime/manifest.json')).resolves.toBe(
       'https://example.com/storybook/playground/runtime/manifest.json',
     );
-    expect(resolveManifestPath(FALLBACK, PAGE, FALLBACK)).toBe(
+    await expect(load(DEFAULT_MANIFEST_PATH)).resolves.toBe(
       'https://example.com/storybook/playground/runtime/manifest.json',
     );
   });
 
   it('lets a standalone shell explicitly select a same-origin build at the standard manifest location', () => {
-    expect(
-      resolveManifestPath(
-        '/deployments/private/playground/runtime/manifest.json',
-        'https://example.com/standalone/playground.html',
-        FALLBACK,
-      ),
-    ).toBe('https://example.com/deployments/private/playground/runtime/manifest.json');
+    return expect(
+      load('/deployments/private/playground/runtime/manifest.json', 'https://example.com/standalone/playground.html'),
+    ).resolves.toBe('https://example.com/deployments/private/playground/runtime/manifest.json');
   });
 
   it.each([
@@ -62,19 +60,24 @@ describe('resolveManifestPath', () => {
     '/storybook/playground/runtime/manifest.json#private',
     '/storybook\\playground\\runtime\\manifest.json',
   ])('reports invalid overrides instead of silently selecting another build: %s', override => {
-    expect(() => resolveManifestPath(override, PAGE, FALLBACK)).toThrow();
+    return expect(load(override)).rejects.toThrow();
   });
 });
 
 describe('loadRuntimeManifest', () => {
   it('resolves all assets within a valid nested deployment and prevents manifest redirects', async () => {
-    const fetch = jest.fn().mockResolvedValue({
-      ...manifestResponse,
-      json: async () => ({
-        ...rawManifest,
-        inlineStyles: [{ href: 'chunks/private.css', cssText: '@font-face { src: url(data:font/woff2;base64,AA==) }' }],
-      }),
-    });
+    const fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ...manifestResponse,
+        json: async () => ({ ...rawManifest, inlineStylesFile: 'playground/runtime/inline-styles.abc.json' }),
+      })
+      .mockResolvedValueOnce({
+        ...manifestResponse,
+        json: async () => [
+          { href: 'chunks/private.css', cssText: '@font-face { src: url(data:font/woff2;base64,AA==) }' },
+        ],
+      });
     const page = 'https://example.com/deployments/nested/storybook/playground/app/playground.html';
     const result = await loadRuntimeManifest({ fetch, location: { href: page } }, FALLBACK);
 
@@ -90,7 +93,26 @@ describe('loadRuntimeManifest', () => {
       credentials: 'same-origin',
       redirect: 'error',
     });
+    expect(fetch).toHaveBeenCalledWith(`${result.baseUrl}playground/runtime/inline-styles.abc.json`, {
+      mode: 'same-origin',
+      credentials: 'same-origin',
+      redirect: 'error',
+    });
   });
+
+  it.each([[{ href: 'runtime.css', cssText: 123 }], {}, [{ href: '../private.css', cssText: '' }]])(
+    'rejects malformed or out-of-build inline styles: %p',
+    inlineStyles => {
+      const fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ...manifestResponse,
+          json: async () => ({ ...rawManifest, inlineStylesFile: 'playground/runtime/inline-styles.abc.json' }),
+        })
+        .mockResolvedValueOnce({ ...manifestResponse, json: async () => inlineStyles });
+      return expect(loadRuntimeManifest({ fetch, location: { href: PAGE } }, FALLBACK)).rejects.toThrow();
+    },
+  );
 
   it('keeps legacy manifests without scriptFiles, moduleTypings or inlineStyles valid', async () => {
     const fetch = jest.fn().mockResolvedValue({
@@ -109,7 +131,7 @@ describe('loadRuntimeManifest', () => {
     expect(result.scripts).toEqual(['https://example.com/storybook/runtime.js']);
   });
 
-  it('validates the location even when called without resolveManifestPath', async () => {
+  it('validates the location of a requested manifest', async () => {
     const fetch = jest.fn();
     await expect(
       loadRuntimeManifest({ fetch, location: { href: PAGE } }, '/other/playground/runtime/manifest.json'),
@@ -133,8 +155,8 @@ describe('loadRuntimeManifest', () => {
     { ...rawManifest, allowedModules: [null] },
     { ...rawManifest, moduleTypings: { react: 'typings.json' } },
     { ...rawManifest, moduleTypings: [] },
-    { ...rawManifest, inlineStyles: [{ href: 'runtime.css', cssText: 123 }] },
-    { ...rawManifest, inlineStyles: {} },
+    { ...rawManifest, inlineStylesFile: '' },
+    { ...rawManifest, inlineStylesFile: [] },
   ])('rejects malformed manifest data: %p', invalidManifest => {
     const fetch = jest.fn().mockResolvedValue({ ...manifestResponse, json: async () => invalidManifest });
     return expect(loadRuntimeManifest({ fetch, location: { href: PAGE } }, FALLBACK)).rejects.toThrow('invalid shape');
@@ -173,7 +195,8 @@ describe('loadRuntimeManifest', () => {
     { ...rawManifest, typings: '../private.json' },
     { ...rawManifest, typings: 'private.json' },
     { ...rawManifest, moduleTypings: { react: ['/other/typings.json'] } },
-    { ...rawManifest, inlineStyles: [{ href: '../private.css', cssText: '' }] },
+    { ...rawManifest, inlineStylesFile: 'inline-styles.json' },
+    { ...rawManifest, inlineStylesFile: '../inline-styles.json' },
   ])('also constrains lazy scripts, styles and declarations to the build: %p', invalidManifest => {
     const fetch = jest.fn().mockResolvedValue({ ...manifestResponse, json: async () => invalidManifest });
     return expect(loadRuntimeManifest({ fetch, location: { href: PAGE } }, FALLBACK)).rejects.toThrow();

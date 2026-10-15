@@ -213,8 +213,51 @@ describe('sandbox bootstrap', () => {
       expect(document.body.dataset.scriptBase).toBe(manifest.baseUrl);
       expect(append).toHaveBeenCalledTimes(1);
       expect(done).toHaveBeenCalledWith(expect.objectContaining({ type: 'load', target: { src: url } }));
-      expect(load.publicPath).toBeUndefined();
+      expect(load.publicPath).toBe(manifest.baseUrl);
       expect(load('https://example.com/private', jest.fn())).toBe(false);
+    } finally {
+      append.mockRestore();
+    }
+  });
+
+  it('requests initial bridged scripts in parallel but executes them in manifest order', async () => {
+    const scripts = ['https://example.com/runtime.js', 'https://example.com/entry.js'];
+    const executed: string[] = [];
+    const append = jest.spyOn(document.head, 'appendChild').mockImplementation(node => {
+      if (isHTMLElement(node) && node.tagName === 'SCRIPT') {
+        executed.push(node.textContent ?? '');
+      }
+      return node;
+    });
+    const respond = (requestId: number, scriptSource: string) =>
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          source: window.parent,
+          data: {
+            source: 'fluentui-playground',
+            token: 'order-token',
+            type: 'script-response',
+            requestId,
+            scriptSource,
+          },
+        }),
+      );
+    try {
+      loadBootstrap('order-token', 'https://example.com', { ...manifest, scripts, scriptFiles: scripts });
+      const requests = postMessage.mock.calls.filter(([message]) => message.type === 'script-request');
+      expect(requests.map(([message]) => message.url)).toEqual(scripts);
+
+      respond(2, 'entry');
+      await new Promise(resolve => {
+        setTimeout(resolve, 0);
+      });
+      expect(executed).toEqual([]);
+
+      respond(1, 'runtime');
+      await new Promise(resolve => {
+        setTimeout(resolve, 0);
+      });
+      expect(executed).toEqual([`runtime\n//# sourceURL=${scripts[0]}`, `entry\n//# sourceURL=${scripts[1]}`]);
     } finally {
       append.mockRestore();
     }
@@ -236,7 +279,7 @@ describe('sandbox bootstrap', () => {
         scriptFiles: ['https://cdn.example.net/entry.js'],
       },
     },
-  ])('retains ordered native script loading for $name', async ({ runtimeManifest }) => {
+  ])('starts ordered native script loading in parallel for $name', async ({ runtimeManifest }) => {
     const scripts: HTMLElement[] = [];
     const append = jest.spyOn(document.head, 'appendChild').mockImplementation(node => {
       if (isHTMLElement(node) && node.tagName === 'SCRIPT') {
@@ -246,11 +289,11 @@ describe('sandbox bootstrap', () => {
     });
     try {
       loadBootstrap('native-script-token', 'https://example.com', runtimeManifest);
-      for (let index = 0; index < runtimeManifest.scripts.length; index++) {
-        expect(scripts.map(script => script.getAttribute('src'))).toEqual(runtimeManifest.scripts.slice(0, index + 1));
-        scripts[index].dispatchEvent(new Event('load'));
-        await Promise.resolve();
-      }
+      // Downloads start together; async=false keeps their execution in manifest order.
+      expect(scripts.map(script => script.getAttribute('src'))).toEqual(runtimeManifest.scripts);
+      expect(scripts.every(script => (script as HTMLScriptElement).async === false)).toBe(true);
+      scripts.forEach(script => script.dispatchEvent(new Event('load')));
+      await Promise.resolve();
 
       expect(postMessage).not.toHaveBeenCalledWith(
         expect.objectContaining({ type: 'script-request' }),
@@ -430,18 +473,18 @@ describe('sandbox bootstrap', () => {
       expect(initErrors).toEqual([[expect.objectContaining({ message: 'Error: setup failed' }), '*']]);
     });
 
-    it('reports a runtime script that fails to load', () => {
-      loadBootstrap('init-script-token');
-      const script = document.createElement('script');
-      script.src = 'https://example.com/runtime.js';
-      document.body.appendChild(script);
-      script.dispatchEvent(new Event('error'));
+    it('reports a runtime script that fails to load', async () => {
+      loadBootstrap('init-script-token', undefined, { ...manifest, scripts: ['https://example.com/runtime.js'] });
+      const script = document.head.querySelector<HTMLScriptElement>('script[src="https://example.com/runtime.js"]');
+      script?.dispatchEvent(new Event('error'));
+      await Promise.resolve();
+      await Promise.resolve();
 
       expect(postMessage).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'init-error',
           token: 'init-script-token',
-          message: 'Failed to load the playground runtime script "https://example.com/runtime.js".',
+          message: 'Error: Failed to load the playground runtime script "https://example.com/runtime.js".',
         }),
         '*',
       );

@@ -5632,7 +5632,6 @@ __metadata:
   dependencies:
     "@fluentui/react-components": "npm:^9.74.9"
     "@fluentui/react-icons": "npm:^2.0.245"
-    "@fluentui/react-shared-contexts": "npm:^9.26.4"
     "@fluentui/react-utilities": "npm:^9.26.7"
     "@swc/helpers": "npm:^0.5.1"
     lz-string: "npm:^1.5.0"
@@ -5647,6 +5646,8 @@ __metadata:
     react-dom: ">=18.0.0 <20.0.0"
     typescript: ">=5.0.0"
   peerDependenciesMeta:
+    "@storybook/addon-docs":
+      optional: true
     "@types/react":
       optional: true
     typescript:

@@ -1047,18 +1047,19 @@ describe('PlaygroundRuntimeManifestPlugin', () => {
         expect(emittedSources.every(source => !source.includes('data:font/'))).toBe(true);
         if (inlineStyles) {
           expect(manifest.styles).toEqual([]);
-          expect(
-            manifest.inlineStyles.slice(0, eagerStyles.length).map((style: { href: string }) => style.href),
-          ).toEqual(eagerStyles);
-          expect(manifest.inlineStyles.map((style: { href: string }) => style.href).sort()).toEqual(
-            emittedCss.map(asset => asset.name).sort(),
+          expect(manifest.inlineStylesFile).toMatch(/^playground\/runtime\/inline-styles\.[0-9a-f]{12}\.json$/);
+          const inlined: Array<{ href: string }> = JSON.parse(
+            fs.readFileSync(path.join(root, 'out', manifest.inlineStylesFile), 'utf8'),
           );
-          expect(JSON.stringify(manifest.inlineStyles)).toContain(
+          expect(inlined.slice(0, eagerStyles.length).map(style => style.href)).toEqual(eagerStyles);
+          expect(inlined.map(style => style.href).sort()).toEqual(emittedCss.map(asset => asset.name).sort());
+          expect(JSON.stringify(inlined)).toContain(
             `data:font/woff2;base64,${Buffer.from('emitted font').toString('base64')}`,
           );
+          expect(JSON.stringify(manifest)).not.toContain('data:font/');
         } else {
           expect(manifest.styles).toEqual(eagerStyles);
-          expect(manifest.inlineStyles).toBeUndefined();
+          expect(manifest.inlineStylesFile).toBeUndefined();
         }
       } finally {
         await new Promise<void>((resolve, reject) => {

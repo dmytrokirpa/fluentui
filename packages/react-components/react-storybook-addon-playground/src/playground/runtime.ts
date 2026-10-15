@@ -3,6 +3,8 @@ import type { PlaygroundConsoleLevel } from './sandbox';
 
 export interface ResolvedPlaygroundRuntimeManifest extends PlaygroundRuntimeManifest {
   baseUrl: string;
+  /** Contents of `inlineStylesFile`, with `href` resolved against `baseUrl`. */
+  inlineStyles?: Array<{ href: string; cssText: string }>;
   scripts: string[];
   styles: string[];
   typings: string;
@@ -56,16 +58,8 @@ export type PlaygroundRuntimeMessage =
       message: string;
     };
 
-/**
- * A normally mounted shell can only use its own build. A standalone shell can explicitly select a same-origin build,
- * but its manifest must still be at the addon's emitted location.
- */
-export function resolveManifestPath(requested: string | null, pageUrl: string, fallback: string): string {
-  const manifestPath = requested || fallback;
-  getManifestUrl(manifestPath, pageUrl);
-  return requested ? new URL(manifestPath, pageUrl).href : fallback;
-}
-
+/** Path to the Storybook-emitted runtime, relative to `playground/app/playground.html`. */
+export const DEFAULT_MANIFEST_PATH = '../runtime/manifest.json';
 const MANIFEST_FILE = 'playground/runtime/manifest.json';
 const SHELL_FILE = '/playground/app/playground.html';
 // Encoded separators, dots and percent signs can be decoded differently by a reverse proxy and the browser.
@@ -78,6 +72,10 @@ const JAVASCRIPT_MIME_TYPES = new Set([
   'text/ecmascript',
 ]);
 
+/**
+ * A normally mounted shell can only use its own build. A standalone shell can explicitly select a same-origin build
+ * (`?manifest=`), but its manifest must still be at the addon's emitted location.
+ */
 function getManifestUrl(manifestPath: string, pageUrl: string): URL {
   const page = new URL(pageUrl);
   const manifest = new URL(manifestPath, page);
@@ -90,7 +88,7 @@ function getManifestUrl(manifestPath: string, pageUrl: string): URL {
     manifest.password ||
     manifest.search ||
     manifest.hash ||
-    (manifestPath !== '../runtime/manifest.json' && /(?:^|\/)\.{1,2}(?:\/|$)/.test(manifestPath)) ||
+    (manifestPath !== DEFAULT_MANIFEST_PATH && /(?:^|\/)\.{1,2}(?:\/|$)/.test(manifestPath)) ||
     manifest.pathname !== new URL(MANIFEST_FILE, buildRoot).pathname
   ) {
     throw new Error('Playground runtime manifest must be at playground/runtime/manifest.json in the selected build.');
@@ -134,7 +132,7 @@ function isRuntimeManifest(value: unknown): value is PlaygroundRuntimeManifest {
   if (!isRecord(value)) {
     return false;
   }
-  const { scripts, scriptFiles, styles, typings, moduleTypings, inlineStyles, allowedModules, buildId } = value;
+  const { scripts, scriptFiles, styles, typings, moduleTypings, inlineStylesFile, allowedModules, buildId } = value;
   return (
     isStringArray(scripts) &&
     scripts.length > 0 &&
@@ -144,15 +142,33 @@ function isRuntimeManifest(value: unknown): value is PlaygroundRuntimeManifest {
     typeof typings === 'string' &&
     typings.length > 0 &&
     (moduleTypings === undefined || (isRecord(moduleTypings) && Object.values(moduleTypings).every(isStringArray))) &&
-    (inlineStyles === undefined ||
-      (Array.isArray(inlineStyles) &&
-        inlineStyles.every(
-          style => isRecord(style) && typeof style.href === 'string' && typeof style.cssText === 'string',
-        ))) &&
+    (inlineStylesFile === undefined || (typeof inlineStylesFile === 'string' && inlineStylesFile.length > 0)) &&
     isStringArray(allowedModules) &&
     typeof buildId === 'string' &&
     buildId.length > 0
   );
+}
+
+function isInlineStyles(value: unknown): value is Array<{ href: string; cssText: string }> {
+  return (
+    Array.isArray(value) &&
+    value.every(style => isRecord(style) && typeof style.href === 'string' && typeof style.cssText === 'string')
+  );
+}
+
+async function fetchJson(targetWindow: Pick<Window, 'fetch'>, url: URL | string, label: string): Promise<unknown> {
+  const response = await targetWindow.fetch(url, {
+    mode: 'same-origin',
+    credentials: 'same-origin',
+    redirect: 'error',
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to load playground ${label} (${response.status} ${response.statusText})`);
+  }
+  if (response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !== 'application/json') {
+    throw new Error(`Playground ${label} did not return application/json.`);
+  }
+  return response.json();
 }
 
 /**
@@ -163,20 +179,7 @@ export async function loadRuntimeManifest(
   manifestPath: string,
 ): Promise<ResolvedPlaygroundRuntimeManifest> {
   const manifestUrl = getManifestUrl(manifestPath, targetWindow.location.href);
-  const response = await targetWindow.fetch(manifestUrl, {
-    mode: 'same-origin',
-    credentials: 'same-origin',
-    redirect: 'error',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to load playground runtime (${response.status} ${response.statusText})`);
-  }
-  if (response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !== 'application/json') {
-    throw new Error('Playground runtime manifest did not return application/json.');
-  }
-
-  const manifest: unknown = await response.json();
+  const manifest = await fetchJson(targetWindow, manifestUrl, 'runtime manifest');
   if (!isRuntimeManifest(manifest)) {
     throw new Error('Playground runtime manifest has an invalid shape.');
   }
@@ -184,13 +187,21 @@ export async function loadRuntimeManifest(
   const storybookRoot = new URL('../../', manifestUrl);
   const scriptUrl = (asset: string) => resolveBuildAsset(asset, storybookRoot, /\.m?js$/);
   const styleUrl = (asset: string) => resolveBuildAsset(asset, storybookRoot, /\.css$/);
-  const typingsUrl = (asset: string) => {
+  const runtimeJsonUrl = (asset: string) => {
     const url = resolveBuildAsset(asset, storybookRoot, /\.json$/);
     if (!new URL(url).pathname.startsWith(new URL('playground/runtime/', storybookRoot).pathname)) {
-      throw new Error(`Playground runtime declarations are outside playground/runtime/: ${asset}`);
+      throw new Error(`Playground runtime data is outside playground/runtime/: ${asset}`);
     }
     return url;
   };
+  let inlineStyles: ResolvedPlaygroundRuntimeManifest['inlineStyles'];
+  if (manifest.inlineStylesFile) {
+    const styles = await fetchJson(targetWindow, runtimeJsonUrl(manifest.inlineStylesFile), 'inline styles');
+    if (!isInlineStyles(styles)) {
+      throw new Error('Playground runtime inline styles have an invalid shape.');
+    }
+    inlineStyles = styles.map(style => ({ href: styleUrl(style.href), cssText: style.cssText }));
+  }
 
   return {
     allowedModules: manifest.allowedModules,
@@ -199,17 +210,21 @@ export async function loadRuntimeManifest(
     scripts: manifest.scripts.map(scriptUrl),
     scriptFiles: manifest.scriptFiles?.map(scriptUrl),
     styles: manifest.styles.map(styleUrl),
-    inlineStyles: manifest.inlineStyles?.map(style => ({ href: styleUrl(style.href), cssText: style.cssText })),
-    typings: typingsUrl(manifest.typings),
+    inlineStylesFile: manifest.inlineStylesFile,
+    inlineStyles,
+    typings: runtimeJsonUrl(manifest.typings),
     moduleTypings: manifest.moduleTypings
       ? Object.fromEntries(
-          Object.entries(manifest.moduleTypings).map(([moduleName, urls]) => [moduleName, urls.map(typingsUrl)]),
+          Object.entries(manifest.moduleTypings).map(([moduleName, urls]) => [moduleName, urls.map(runtimeJsonUrl)]),
         )
       : undefined,
   };
 }
 
-/** Fetches only exact manifest-listed JavaScript URLs inside the selected build; never evaluates code in the shell. */
+/**
+ * Fetches only exact manifest-listed JavaScript URLs inside the selected build; never evaluates code in the shell.
+ * `loadRuntimeManifest` already validated every listed URL; the canonical check below guards hand-built manifests.
+ */
 export function createRuntimeScriptLoader(
   targetWindow: Pick<Window, 'fetch'> & { location: Pick<Location, 'origin'> },
   manifest: ResolvedPlaygroundRuntimeManifest,
@@ -220,15 +235,7 @@ export function createRuntimeScriptLoader(
 
   return async url => {
     const buildRoot = new URL(manifest.baseUrl);
-    if (
-      !allowed.has(url) ||
-      buildRoot.origin !== targetWindow.location.origin ||
-      buildRoot.username ||
-      buildRoot.password ||
-      buildRoot.search ||
-      buildRoot.hash ||
-      !buildRoot.pathname.endsWith('/')
-    ) {
+    if (!allowed.has(url) || buildRoot.origin !== targetWindow.location.origin) {
       throw new Error(`Playground runtime script is not an allowed build asset: ${url}`);
     }
     if (resolveBuildAsset(url, buildRoot, /\.m?js$/) !== url) {

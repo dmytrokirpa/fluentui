@@ -2,6 +2,8 @@ import type { ResolvedPlaygroundRuntimeManifest } from './runtime';
 
 export const PLAYGROUND_REGISTER_CALLBACK = '__FLUENTUI_PLAYGROUND_REGISTER_V1__';
 export const PLAYGROUND_SCRIPT_LOADER_CALLBACK = '__FLUENTUI_PLAYGROUND_LOAD_SCRIPT_V1__';
+/** How long the preview waits for the shell to return a bridged runtime script. */
+export const SCRIPT_REQUEST_TIMEOUT_MS = 120_000;
 
 function escapeInlineJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, '\\u003c');
@@ -96,6 +98,7 @@ export function createSandboxDocument(
 
   let nextScriptRequestId = 0;
   const scriptRequests = new Map();
+  const fetchedScripts = new Map();
   const loadedScripts = new Map();
   const canBridgeScript = url => scriptFiles.has(url) && new URL(url).origin === parentOrigin;
   window.addEventListener('message', event => {
@@ -129,30 +132,39 @@ export function createSandboxDocument(
     const timeout = nativeSetTimeout(() => {
       scriptRequests.delete(requestId);
       reject(new Error('Timed out loading playground runtime script "' + url + '".'));
-    }, 120000);
+    }, ${SCRIPT_REQUEST_TIMEOUT_MS});
     scriptRequests.set(requestId, { resolve, reject, timeout });
     send({ type: 'script-request', requestId, url });
   });
-  const loadScript = url => {
+  const fetchScript = url => {
+    let promise = fetchedScripts.get(url);
+    if (!promise) {
+      promise = requestScript(url);
+      fetchedScripts.set(url, promise);
+      promise.catch(() => fetchedScripts.delete(url));
+    }
+    return promise;
+  };
+  // \`ordered\` keeps native initial scripts, which download in parallel, executing in insertion order.
+  const loadScript = (url, ordered) => {
     let promise = loadedScripts.get(url);
     if (!promise) {
       promise = canBridgeScript(url)
-        ? requestScript(url).then(source => {
+        ? fetchScript(url).then(source => {
+            // Once executed, loadedScripts dedupes the URL; the source text is no longer needed.
+            fetchedScripts.delete(url);
             const script = document.createElement('script');
-            script.textContent = source;
-            // Automatic Webpack publicPath cannot infer a URL from an inline script.
-            const previousPublicPath = bridgeScript.publicPath;
-            bridgeScript.publicPath = baseUrl;
-            try {
-              document.head.appendChild(script);
-            } finally {
-              bridgeScript.publicPath = previousPublicPath;
-              script.remove();
-            }
+            // Keeps the chunk's file name in stack traces and DevTools for code executed inline.
+            script.textContent = source + '\\n//# sourceURL=' + url;
+            document.head.appendChild(script);
+            script.remove();
           })
         : new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = url;
+            if (ordered) {
+              script.async = false;
+            }
             script.onload = () => resolve();
             script.onerror = () => reject(new Error('Failed to load the playground runtime script "' + url + '".'));
             document.head.appendChild(script);
@@ -174,6 +186,8 @@ export function createSandboxDocument(
     return true;
   };
   if (scriptFiles.size > 0) {
+    // Automatic Webpack publicPath cannot infer a URL from an inline script.
+    bridgeScript.publicPath = baseUrl;
     window[scriptLoaderName] = bridgeScript;
   }
 
@@ -381,17 +395,6 @@ export function createSandboxDocument(
 
   window.addEventListener('error', reportAsyncError);
   window.addEventListener('unhandledrejection', reportAsyncError);
-  // Resource load errors do not bubble, so listen in the capture phase.
-  window.addEventListener(
-    'error',
-    event => {
-      const target = event.target;
-      if (target && target !== window && target.tagName === 'SCRIPT') {
-        sendInitError('Failed to load the playground runtime script "' + target.src + '".');
-      }
-    },
-    true,
-  );
 
   const isComponentLike = value =>
     typeof value === 'function' ||
@@ -626,8 +629,18 @@ export function createSandboxDocument(
         style.textContent = cssText;
         document.head.appendChild(style);
       }
+      // Start every download up front; execution below stays in manifest order.
+      // Native scripts are only started early when none are bridged, which would otherwise execute out of order.
+      const hasBridgedScripts = initialScripts.some(canBridgeScript);
+      initialScripts.forEach(url => {
+        if (canBridgeScript(url)) {
+          fetchScript(url).catch(() => {});
+        } else if (!hasBridgedScripts) {
+          loadScript(url, true).catch(() => {});
+        }
+      });
       for (const script of initialScripts) {
-        await loadScript(script);
+        await loadScript(script, true);
         if (initFailed) {
           break;
         }

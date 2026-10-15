@@ -4,7 +4,7 @@ import { type Canvas, useOf } from '@storybook/addon-docs/blocks';
 import type { PreparedStory } from 'storybook/internal/types';
 
 import { decodePlaygroundStateFromHash } from '../url';
-import { parameters } from '../preset/preview';
+import { parameters } from '../preset/previewDocs';
 import { PlaygroundCanvas } from './PlaygroundCanvas';
 
 jest.mock('@storybook/addon-docs/blocks', () => ({

@@ -132,6 +132,9 @@ class AllowedModulesDefinePlugin {
 /**
  * Shared Webpack runtime chunks keep their native loader outside the Playground. Inside its sandbox, local scripts
  * are fetched by the shell and executed without making opaque-origin HTTP requests.
+ *
+ * This patches every runtime in the build, including Storybook's own. Outside the sandbox the callback global is never
+ * defined, so the patched loader immediately delegates to Webpack's native one.
  */
 class PlaygroundScriptLoadingPlugin {
   public apply(compiler: import('webpack').Compiler): void {
@@ -141,7 +144,7 @@ class PlaygroundScriptLoadingPlugin {
 
     compiler.hooks.thisCompilation.tap(pluginName, compilation => {
       compilation.hooks.runtimeModule.tap(pluginName, runtimeModule => {
-        if (runtimeModule.name === 'load script') {
+        if (runtimeModule instanceof compiler.webpack.runtime.LoadScriptRuntimeModule) {
           const generate = runtimeModule.generate.bind(runtimeModule);
           runtimeModule.generate = () => `${generate()}
 var playgroundNativeLoadScript = ${RuntimeGlobals.loadScript};
@@ -412,19 +415,12 @@ export function createWebpackPackageResolver(compiler: import('webpack').Compile
   });
   const cache = new Map<string, ReturnType<PackageResolver>>();
   const resolve = (resolver: typeof runtimeResolver, request: string, fromDirectory: string) =>
-    new Promise<Awaited<ReturnType<PackageResolver>>>((fulfill, reject) => {
+    new Promise<Awaited<ReturnType<PackageResolver>>>(fulfill => {
       resolver.resolve({}, fromDirectory, request, {}, (error, resolved, result) => {
         if (error) {
-          // Type-only export maps intentionally have no matching runtime export.
-          if (
-            error.message.startsWith("Can't resolve ") ||
-            /^".+" is not exported under the conditions? /.test(error.message) ||
-            /^Package path .+ is not exported from package /.test(error.message)
-          ) {
-            fulfill(null);
-          } else {
-            reject(error);
-          }
+          // Any failure only limits editor IntelliSense: type-only export maps intentionally have no runtime export, and
+          // anything still unresolved after the declaration resolver is reported as a missing-typings warning.
+          fulfill(null);
         } else if (resolved === false) {
           fulfill(false);
         } else {
@@ -463,7 +459,7 @@ export async function collectConfiguredTypings(
     typescriptVersion,
     moduleRequests: getModuleRequests(options.modules),
     typingsRoots: Object.fromEntries(
-      Object.entries(options.typingsRoots ?? []).map(([name, root]) => [name, path.resolve(configDir, root)]),
+      Object.entries(options.typingsRoots ?? {}).map(([name, root]) => [name, path.resolve(configDir, root)]),
     ),
     resolvePackage: resolution?.resolvePackage,
   };
@@ -591,20 +587,25 @@ export class PlaygroundRuntimeManifestPlugin {
             ]),
           ).filter(file => !file.includes('.hot-update.'));
           const scriptFiles = referencedFiles.filter(file => /\.m?js($|\?)/.test(file)).sort();
-          const inlineStyles = this.options.inlineStyles
-            ? inlineRuntimeStyles(
-                compilation,
-                referencedFiles.filter(file => /\.css$/.test(file)),
-              )
-            : undefined;
-          const styles = inlineStyles ? [] : files.filter(file => /\.css($|\?)/.test(file));
-          const emitTypings = (declarations: Record<string, string>) => {
-            const json = JSON.stringify(declarations);
+          const emitJson = (prefix: string, value: unknown) => {
+            const json = JSON.stringify(value);
             const hash = crypto.createHash('sha256').update(json).digest('hex').slice(0, 12);
-            const file = `playground/runtime/typings.${hash}.json`;
+            const file = `playground/runtime/${prefix}.${hash}.json`;
             compilation.emitAsset(file, new sources.RawSource(json));
             return file;
           };
+          const emitTypings = (declarations: Record<string, string>) => emitJson('typings', declarations);
+          // Inlined fonts can be large, so they live in a cacheable content-hashed file instead of the manifest.
+          const inlineStylesFile = this.options.inlineStyles
+            ? emitJson(
+                'inline-styles',
+                inlineRuntimeStyles(
+                  compilation,
+                  referencedFiles.filter(file => /\.css$/.test(file)),
+                ),
+              )
+            : undefined;
+          const styles = inlineStylesFile ? [] : files.filter(file => /\.css($|\?)/.test(file));
           const typingsFile = emitTypings(typings.base);
           const sharedFile = Object.keys(typings.shared).length > 0 ? emitTypings(typings.shared) : null;
           const moduleTypings = Object.fromEntries(
@@ -624,7 +625,7 @@ export class PlaygroundRuntimeManifestPlugin {
                 scripts,
                 scriptFiles,
                 styles,
-                inlineStyles,
+                inlineStylesFile,
                 modules: getModuleRequests(this.options.modules),
                 typingsFile,
                 moduleTypings,
@@ -641,7 +642,7 @@ export class PlaygroundRuntimeManifestPlugin {
                   scripts,
                   scriptFiles,
                   styles,
-                  inlineStyles,
+                  inlineStylesFile,
                   typings: typingsFile,
                   moduleTypings,
                   allowedModules: getAllowedModules(this.options),

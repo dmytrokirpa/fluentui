@@ -11,8 +11,31 @@ function getPackageRoot() {
   return path.dirname(require.resolve('@fluentui/react-storybook-addon-playground/package.json'));
 }
 
-function previewAnnotations(entry = []) {
-  return [...entry, require.resolve('./lib/preset/preview')];
+/**
+ * @param {string} configDir
+ */
+function hasAddonDocs(configDir) {
+  try {
+    require.resolve('@storybook/addon-docs/package.json', { paths: [configDir ?? process.cwd()] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The Docs Canvas integration imports `@storybook/addon-docs/blocks`, so it is only registered when that optional
+ * peer is installed. The decorator alone works without it.
+ *
+ * @param {string[]} entry
+ * @param {{ configDir: string }} options
+ */
+function previewAnnotations(entry = [], options) {
+  return [
+    ...entry,
+    require.resolve('./lib/preset/preview'),
+    ...(hasAddonDocs(options?.configDir) ? [require.resolve('./lib/preset/previewDocs')] : []),
+  ];
 }
 
 /**

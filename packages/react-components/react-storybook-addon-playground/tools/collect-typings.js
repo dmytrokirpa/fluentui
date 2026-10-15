@@ -466,6 +466,22 @@ async function collectTypings(options) {
   const missing = new Set();
   /** @type {Map<string, (PackageInfo & { subpath: string, entryFile: string | null }) | null>} */
   const packages = new Map();
+  // Every declaration directory resolves its imports separately, so package lookups are cached by directory.
+  /** @type {Map<string, PackageInfo>} */
+  const loadedPackages = new Map();
+  /** @type {Map<string, string | null>} */
+  const resolvedPackageDirs = new Map();
+
+  /** @param {string} entryPath */
+  function findOwnerPackageDir(entryPath) {
+    const dir = path.dirname(entryPath);
+    let packageDir = resolvedPackageDirs.get(dir);
+    if (packageDir === undefined) {
+      packageDir = findResolvedPackageDir(entryPath, sources);
+      resolvedPackageDirs.set(dir, packageDir);
+    }
+    return packageDir;
+  }
 
   /**
    * @param {string} name
@@ -509,13 +525,19 @@ async function collectTypings(options) {
      * @param {string} [fallbackName]
      */
     const load = (dir, fallbackName = name) => {
-      const realDir = fs.realpathSync(dir);
-      const packageJson = readJson(path.join(realDir, 'package.json'));
-      return {
-        dir: realDir,
-        name: typeof packageJson.name === 'string' ? packageJson.name : fallbackName,
-        packageJson,
-      };
+      const loadKey = `${dir}\0${fallbackName}`;
+      let loaded = loadedPackages.get(loadKey);
+      if (!loaded) {
+        const realDir = fs.realpathSync(dir);
+        const packageJson = readJson(path.join(realDir, 'package.json'));
+        loaded = {
+          dir: realDir,
+          name: typeof packageJson.name === 'string' ? packageJson.name : fallbackName,
+          packageJson,
+        };
+        loadedPackages.set(loadKey, loaded);
+      }
+      return loaded;
     };
 
     const explicitRoot = options.typingsRoots?.[specifier] ?? options.typingsRoots?.[name];
@@ -532,7 +554,7 @@ async function collectTypings(options) {
     const ownDir =
       explicitRoot ||
       (resolution
-        ? findResolvedPackageDir(resolution.path, sources)
+        ? findOwnerPackageDir(resolution.path)
         : requestSpecifier && findPackageDir(requestSpecifier.name, fromDir));
     const own = ownDir ? load(ownDir) : null;
     const resolvedExport =
@@ -571,7 +593,7 @@ async function collectTypings(options) {
         typesResolution === false
           ? null
           : typesResolution
-          ? findResolvedPackageDir(typesResolution.path, sources)
+          ? findOwnerPackageDir(typesResolution.path)
           : findPackageDir(typesName, own?.dir ?? fromDir);
       if (typesDir) {
         const typesPackage = load(typesDir, typesName);
@@ -743,7 +765,8 @@ async function collectTypings(options) {
       return;
     }
 
-    addPackageJson(pkg, path.join(pkg.dir, 'package.json'));
+    // The root package.json is not copied: `addImportAlias` writes the virtual metadata Monaco resolves through.
+    sources.add(path.join(pkg.dir, 'package.json'));
 
     const { entryFile } = pkg;
     if (entryFile) {

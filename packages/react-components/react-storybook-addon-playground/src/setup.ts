@@ -32,10 +32,11 @@ export interface PlaygroundRuntimeManifest {
   scriptFiles?: string[];
   styles: string[];
   /**
-   * Build-owned stylesheets with emitted font/image URLs inlined as data URLs. The preview's data-href attributes also
-   * satisfy Webpack's lazy CSS loader without making authenticated requests from the opaque iframe.
+   * Content-hashed JSON file (`Array<{ href, cssText }>`) with the build-owned stylesheets and their emitted font/image
+   * URLs inlined as data URLs. Kept out of the manifest so the manifest stays small and the styles stay cacheable.
+   * The preview's data-href attributes also satisfy Webpack's lazy CSS loader without authenticated iframe requests.
    */
-  inlineStyles?: Array<{ href: string; cssText: string }>;
+  inlineStylesFile?: string;
   /** Declarations that are always loaded (React and the `typings` addon option). */
   typings: string;
   /**

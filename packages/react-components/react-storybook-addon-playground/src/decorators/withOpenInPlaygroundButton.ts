@@ -63,6 +63,10 @@ export function addOpenInPlaygroundButton(context: StoryContext): void {
   }
 
   const buttonContainers = getButtonContainers(context, targetDocument);
+  // Storybook 10 renders the action through the Canvas override, which leaves no fallback container.
+  if (buttonContainers.length === 0) {
+    return;
+  }
   const action = getOpenInPlaygroundAction(context, targetDocument);
   if (!action) {
     return;

@@ -94,7 +94,8 @@ Implemented behavior:
   Fetches retain same-origin credentials and reject redirects, HTTP failures and non-JavaScript MIME types, reporting
   initialization errors rather than navigating to login. This supports CORP `same-origin` and COEP-restricted deployments
   without relaxing iframe isolation or globally exposing assets, and leaves native Storybook chunk loading intact.
-- Opt-in `inlineStyles` embeds extracted eager/lazy CSS and its emitted font/image assets in the manifest. CSS URLs
+- Opt-in `inlineStyles` embeds extracted eager/lazy CSS and its emitted font/image assets in a content-hashed JSON
+  file referenced by the manifest (`inlineStylesFile`), keeping the manifest small and the styles cacheable. CSS URLs
   are resolved against emitted stylesheets at build time, without network or arbitrary filesystem reads; unresolved
   imports/resources fail the build. The preview preserves eager stylesheet order, appends lazy CSS up front and
   identifies it to the lazy CSS loader by build-relative filename, including explicit Webpack public paths.
@@ -112,8 +113,9 @@ Implemented behavior:
   effective conditions and export-map order; matched exports without a `types` target prefer adjacent, version-mapped
   declarations. `main`/`module` entries without exports retain package-metadata resolution. Separate virtual entries preserve physical
   declaration contents while supporting conditional/subpath aliases and `.d.mts`/`.d.cts` resolution in Monaco.
-- Docs Canvas overrides render the Playground action through Storybook's `additionalActions` API where supported;
-  an addon-owned fallback covers earlier action areas and Storybook 10's separate Docs source-actions row.
+- When the optional `@storybook/addon-docs` peer is installed, a Docs Canvas override renders the Playground action
+  through Storybook's `additionalActions` API (honored by Storybook 10); an addon-owned fallback covers Storybook 9.1
+  action areas and Storybook 10's separate Docs source-actions row.
 - A Playwright e2e suite covers the production runtime/shell and a nested cookie-authenticated CORP `same-origin`
   fixture with extracted CSS and a real font, with and without COEP. It asserts shell credentialed fetches, opaque
   preview isolation, lazy loading, HTTP/redirect/login-response failures and restart recovery. This is a synthetic

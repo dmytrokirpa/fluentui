@@ -42,6 +42,13 @@ function setupPage(page: Page) {
   return { pageErrors, previewButton, previewFrame, replaceActiveFile, errorAlert };
 }
 
+async function getInlineStyles(
+  page: Page,
+  manifest: PlaygroundRuntimeManifest,
+): Promise<Array<{ href: string; cssText: string }>> {
+  return (await page.request.get(`${PRIVATE_BUILD_ROOT}${manifest.inlineStylesFile}`)).json();
+}
+
 test.describe('authenticated deployment', () => {
   test('protects runtime, CSS and real font assets with the shell session cookie and same-origin CORP', async ({
     page,
@@ -50,8 +57,9 @@ test.describe('authenticated deployment', () => {
     expect((await page.request.get(manifestPath)).status()).toBe(401);
     await page.request.get(PRIVATE_PLAYGROUND_URL);
     const manifest: PlaygroundRuntimeManifest = await (await page.request.get(manifestPath)).json();
+    const inlineStyles = await getInlineStyles(page, manifest);
     const stylesheetPath = `${PRIVATE_BUILD_ROOT}${
-      manifest.inlineStyles!.find(style => style.cssText.includes('data:font/ttf;base64,'))!.href
+      inlineStyles.find(style => style.cssText.includes('data:font/ttf;base64,'))!.href
     }`;
     const stylesheet = await page.request.get(stylesheetPath);
     const fontReference = (await stylesheet.text()).match(/url\(([^)]+\.ttf)\)/)?.[1];
@@ -122,14 +130,16 @@ test.describe('authenticated deployment', () => {
       const manifest: PlaygroundRuntimeManifest = await (
         await page.request.get(`${PRIVATE_BUILD_ROOT}playground/runtime/manifest.json`)
       ).json();
+      const inlineStyles = await getInlineStyles(page, manifest);
       expect(manifest.styles).toEqual([]);
-      expect(manifest.inlineStyles!.length).toBeGreaterThan(1);
-      expect(manifest.inlineStyles!.some(style => style.cssText.includes('data:font/ttf;base64,'))).toBe(true);
+      expect(manifest.inlineStylesFile).toMatch(/^playground\/runtime\/inline-styles\.[0-9a-f]{12}\.json$/);
+      expect(inlineStyles.length).toBeGreaterThan(1);
+      expect(inlineStyles.some(style => style.cssText.includes('data:font/ttf;base64,'))).toBe(true);
       expect(
         await previewFrame().evaluate(() =>
           Array.from(document.querySelectorAll('style[data-href]'), style => style.getAttribute('data-href')),
         ),
-      ).toEqual(manifest.inlineStyles!.map(style => style.href));
+      ).toEqual(inlineStyles.map(style => style.href));
       expect(manifest.scripts.some(script => script.startsWith('runtime~playground-runtime.'))).toBe(true);
       expect((await Promise.all(requests)).some(request => /playground-module-[23]\./.test(request.path))).toBe(false);
       await expect
