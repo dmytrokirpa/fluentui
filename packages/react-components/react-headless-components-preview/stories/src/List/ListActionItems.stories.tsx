@@ -15,10 +15,15 @@ export const ActionItems = (): React.ReactNode => (
           {person}
         </span>
         <span className={styles.actions} role="gridcell">
-          <button className={styles.action} type="button" aria-label={`Edit ${person}`}>
+          <button className={styles.action} type="button" focusgroup="none" aria-label={`Edit ${person}`}>
             <EditRegular aria-hidden />
           </button>
-          <button className={styles.action} type="button" aria-label={`More options for ${person}`}>
+          <button
+            className={styles.action}
+            type="button"
+            focusgroup="none"
+            aria-label={`More options for ${person}`}
+          >
             <MoreHorizontalRegular aria-hidden />
           </button>
         </span>

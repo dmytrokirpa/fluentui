@@ -16,7 +16,7 @@ export const renderListItem = (state: ListItemState): JSXElement => {
     <state.root>
       {state.checkmark &&
         (state.root.role === 'row' ? (
-          <span role="gridcell">
+          <span role="gridcell" focusgroup="none">
             <state.checkmark />
           </span>
         ) : (

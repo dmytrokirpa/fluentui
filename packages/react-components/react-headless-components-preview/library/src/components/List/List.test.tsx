@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import { isConformant } from '../../testing/isConformant';
 import { List } from './List';
@@ -106,32 +106,6 @@ describe('List', () => {
 
     expect(getByRole('grid').tagName).toBe('DIV');
     expect(getByRole('row').tagName).toBe('DIV');
-  });
-
-  it.each(['div', 'ul', 'ol'] as const)('preserves composite focus capture for an explicit %s root', as => {
-    const focusTargets: HTMLElement[] = [];
-    const { getByRole } = render(
-      <List
-        as={as}
-        aria-label="Actions"
-        navigationMode="composite"
-        onFocusCapture={(event: React.FocusEvent<HTMLElement>) => focusTargets.push(event.currentTarget)}
-      >
-        <ListItem as={as === 'div' ? 'div' : 'li'} value="one">
-          <span role="gridcell">
-            <button>Edit</button>
-          </span>
-        </ListItem>
-      </List>,
-    );
-
-    const grid = getByRole('grid');
-    const button = getByRole('button');
-    fireEvent.focusIn(button);
-
-    expect(grid.tagName).toBe(as.toUpperCase());
-    expect(focusTargets).toEqual([grid]);
-    expect(button).toHaveAttribute('tabindex', '0');
   });
 
   it('does not include Tabster attributes or Fluent styling', () => {
@@ -242,8 +216,12 @@ describe('List', () => {
           </span>
           <span role="gridcell">Alex</span>
           <span role="gridcell">
-            <button aria-label="Edit Alex">Edit</button>
-            <button aria-label="More options for Alex">More</button>
+            <button aria-label="Edit Alex" focusgroup="none">
+              Edit
+            </button>
+            <button aria-label="More options for Alex" focusgroup="none">
+              More
+            </button>
           </span>
         </ListItem>
       </List>,
@@ -263,7 +241,9 @@ describe('List', () => {
         <ListItem value="alex" checkmark={{ 'aria-label': 'Select Alex', tabIndex: 0 }}>
           <span role="gridcell">Alex</span>
           <span role="gridcell">
-            <button aria-label="Edit Alex">Edit</button>
+            <button aria-label="Edit Alex" focusgroup="none">
+              Edit
+            </button>
           </span>
         </ListItem>
       </List>,
@@ -272,143 +252,58 @@ describe('List', () => {
     expect(await axe(baseElement, { rules: { region: { enabled: false } } })).toHaveNoViolations();
   });
 
-  it('keeps nested lists outside the composite focus order', () => {
-    const { getByRole } = render(
-      <List aria-label="Outer" navigationMode="composite">
-        <ListItem value="outer">
+  it('delegates composite row and control navigation to focusgroup itemcontrols', () => {
+    const { getByRole, getAllByRole } = render(
+      <List aria-label="Actions" navigationMode="composite">
+        <ListItem value="one">
+          <span role="gridcell">One</span>
           <span role="gridcell">
-            <List aria-label="Inner" selectionMode="multiselect">
-              <ListItem value="inner" checkmark={null}>
-                Inner item
-              </ListItem>
-            </List>
-            <button>Outer action</button>
+            <button focusgroup="none">Edit</button>
           </span>
+        </ListItem>
+        <ListItem value="two">
+          <span role="gridcell">Two</span>
         </ListItem>
       </List>,
     );
 
-    const row = getByRole('row');
-    row.focus();
-    fireEvent.keyDown(row, { key: 'ArrowRight' });
-
-    expect(getByRole('button', { name: 'Outer action' })).toHaveFocus();
-    expect(getByRole('option')).not.toHaveFocus();
-    expect(getByRole('option')).toHaveAttribute('tabindex', '0');
+    expect(getByRole('grid')).toHaveAttribute('focusgroup', 'toolbar block itemcontrols');
+    for (const row of getAllByRole('row')) {
+      expect(row).toHaveAttribute('tabindex', '0');
+      expect(row).not.toHaveAttribute('focusgroup');
+    }
+    expect(getByRole('button')).not.toHaveAttribute('tabindex');
   });
 
-  it('batches composite style mutations into one focus-order reconciliation per frame', async () => {
+  it('opts the composite checkmark cell out of row navigation', () => {
     const { getByRole } = render(
+      <List aria-label="Actions" navigationMode="composite" selectionMode="multiselect">
+        <ListItem value="one" checkmark={{ 'aria-label': 'Select one' }}>
+          <span role="gridcell">One</span>
+        </ListItem>
+      </List>,
+    );
+
+    expect(getByRole('checkbox').parentElement).toHaveAttribute('role', 'gridcell');
+    expect(getByRole('checkbox').parentElement).toHaveAttribute('focusgroup', 'none');
+  });
+
+  it('counts opted-out controls removed from the tab order by itemcontrols as row content', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    render(
       <List aria-label="Actions" navigationMode="composite">
         <ListItem value="one">
           <span role="gridcell">
-            <button>Edit</button>
+            <button focusgroup="none" tabIndex={-1}>
+              Edit
+            </button>
           </span>
         </ListItem>
       </List>,
     );
-    const button = getByRole('button');
-    const querySelectorAll = jest.spyOn(getByRole('grid'), 'querySelectorAll');
 
-    for (let index = 0; index < 5; index++) {
-      button.className = `state-${index}`;
-      await Promise.resolve();
-    }
-
-    expect(querySelectorAll).not.toHaveBeenCalled();
-    await waitFor(() => expect(querySelectorAll).toHaveBeenCalledTimes(1));
-    querySelectorAll.mockRestore();
-  });
-
-  it.each([
-    [0, -1],
-    [2, 4],
-  ])('restores a simultaneous author tab index change from %i to %i when navigation is removed', (initial, next) => {
-    const renderList = (navigationMode: 'composite' | undefined, tabIndex: number) => (
-      <List as="div" role="grid" navigationMode={navigationMode}>
-        <ListItem as="div" role="row" value="one">
-          <span role="gridcell">
-            <button tabIndex={tabIndex}>Edit</button>
-          </span>
-        </ListItem>
-      </List>
-    );
-    const { getByRole, rerender } = render(renderList('composite', initial));
-
-    expect(getByRole('button')).toHaveAttribute('tabindex', '-1');
-    rerender(renderList(undefined, next));
-    expect(getByRole('button')).toHaveAttribute('tabindex', String(next));
-    expect(getByRole('row')).not.toHaveAttribute('tabindex');
-  });
-
-  it.each(['contenteditable', 'controls', 'href'] as const)(
-    'updates natural focusability when %s is removed, without losing author tab indices',
-    async attribute => {
-      const renderList = (enabled: boolean) => (
-        <List aria-label="Actions" navigationMode="composite">
-          <ListItem value="one">
-            <span role="gridcell">
-              {attribute === 'contenteditable' ? (
-                <div contentEditable={enabled} suppressContentEditableWarning data-testid="control">
-                  Name
-                </div>
-              ) : attribute === 'controls' ? (
-                <audio controls={enabled} data-testid="control" />
-              ) : (
-                <a href={enabled ? '#edit' : undefined} data-testid="control">
-                  Link
-                </a>
-              )}
-              <button>Edit</button>
-            </span>
-          </ListItem>
-        </List>
-      );
-      const { getByRole, getByTestId, rerender } = render(renderList(true));
-
-      getByRole('row').focus();
-      fireEvent.keyDown(getByRole('row'), { key: 'ArrowRight' });
-      expect(getByTestId('control')).toHaveFocus();
-
-      rerender(renderList(false));
-      await waitFor(() => expect(getByTestId('control')).not.toHaveAttribute('tabindex'));
-      getByRole('row').focus();
-      fireEvent.keyDown(getByRole('row'), { key: 'ArrowRight' });
-      expect(getByRole('button')).toHaveFocus();
-
-      rerender(renderList(true));
-      await waitFor(() => expect(getByTestId('control')).toHaveAttribute('tabindex', '-1'));
-      getByRole('row').focus();
-      fireEvent.keyDown(getByRole('row'), { key: 'ArrowRight' });
-      expect(getByTestId('control')).toHaveFocus();
-    },
-  );
-
-  it('preserves changed author tab indices and restores them when composite navigation is removed', async () => {
-    const renderList = (navigationMode: 'composite' | undefined, tabIndex: number | undefined) => (
-      <List as="div" role="grid" navigationMode={navigationMode}>
-        <ListItem as="div" role="row" value="one">
-          <span role="gridcell">
-            <button tabIndex={tabIndex}>Edit</button>
-            <button>More</button>
-          </span>
-        </ListItem>
-      </List>
-    );
-    const { getByRole, rerender } = render(renderList('composite', undefined));
-    const row = getByRole('row');
-    row.focus();
-    fireEvent.keyDown(row, { key: 'ArrowRight' });
-    expect(getByRole('button', { name: 'Edit' })).toHaveFocus();
-
-    rerender(renderList('composite', -1));
-    await waitFor(() => expect(getByRole('row')).toHaveAttribute('tabindex', '0'));
-    row.focus();
-    fireEvent.keyDown(row, { key: 'ArrowRight' });
-    expect(getByRole('button', { name: 'More' })).toHaveFocus();
-
-    rerender(renderList(undefined, -1));
-    expect(getByRole('button', { name: 'Edit' })).toHaveAttribute('tabindex', '-1');
-    expect(getByRole('button', { name: 'More' })).not.toHaveAttribute('tabindex');
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });

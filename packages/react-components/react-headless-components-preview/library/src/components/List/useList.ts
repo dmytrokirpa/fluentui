@@ -1,19 +1,32 @@
 'use client';
 
-import * as React from 'react';
+import type * as React from 'react';
 import {
-  calculateListRole,
   useListBase_unstable,
   useListContextValues_unstable,
   validateListItemElement,
 } from '@fluentui/react-list';
-import { isSlot, SLOT_ELEMENT_TYPE_SYMBOL, useEventCallback, useMergedRefs } from '@fluentui/react-utilities';
+import { useEventCallback } from '@fluentui/react-utilities';
 
 import type { ListContextValues, ListProps, ListState } from './List.types';
-import { getListFocusableElements, useCompositeListNavigation } from './listNavigationContext';
 import { toDataAttributeValue } from '../../utils';
 
 export { useListContext_unstable as useListContext } from '@fluentui/react-list';
+
+const CONTROL_SELECTOR =
+  'a[href], area[href], button, input, select, textarea, iframe, ' +
+  '[contenteditable=""], [contenteditable="true" i], [contenteditable="plaintext-only" i], [tabindex]';
+
+/**
+ * `itemcontrols` sets `tabindex="-1"` on the controls of inactive rows, so a control opted out with
+ * `focusgroup="none"` still counts as focusable content of its row.
+ */
+const hasRowControls = (row: HTMLElement): boolean =>
+  Array.from(row.querySelectorAll<HTMLElement>(CONTROL_SELECTOR)).some(
+    element =>
+      !element.matches(':disabled, [hidden], input[type="hidden"]') &&
+      (element.tabIndex >= 0 || element.closest('[focusgroup~="none" i]') !== null),
+  );
 
 /**
  * Returns the state for a List component, given its props and ref.
@@ -24,49 +37,37 @@ export const useList = (
   ref: React.Ref<HTMLDivElement | HTMLUListElement | HTMLOListElement>,
 ): ListState => {
   const baseState = useListBase_unstable(props, ref);
-  const rootRef = React.useRef<HTMLDivElement | HTMLUListElement | HTMLOListElement>(null);
-  const mergedRef = useMergedRefs(baseState.root.ref, rootRef);
-  const onCompositeFocus = useCompositeListNavigation(baseState.navigationMode, rootRef);
-  const onFocusCapture: React.FocusEventHandler<HTMLElement> | undefined = baseState.root.onFocusCapture;
-  const handleFocusCapture: React.FocusEventHandler<HTMLElement> = useEventCallback(event => {
-    onFocusCapture?.(event);
-    onCompositeFocus(event);
-  });
+  const isComposite = baseState.navigationMode === 'composite';
+
   const validateListItem = useEventCallback((element: HTMLElement) => {
-    if (baseState.navigationMode !== 'composite') {
+    if (!isComposite) {
       baseState.validateListItem(element);
       return;
     }
     if (process.env.NODE_ENV === 'production') {
       return;
     }
-    const root = baseState.root;
-    if (!isSlot(root) || typeof root[SLOT_ELEMENT_TYPE_SYMBOL] !== 'string') {
-      throw new Error('List must render an intrinsic root slot.');
-    }
     validateListItemElement(element, {
-      listRenderedAs: root[SLOT_ELEMENT_TYPE_SYMBOL],
-      listRole: baseState.root.role || calculateListRole(baseState.navigationMode, !!baseState.selection),
+      // Mirrors the base hook, which renders a composite list as a `div` by default.
+      listRenderedAs: props.as || 'div',
+      listRole: baseState.root.role ?? '',
       hasSelection: !!baseState.selection,
-      hasFocusableChildren: getListFocusableElements(element).length > 0,
+      hasFocusableChildren: hasRowControls(element),
     });
   });
 
-  const state: ListState = {
+  return {
     ...baseState,
     validateListItem,
     root: {
       ...baseState.root,
-      ref: mergedRef,
-      'data-list': '',
       'data-navigation-mode': baseState.navigationMode,
       'data-selectable': toDataAttributeValue(!!baseState.selection),
-      focusgroup: baseState.navigationMode === 'composite' ? undefined : 'toolbar block',
-      ...(baseState.navigationMode === 'composite' && { onFocusCapture: handleFocusCapture }),
+      // Composite rows are focusgroup items; controls inside them opt out with `focusgroup="none"`
+      // and `itemcontrols` keeps only the active row's controls in the sequential focus order.
+      focusgroup: isComposite ? 'toolbar block itemcontrols' : 'toolbar block',
     },
   };
-
-  return state;
 };
 
 /**

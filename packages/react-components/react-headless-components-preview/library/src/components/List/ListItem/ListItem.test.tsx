@@ -152,13 +152,13 @@ describe('ListItem', () => {
     expect(getByRole('listitem')).not.toHaveAttribute('aria-disabled');
   });
 
-  it('preserves cancellation of composite navigation through the consumer handler', () => {
-    const onKeyDown = jest.fn(event => event.preventDefault());
+  it('leaves composite arrow-key navigation to the focusgroup and calls the consumer handler', () => {
+    const onKeyDown = jest.fn();
     const { getByRole } = render(
       <List navigationMode="composite">
         <ListItem value="one" onKeyDown={onKeyDown}>
           <span role="gridcell">
-            <button>Edit</button>
+            <button focusgroup="none">Edit</button>
           </span>
         </ListItem>
       </List>,
@@ -168,8 +168,8 @@ describe('ListItem', () => {
     fireEvent.keyDown(row, { key: 'ArrowRight' });
 
     expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onKeyDown.mock.calls[0][0].defaultPrevented).toBe(false);
     expect(row).toHaveFocus();
-    expect(getByRole('button')).not.toHaveFocus();
   });
 
   it('preserves base selection and action handling in composite mode', () => {
