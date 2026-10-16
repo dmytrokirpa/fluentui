@@ -7,8 +7,8 @@ import { renderTeachingPopoverCarouselNav } from './renderTeachingPopoverCarouse
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const TeachingPopoverCarouselNav: ForwardRefComponent<TeachingPopoverCarouselNavProps> =
-  /*#__PURE__*/ composeComponent(useTeachingPopoverCarouselNav, renderTeachingPopoverCarouselNav);
-
-if (process.env.NODE_ENV !== 'production') {
-  TeachingPopoverCarouselNav.displayName = 'TeachingPopoverCarouselNav';
-}
+  /*#__PURE__*/ composeComponent(
+    'TeachingPopoverCarouselNav',
+    useTeachingPopoverCarouselNav,
+    renderTeachingPopoverCarouselNav,
+  );

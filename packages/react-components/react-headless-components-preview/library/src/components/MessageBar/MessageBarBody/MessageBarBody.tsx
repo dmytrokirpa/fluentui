@@ -10,11 +10,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the content region of a MessageBar.
  */
 export const MessageBarBody: ForwardRefComponent<MessageBarBodyProps> = /*#__PURE__*/ composeComponent(
+  'MessageBarBody',
   useMessageBarBody,
   renderMessageBarBody,
   useMessageBarBodyContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MessageBarBody.displayName = 'MessageBarBody';
-}

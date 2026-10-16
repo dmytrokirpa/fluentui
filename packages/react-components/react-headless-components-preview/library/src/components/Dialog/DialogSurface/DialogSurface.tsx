@@ -17,10 +17,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Focus is trapped automatically when the dialog is opened as modal.
  */
 export const DialogSurface: ForwardRefComponent<DialogSurfaceProps> = /*#__PURE__*/ composeComponent(
+  'DialogSurface',
   useDialogSurface,
   renderDialogSurface,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DialogSurface.displayName = 'DialogSurface';
-}

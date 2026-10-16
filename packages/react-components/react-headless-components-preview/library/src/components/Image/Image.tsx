@@ -9,8 +9,4 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * Image component - represents an image, which can be used to display a picture, icon, or other visual content.
  */
-export const Image: ForwardRefComponent<ImageProps> = /*#__PURE__*/ composeComponent(useImage, renderImage);
-
-if (process.env.NODE_ENV !== 'production') {
-  Image.displayName = 'Image';
-}
+export const Image: ForwardRefComponent<ImageProps> = /*#__PURE__*/ composeComponent('Image', useImage, renderImage);

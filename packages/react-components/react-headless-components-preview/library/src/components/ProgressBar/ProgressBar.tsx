@@ -10,10 +10,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * ProgressBar component - TODO: add more docs
  */
 export const ProgressBar: ForwardRefComponent<ProgressBarProps> = /*#__PURE__*/ composeComponent(
+  'ProgressBar',
   useProgressBar,
   renderProgressBar,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ProgressBar.displayName = 'ProgressBar';
-}

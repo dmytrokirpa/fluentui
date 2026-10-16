@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Nav - A headless component that provides up to two levels of nesting for navigation.
  */
 export const Nav: ForwardRefComponent<NavProps> = /*#__PURE__*/ composeComponent(
+  'Nav',
   useNav,
   renderNav,
   useNavContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Nav.displayName = 'Nav';
-}

@@ -7,10 +7,7 @@ import type { MenuPopoverProps } from '@fluentui/react-menu';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const MenuPopover: ForwardRefComponent<MenuPopoverProps> = /*#__PURE__*/ composeComponent(
+  'MenuPopover',
   useMenuPopover,
   renderMenuPopover,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuPopover.displayName = 'MenuPopover';
-}

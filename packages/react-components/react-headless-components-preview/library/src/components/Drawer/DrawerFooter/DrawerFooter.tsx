@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * DrawerFooter contains footer content for a Drawer.
  */
 export const DrawerFooter: ForwardRefComponent<DrawerFooterProps> = /*#__PURE__*/ composeComponent(
+  'DrawerFooter',
   useDrawerFooter,
   renderDrawerFooter,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DrawerFooter.displayName = 'DrawerFooter';
-}

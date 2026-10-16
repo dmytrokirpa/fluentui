@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A list item that wraps a breadcrumb entry, such as a BreadcrumbButton or plain text.
  */
 export const BreadcrumbItem: ForwardRefComponent<BreadcrumbItemProps> = /*#__PURE__*/ composeComponent(
+  'BreadcrumbItem',
   useBreadcrumbItem,
   renderBreadcrumbItem,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  BreadcrumbItem.displayName = 'BreadcrumbItem';
-}

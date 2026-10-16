@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavSubItem component - a sub-item within a navigation structure.
  */
 export const NavSubItem: ForwardRefComponent<NavSubItemProps> = /*#__PURE__*/ composeComponent(
+  'NavSubItem',
   useNavSubItem,
   renderNavSubItem,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavSubItem.displayName = 'NavSubItem';
-}

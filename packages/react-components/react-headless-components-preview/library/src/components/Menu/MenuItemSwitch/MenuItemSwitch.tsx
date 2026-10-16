@@ -13,10 +13,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * state is driven by the parent MenuList's controlled `checkedValues`.
  */
 export const MenuItemSwitch: ForwardRefComponent<MenuItemSwitchProps> = /*#__PURE__*/ composeComponent(
+  'MenuItemSwitch',
   useMenuItemSwitch,
   renderMenuItemSwitch,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuItemSwitch.displayName = 'MenuItemSwitch';
-}

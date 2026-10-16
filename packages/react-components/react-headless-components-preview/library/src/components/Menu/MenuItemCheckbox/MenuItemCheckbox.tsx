@@ -13,10 +13,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * `aria-checked` driven by the parent MenuList's controlled `checkedValues`.
  */
 export const MenuItemCheckbox: ForwardRefComponent<MenuItemCheckboxProps> = /*#__PURE__*/ composeComponent(
+  'MenuItemCheckbox',
   useMenuItemCheckbox,
   renderMenuItemCheckbox,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuItemCheckbox.displayName = 'MenuItemCheckbox';
-}

@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A textarea component for multi-line text input.
  */
-export const Textarea: ForwardRefComponent<TextareaProps> = /*#__PURE__*/ composeComponent(useTextarea, renderTextarea);
-
-if (process.env.NODE_ENV !== 'production') {
-  Textarea.displayName = 'Textarea';
-}
+export const Textarea: ForwardRefComponent<TextareaProps> = /*#__PURE__*/ composeComponent(
+  'Textarea',
+  useTextarea,
+  renderTextarea,
+);

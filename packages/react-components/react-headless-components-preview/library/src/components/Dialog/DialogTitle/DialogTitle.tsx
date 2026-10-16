@@ -14,10 +14,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * `<DialogTitle root="h1" />`
  */
 export const DialogTitle: ForwardRefComponent<DialogTitleProps> = /*#__PURE__*/ composeComponent(
+  'DialogTitle',
   useDialogTitle,
   renderDialogTitle,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DialogTitle.displayName = 'DialogTitle';
-}

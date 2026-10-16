@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * The text input trigger of a TagPicker, used to filter options and open the popover.
  */
 export const TagPickerInput: ForwardRefComponent<TagPickerInputProps> = /*#__PURE__*/ composeComponent(
+  'TagPickerInput',
   useTagPickerInput,
   renderTagPickerInput,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagPickerInput.displayName = 'TagPickerInput';
-}

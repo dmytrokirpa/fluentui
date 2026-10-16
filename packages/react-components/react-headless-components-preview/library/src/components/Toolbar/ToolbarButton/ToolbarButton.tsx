@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A button component designed to be used inside a Toolbar, inheriting toolbar context such as size.
  */
 export const ToolbarButton: ForwardRefComponent<ToolbarButtonProps> = /*#__PURE__*/ composeComponent(
+  'ToolbarButton',
   useToolbarButton,
   renderToolbarButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarButton.displayName = 'ToolbarButton';
-}

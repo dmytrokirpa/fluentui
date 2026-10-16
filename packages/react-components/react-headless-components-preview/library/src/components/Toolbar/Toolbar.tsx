@@ -10,11 +10,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A toolbar component that provides a container for grouping a set of controls such as buttons and menu items.
  */
 export const Toolbar: ForwardRefComponent<ToolbarProps> = /*#__PURE__*/ composeComponent(
+  'Toolbar',
   useToolbar,
   renderToolbar,
   useToolbarContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Toolbar.displayName = 'Toolbar';
-}

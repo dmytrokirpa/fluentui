@@ -10,10 +10,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * A spin button component for incrementing/decrementing values.
  */
 export const SpinButton: ForwardRefComponent<SpinButtonProps> = /*#__PURE__*/ composeComponent(
+  'SpinButton',
   useSpinButton,
   renderSpinButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  SpinButton.displayName = 'SpinButton';
-}

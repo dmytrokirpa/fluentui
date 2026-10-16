@@ -11,10 +11,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * A search box component for search input.
  */
 export const SearchBox: ForwardRefComponent<SearchBoxProps> = /*#__PURE__*/ composeComponent(
+  'SearchBox',
   useSearchBox,
   renderSearchBox,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  SearchBox.displayName = 'SearchBox';
-}

@@ -12,11 +12,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * The AvatarGroup component displays a group of Avatars, each represented as an AvatarGroupItem.
  */
 export const AvatarGroup: ForwardRefComponent<AvatarGroupProps> = /*#__PURE__*/ composeComponent(
+  'AvatarGroup',
   useAvatarGroup,
   renderAvatarGroup,
   useAvatarGroupContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AvatarGroup.displayName = 'AvatarGroup';
-}

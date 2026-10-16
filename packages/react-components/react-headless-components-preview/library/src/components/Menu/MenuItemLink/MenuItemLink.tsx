@@ -13,10 +13,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * items. Click follows the supplied `href`.
  */
 export const MenuItemLink: ForwardRefComponent<MenuItemLinkProps> = /*#__PURE__*/ composeComponent(
+  'MenuItemLink',
   useMenuItemLink,
   renderMenuItemLink,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuItemLink.displayName = 'MenuItemLink';
-}

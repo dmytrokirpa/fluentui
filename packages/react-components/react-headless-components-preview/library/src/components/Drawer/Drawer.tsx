@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * Drawer contains supplementary content for complex creation, edit, or management experiences.
  */
-export const Drawer: ForwardRefComponent<DrawerProps> = /*#__PURE__*/ composeComponent(useDrawer, renderDrawer);
-
-if (process.env.NODE_ENV !== 'production') {
-  Drawer.displayName = 'Drawer';
-}
+export const Drawer: ForwardRefComponent<DrawerProps> = /*#__PURE__*/ composeComponent(
+  'Drawer',
+  useDrawer,
+  renderDrawer,
+);

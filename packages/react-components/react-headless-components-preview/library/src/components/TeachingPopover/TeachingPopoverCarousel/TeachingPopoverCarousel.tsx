@@ -8,11 +8,8 @@ import { composeComponent } from '../../../utils/composeComponent';
 
 export const TeachingPopoverCarousel: ForwardRefComponent<TeachingPopoverCarouselProps> =
   /*#__PURE__*/ composeComponent(
+    'TeachingPopoverCarousel',
     useTeachingPopoverCarousel,
     renderTeachingPopoverCarousel,
     useTeachingPopoverCarouselContextValues,
   );
-
-if (process.env.NODE_ENV !== 'production') {
-  TeachingPopoverCarousel.displayName = 'TeachingPopoverCarousel';
-}

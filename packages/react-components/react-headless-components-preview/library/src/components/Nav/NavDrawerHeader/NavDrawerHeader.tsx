@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavDrawerHeader component — the header area of a NavDrawer.
  */
 export const NavDrawerHeader: ForwardRefComponent<NavDrawerHeaderProps> = /*#__PURE__*/ composeComponent(
+  'NavDrawerHeader',
   useNavDrawerHeader,
   renderNavDrawerHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavDrawerHeader.displayName = 'NavDrawerHeader';
-}

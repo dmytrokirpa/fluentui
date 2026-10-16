@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Headless MenuItemRadio component.
  */
 export const MenuItemRadio: ForwardRefComponent<MenuItemRadioProps> = /*#__PURE__*/ composeComponent(
+  'MenuItemRadio',
   useMenuItemRadio,
   renderMenuItemRadio,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuItemRadio.displayName = 'MenuItemRadio';
-}

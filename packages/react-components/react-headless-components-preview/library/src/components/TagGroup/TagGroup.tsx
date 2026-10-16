@@ -13,11 +13,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * coordinates dismissal and selection.
  */
 export const TagGroup: ForwardRefComponent<TagGroupProps> = /*#__PURE__*/ composeComponent(
+  'TagGroup',
   useTagGroup,
   renderTagGroup,
   useTagGroupContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagGroup.displayName = 'TagGroup';
-}

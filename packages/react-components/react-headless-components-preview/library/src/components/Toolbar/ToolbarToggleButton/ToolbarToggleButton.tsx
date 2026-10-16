@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A toggle button designed to be used inside a Toolbar with toolbar toggle-group behavior.
  */
 export const ToolbarToggleButton: ForwardRefComponent<ToolbarToggleButtonProps> = /*#__PURE__*/ composeComponent(
+  'ToolbarToggleButton',
   useToolbarToggleButton,
   renderToolbarToggleButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarToggleButton.displayName = 'ToolbarToggleButton';
-}

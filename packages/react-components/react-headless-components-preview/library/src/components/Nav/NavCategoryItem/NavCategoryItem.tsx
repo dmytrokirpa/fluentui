@@ -11,11 +11,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavCategoryItem - a clickable header that expands a list of NavSubItems.
  */
 export const NavCategoryItem: ForwardRefComponent<NavCategoryItemProps> = /*#__PURE__*/ composeComponent(
+  'NavCategoryItem',
   useNavCategoryItem,
   renderNavCategoryItem,
   useNavCategoryItemContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavCategoryItem.displayName = 'NavCategoryItem';
-}

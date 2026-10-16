@@ -12,10 +12,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * children.
  */
 export const TagPickerList: ForwardRefComponent<TagPickerListProps> = /*#__PURE__*/ composeComponent(
+  'TagPickerList',
   useTagPickerList,
   renderTagPickerList,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagPickerList.displayName = 'TagPickerList';
-}

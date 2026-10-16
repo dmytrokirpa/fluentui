@@ -13,10 +13,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * secondary action.
  */
 export const TagPickerControl: ForwardRefComponent<TagPickerControlProps> = /*#__PURE__*/ composeComponent(
+  'TagPickerControl',
   useTagPickerControl,
   renderTagPickerControl,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagPickerControl.displayName = 'TagPickerControl';
-}

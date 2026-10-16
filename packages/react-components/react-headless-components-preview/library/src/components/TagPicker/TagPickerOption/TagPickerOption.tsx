@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * An option within a TagPickerList.
  */
 export const TagPickerOption: ForwardRefComponent<TagPickerOptionProps> = /*#__PURE__*/ composeComponent(
+  'TagPickerOption',
   useTagPickerOption,
   renderTagPickerOption,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagPickerOption.displayName = 'TagPickerOption';
-}

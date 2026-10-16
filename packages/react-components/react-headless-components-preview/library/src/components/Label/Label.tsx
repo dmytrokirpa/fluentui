@@ -9,8 +9,4 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A label component that associates text with form elements.
  */
-export const Label: ForwardRefComponent<LabelProps> = /*#__PURE__*/ composeComponent(useLabel, renderLabel);
-
-if (process.env.NODE_ENV !== 'production') {
-  Label.displayName = 'Label';
-}
+export const Label: ForwardRefComponent<LabelProps> = /*#__PURE__*/ composeComponent('Label', useLabel, renderLabel);

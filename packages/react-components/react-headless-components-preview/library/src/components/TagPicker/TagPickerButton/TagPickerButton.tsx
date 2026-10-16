@@ -12,10 +12,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * picker does not need free-text filtering.
  */
 export const TagPickerButton: ForwardRefComponent<TagPickerButtonProps> = /*#__PURE__*/ composeComponent(
+  'TagPickerButton',
   useTagPickerButton,
   renderTagPickerButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TagPickerButton.displayName = 'TagPickerButton';
-}

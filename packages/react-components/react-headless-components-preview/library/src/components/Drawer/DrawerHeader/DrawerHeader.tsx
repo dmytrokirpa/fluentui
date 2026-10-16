@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * DrawerHeader contains header content for a Drawer.
  */
 export const DrawerHeader: ForwardRefComponent<DrawerHeaderProps> = /*#__PURE__*/ composeComponent(
+  'DrawerHeader',
   useDrawerHeader,
   renderDrawerHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DrawerHeader.displayName = 'DrawerHeader';
-}

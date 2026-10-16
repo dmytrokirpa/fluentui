@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A headless badge for displaying a count or dot.
  */
 export const CounterBadge: ForwardRefComponent<CounterBadgeProps> = /*#__PURE__*/ composeComponent(
+  'CounterBadge',
   useCounterBadge,
   renderCounterBadge,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CounterBadge.displayName = 'CounterBadge';
-}

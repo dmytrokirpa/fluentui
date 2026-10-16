@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the title region of a MessageBar.
  */
 export const MessageBarTitle: ForwardRefComponent<MessageBarTitleProps> = /*#__PURE__*/ composeComponent(
+  'MessageBarTitle',
   useMessageBarTitle,
   renderMessageBarTitle,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MessageBarTitle.displayName = 'MessageBarTitle';
-}

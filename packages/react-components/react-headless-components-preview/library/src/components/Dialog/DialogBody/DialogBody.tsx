@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Place primary content — text, forms, lists — inside this component.
  */
 export const DialogBody: ForwardRefComponent<DialogBodyProps> = /*#__PURE__*/ composeComponent(
+  'DialogBody',
   useDialogBody,
   renderDialogBody,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DialogBody.displayName = 'DialogBody';
-}

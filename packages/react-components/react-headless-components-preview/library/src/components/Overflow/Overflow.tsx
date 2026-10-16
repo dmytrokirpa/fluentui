@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Provides an overflow context for `OverflowItem` descendants without any built-in styling.
  */
 export const Overflow: ForwardRefComponent<OverflowProps> = /*#__PURE__*/ composeComponent(
+  'Overflow',
   useOverflow,
   renderOverflow,
   useOverflowContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Overflow.displayName = 'Overflow';
-}

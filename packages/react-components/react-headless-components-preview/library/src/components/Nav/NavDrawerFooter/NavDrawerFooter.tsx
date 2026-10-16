@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavDrawerFooter component — the footer area of a NavDrawer.
  */
 export const NavDrawerFooter: ForwardRefComponent<NavDrawerFooterProps> = /*#__PURE__*/ composeComponent(
+  'NavDrawerFooter',
   useNavDrawerFooter,
   renderNavDrawerFooter,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavDrawerFooter.displayName = 'NavDrawerFooter';
-}

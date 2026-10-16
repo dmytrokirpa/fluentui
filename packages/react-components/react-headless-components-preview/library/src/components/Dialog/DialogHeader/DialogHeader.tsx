@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * and close button content.
  */
 export const DialogHeader: ForwardRefComponent<DialogHeaderProps> = /*#__PURE__*/ composeComponent(
+  'DialogHeader',
   useDialogHeader,
   renderDialogHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DialogHeader.displayName = 'DialogHeader';
-}

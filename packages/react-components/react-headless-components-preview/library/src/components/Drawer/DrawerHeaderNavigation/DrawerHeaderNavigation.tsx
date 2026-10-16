@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * DrawerHeaderNavigation contains navigation content for a Drawer header.
  */
 export const DrawerHeaderNavigation: ForwardRefComponent<DrawerHeaderNavigationProps> = /*#__PURE__*/ composeComponent(
+  'DrawerHeaderNavigation',
   useDrawerHeaderNavigation,
   renderDrawerHeaderNavigation,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DrawerHeaderNavigation.displayName = 'DrawerHeaderNavigation';
-}

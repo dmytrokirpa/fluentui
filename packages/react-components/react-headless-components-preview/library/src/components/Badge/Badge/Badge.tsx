@@ -10,8 +10,4 @@ import { composeComponent } from '../../../utils/composeComponent';
 /**
  * A badge component for displaying counts or labels.
  */
-export const Badge: ForwardRefComponent<BadgeProps> = /*#__PURE__*/ composeComponent(useBadge, renderBadge);
-
-if (process.env.NODE_ENV !== 'production') {
-  Badge.displayName = 'Badge';
-}
+export const Badge: ForwardRefComponent<BadgeProps> = /*#__PURE__*/ composeComponent('Badge', useBadge, renderBadge);

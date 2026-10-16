@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A slider component for selecting a value in a range.
  */
-export const Slider: ForwardRefComponent<SliderProps> = /*#__PURE__*/ composeComponent(useSlider, renderSlider);
-
-if (process.env.NODE_ENV !== 'production') {
-  Slider.displayName = 'Slider';
-}
+export const Slider: ForwardRefComponent<SliderProps> = /*#__PURE__*/ composeComponent(
+  'Slider',
+  useSlider,
+  renderSlider,
+);

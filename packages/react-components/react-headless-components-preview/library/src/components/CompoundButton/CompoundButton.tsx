@@ -11,10 +11,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * A button with primary and secondary content. Concise primary and secondary text form its accessible name.
  */
 export const CompoundButton: ForwardRefComponent<CompoundButtonProps> = /*#__PURE__*/ composeComponent(
+  'CompoundButton',
   useCompoundButton,
   renderCompoundButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CompoundButton.displayName = 'CompoundButton';
-}

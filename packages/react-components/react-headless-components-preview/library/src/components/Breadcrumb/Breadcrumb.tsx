@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A breadcrumb component for displaying navigation hierarchy.
  */
 export const Breadcrumb: ForwardRefComponent<BreadcrumbProps> = /*#__PURE__*/ composeComponent(
+  'Breadcrumb',
   useBreadcrumb,
   renderBreadcrumb,
   useBreadcrumbContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Breadcrumb.displayName = 'Breadcrumb';
-}

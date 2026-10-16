@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavSectionHeader component - a heading for a section within navigation.
  */
 export const NavSectionHeader: ForwardRefComponent<NavSectionHeaderProps> = /*#__PURE__*/ composeComponent(
+  'NavSectionHeader',
   useNavSectionHeader,
   renderNavSectionHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavSectionHeader.displayName = 'NavSectionHeader';
-}

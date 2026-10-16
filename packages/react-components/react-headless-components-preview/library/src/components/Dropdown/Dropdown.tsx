@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Dropdown component - TODO: add more docs
  */
 export const Dropdown: ForwardRefComponent<DropdownProps> = /*#__PURE__*/ composeComponent(
+  'Dropdown',
   useDropdown,
   renderDropdown,
   useDropdownContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Dropdown.displayName = 'Dropdown';
-}

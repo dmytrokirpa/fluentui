@@ -7,10 +7,7 @@ import { renderImageSwatch } from './renderImageSwatch';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const ImageSwatch: ForwardRefComponent<ImageSwatchProps> = /*#__PURE__*/ composeComponent(
+  'ImageSwatch',
   useImageSwatch,
   renderImageSwatch,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ImageSwatch.displayName = 'ImageSwatch';
-}

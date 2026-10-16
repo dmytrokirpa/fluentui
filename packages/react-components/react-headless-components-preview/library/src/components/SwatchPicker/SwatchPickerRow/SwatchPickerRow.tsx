@@ -7,10 +7,7 @@ import { renderSwatchPickerRow } from './renderSwatchPickerRow';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const SwatchPickerRow: ForwardRefComponent<SwatchPickerRowProps> = /*#__PURE__*/ composeComponent(
+  'SwatchPickerRow',
   useSwatchPickerRow,
   renderSwatchPickerRow,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  SwatchPickerRow.displayName = 'SwatchPickerRow';
-}

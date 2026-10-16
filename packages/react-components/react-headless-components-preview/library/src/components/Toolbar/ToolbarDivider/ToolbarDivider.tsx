@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Its orientation is automatically inverted relative to the toolbar's orientation.
  */
 export const ToolbarDivider: ForwardRefComponent<ToolbarDividerProps> = /*#__PURE__*/ composeComponent(
+  'ToolbarDivider',
   useToolbarDivider,
   renderToolbarDivider,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarDivider.displayName = 'ToolbarDivider';
-}

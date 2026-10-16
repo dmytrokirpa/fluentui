@@ -13,11 +13,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * The ToastContainer should be rendered inside a Toaster, which manages the stacking and positioning of multiple ToastContainers.
  */
 export const ToastContainer: ForwardRefComponent<ToastContainerProps> = /*#__PURE__*/ composeComponent(
+  'ToastContainer',
   useToastContainer,
   renderToastContainer,
   useToastContainerContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToastContainer.displayName = 'ToastContainer';
-}

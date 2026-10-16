@@ -10,11 +10,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Represents a set of collapsible panels with headings.
  */
 export const Accordion: ForwardRefComponent<AccordionProps> = /*#__PURE__*/ composeComponent(
+  'Accordion',
   useAccordion,
   renderAccordion,
   useAccordionContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Accordion.displayName = 'Accordion';
-}

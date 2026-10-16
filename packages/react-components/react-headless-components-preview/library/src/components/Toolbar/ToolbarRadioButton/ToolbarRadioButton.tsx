@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A radio button designed to be used inside a Toolbar with mutually exclusive selection behavior.
  */
 export const ToolbarRadioButton: ForwardRefComponent<ToolbarRadioButtonProps> = /*#__PURE__*/ composeComponent(
+  'ToolbarRadioButton',
   useToolbarRadioButton,
   renderToolbarRadioButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarRadioButton.displayName = 'ToolbarRadioButton';
-}

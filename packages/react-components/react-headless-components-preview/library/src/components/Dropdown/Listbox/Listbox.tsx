@@ -12,11 +12,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Listbox component: a standalone selection control, or the popup in a Combobox.
  */
 export const Listbox: ForwardRefComponent<ListboxProps> = /*#__PURE__*/ composeComponent(
+  'Listbox',
   useListbox,
   renderListbox,
   useListboxContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Listbox.displayName = 'Listbox';
-}

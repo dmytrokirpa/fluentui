@@ -9,8 +9,4 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * An input component for text and other input types.
  */
-export const Input: ForwardRefComponent<InputProps> = /*#__PURE__*/ composeComponent(useInput, renderInput);
-
-if (process.env.NODE_ENV !== 'production') {
-  Input.displayName = 'Input';
-}
+export const Input: ForwardRefComponent<InputProps> = /*#__PURE__*/ composeComponent('Input', useInput, renderInput);

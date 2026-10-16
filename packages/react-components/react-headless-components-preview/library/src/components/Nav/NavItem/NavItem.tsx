@@ -9,8 +9,8 @@ import { composeComponent } from '../../../utils/composeComponent';
 /**
  * NavItem component - a single item in the navigation menu.
  */
-export const NavItem: ForwardRefComponent<NavItemProps> = /*#__PURE__*/ composeComponent(useNavItem, renderNavItem);
-
-if (process.env.NODE_ENV !== 'production') {
-  NavItem.displayName = 'NavItem';
-}
+export const NavItem: ForwardRefComponent<NavItemProps> = /*#__PURE__*/ composeComponent(
+  'NavItem',
+  useNavItem,
+  renderNavItem,
+);

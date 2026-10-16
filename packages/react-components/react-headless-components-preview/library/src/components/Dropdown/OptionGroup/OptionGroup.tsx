@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * OptionGroup component used inside Listbox.
  */
 export const OptionGroup: ForwardRefComponent<OptionGroupProps> = /*#__PURE__*/ composeComponent(
+  'OptionGroup',
   useOptionGroup,
   renderOptionGroup,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  OptionGroup.displayName = 'OptionGroup';
-}

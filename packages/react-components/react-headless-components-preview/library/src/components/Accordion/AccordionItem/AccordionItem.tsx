@@ -10,11 +10,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents a single collapsible section within an Accordion, containing a header and a panel.
  */
 export const AccordionItem: ForwardRefComponent<AccordionItemProps> = /*#__PURE__*/ composeComponent(
+  'AccordionItem',
   useAccordionItem,
   renderAccordionItem,
   useAccordionItemContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AccordionItem.displayName = 'AccordionItem';
-}

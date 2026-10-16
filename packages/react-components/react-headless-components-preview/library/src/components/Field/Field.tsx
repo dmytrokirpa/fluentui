@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A field component for form input grouping.
  */
 export const Field: ForwardRefComponent<FieldProps> = /*#__PURE__*/ composeComponent(
+  'Field',
   useField,
   renderField,
   useFieldContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Field.displayName = 'Field';
-}

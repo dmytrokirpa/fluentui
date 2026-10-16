@@ -12,11 +12,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * The primary, focusable action of an `InteractionTag`.
  */
 export const InteractionTagPrimary: ForwardRefComponent<InteractionTagPrimaryProps> = /*#__PURE__*/ composeComponent(
+  'InteractionTagPrimary',
   useInteractionTagPrimary,
   renderInteractionTagPrimary,
   useInteractionTagPrimaryContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  InteractionTagPrimary.displayName = 'InteractionTagPrimary';
-}

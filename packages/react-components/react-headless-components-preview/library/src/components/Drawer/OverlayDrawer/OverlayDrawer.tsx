@@ -11,11 +11,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * OverlayDrawer contains supplementary content in a native dialog surface.
  */
 export const OverlayDrawer: ForwardRefComponent<OverlayDrawerProps> = /*#__PURE__*/ composeComponent(
+  'OverlayDrawer',
   useOverlayDrawer,
   renderOverlayDrawer,
   useDrawerContextValue,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  OverlayDrawer.displayName = 'OverlayDrawer';
-}

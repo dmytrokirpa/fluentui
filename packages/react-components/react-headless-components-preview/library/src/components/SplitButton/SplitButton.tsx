@@ -11,10 +11,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * action, while interacting with the second one opens a menu with secondary actions.
  */
 export const SplitButton: ForwardRefComponent<SplitButtonProps> = /*#__PURE__*/ composeComponent(
+  'SplitButton',
   useSplitButton,
   renderSplitButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  SplitButton.displayName = 'SplitButton';
-}

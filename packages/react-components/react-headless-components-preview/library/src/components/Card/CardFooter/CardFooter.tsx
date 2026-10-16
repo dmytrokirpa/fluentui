@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Component to render the footer of a Card.
  */
 export const CardFooter: ForwardRefComponent<CardFooterProps> = /*#__PURE__*/ composeComponent(
+  'CardFooter',
   useCardFooter,
   renderCardFooter,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CardFooter.displayName = 'CardFooter';
-}

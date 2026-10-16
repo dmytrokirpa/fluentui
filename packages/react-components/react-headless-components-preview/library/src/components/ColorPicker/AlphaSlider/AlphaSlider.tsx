@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A headless slider for selecting color opacity or transparency.
  */
 export const AlphaSlider: ForwardRefComponent<AlphaSliderProps> = /*#__PURE__*/ composeComponent(
+  'AlphaSlider',
   useAlphaSlider,
   renderAlphaSlider,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AlphaSlider.displayName = 'AlphaSlider';
-}

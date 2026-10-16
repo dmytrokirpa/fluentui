@@ -11,11 +11,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Headless MenuList component.
  */
 export const MenuList: ForwardRefComponent<MenuListProps> = /*#__PURE__*/ composeComponent(
+  'MenuList',
   useMenuList,
   renderMenuList,
   useMenuListContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuList.displayName = 'MenuList';
-}

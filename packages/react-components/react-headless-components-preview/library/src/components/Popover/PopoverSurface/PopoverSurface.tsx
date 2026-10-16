@@ -14,10 +14,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * required when the parent `Popover` has `trapFocus` enabled.
  */
 export const PopoverSurface: ForwardRefComponent<PopoverSurfaceProps> = /*#__PURE__*/ composeComponent(
+  'PopoverSurface',
   usePopoverSurface,
   renderPopoverSurface,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  PopoverSurface.displayName = 'PopoverSurface';
-}

@@ -12,11 +12,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A visual representation of an attribute that can be optionally dismissed.
  */
 export const Tag: ForwardRefComponent<TagProps> = /*#__PURE__*/ composeComponent(
+  'Tag',
   useTag,
   renderTag,
   useTagContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Tag.displayName = 'Tag';
-}

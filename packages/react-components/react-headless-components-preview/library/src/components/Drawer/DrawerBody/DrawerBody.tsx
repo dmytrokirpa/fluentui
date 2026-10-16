@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * DrawerBody provides a container for the main content of a Drawer.
  */
 export const DrawerBody: ForwardRefComponent<DrawerBodyProps> = /*#__PURE__*/ composeComponent(
+  'DrawerBody',
   useDrawerBody,
   renderDrawerBody,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DrawerBody.displayName = 'DrawerBody';
-}

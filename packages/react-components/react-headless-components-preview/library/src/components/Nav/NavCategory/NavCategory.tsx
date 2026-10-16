@@ -11,11 +11,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavCategory component - a category in the navigation menu that can contain multiple items.
  */
 export const NavCategory: ForwardRefComponent<NavCategoryProps> = /*#__PURE__*/ composeComponent(
+  'NavCategory',
   useNavCategory,
   renderNavCategory,
   useNavCategoryContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavCategory.displayName = 'NavCategory';
-}

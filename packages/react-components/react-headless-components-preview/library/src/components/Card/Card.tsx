@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A card provides scaffolding for hosting actions and content for a single topic.
  */
 export const Card: ForwardRefComponent<CardProps> = /*#__PURE__*/ composeComponent(
+  'Card',
   useCard,
   renderCard,
   useCardContextValue,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Card.displayName = 'Card';
-}

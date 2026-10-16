@@ -10,11 +10,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the heading of an accordion item, containing a button that toggles the panel open or closed.
  */
 export const AccordionHeader: ForwardRefComponent<AccordionHeaderProps> = /*#__PURE__*/ composeComponent(
+  'AccordionHeader',
   useAccordionHeader,
   renderAccordionHeader,
   useAccordionHeaderContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AccordionHeader.displayName = 'AccordionHeader';
-}

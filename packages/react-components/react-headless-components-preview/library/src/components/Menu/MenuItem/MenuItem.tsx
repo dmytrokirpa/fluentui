@@ -13,8 +13,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * search wiring, and click-to-dismiss handling. Submenu indicator is opt-in
  * via the `submenuIndicator` slot — no default icon is injected.
  */
-export const MenuItem: ForwardRefComponent<MenuItemProps> = /*#__PURE__*/ composeComponent(useMenuItem, renderMenuItem);
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuItem.displayName = 'MenuItem';
-}
+export const MenuItem: ForwardRefComponent<MenuItemProps> = /*#__PURE__*/ composeComponent(
+  'MenuItem',
+  useMenuItem,
+  renderMenuItem,
+);

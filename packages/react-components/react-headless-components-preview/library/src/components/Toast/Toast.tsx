@@ -10,8 +10,4 @@ import { composeComponent } from '../../utils/composeComponent';
  * A Toast component displays temporary, non-intrusive notifications to users.
  * It's ideal for displaying brief messages, alerts, or feedback that auto-dismiss after a set duration.
  */
-export const Toast: ForwardRefComponent<ToastProps> = /*#__PURE__*/ composeComponent(useToast, renderToast);
-
-if (process.env.NODE_ENV !== 'production') {
-  Toast.displayName = 'Toast';
-}
+export const Toast: ForwardRefComponent<ToastProps> = /*#__PURE__*/ composeComponent('Toast', useToast, renderToast);

@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A headless badge that exposes presence status to assistive technology.
  */
 export const PresenceBadge: ForwardRefComponent<PresenceBadgeProps> = /*#__PURE__*/ composeComponent(
+  'PresenceBadge',
   usePresenceBadge,
   renderPresenceBadge,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  PresenceBadge.displayName = 'PresenceBadge';
-}

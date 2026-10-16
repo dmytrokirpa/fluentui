@@ -184,13 +184,14 @@ Tabster, positioning, portals, native popovers, or nested trigger composition.
   function returning `JSXElement`; do not invent a fake ref and do not use
   `React.FC`.
 - Keep the component thin: state hook, optional context-values hook, renderer.
-- Set `displayName` on every exported React component, in development only:
-  the strings are dead weight in production bundles.
+- Pass the `displayName` as the first argument of `composeComponent`; it is set on
+  every exported React component, in production as well.
 - Add concise JSDoc describing purpose and any required accessibility contract.
 - Do not import icons or add default icons in base hooks or headless renderers.
 - Annotate the export with `ForwardRefComponent<Props>` so the public type does
   not depend on inference, and keep the `/*#__PURE__*/` annotation so the call
-  is tree-shakeable.
+  is tree-shakeable. Keep the arguments positional: an options object repeats
+  its property names in every component and minifiers do not mangle them.
 
 ```tsx
 'use client';
@@ -199,17 +200,14 @@ import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import { composeComponent } from '../../utils/composeComponent';
 
 export const ComponentName: ForwardRefComponent<ComponentNameProps> = /*#__PURE__*/ composeComponent(
+  'ComponentName',
   useComponentName,
   renderComponentName,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ComponentName.displayName = 'ComponentName';
-}
 ```
 
 For compound roots, pass the context-values hook as the third argument:
-`composeComponent(useComponentName, renderComponentName, useComponentNameContextValues)`.
+`composeComponent('ComponentName', useComponentName, renderComponentName, useComponentNameContextValues)`.
 
 ### Hook
 

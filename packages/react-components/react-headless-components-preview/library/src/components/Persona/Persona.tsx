@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * Represents a person or with an avatar, primary text, and optional secondary text.
  */
-export const Persona: ForwardRefComponent<PersonaProps> = /*#__PURE__*/ composeComponent(usePersona, renderPersona);
-
-if (process.env.NODE_ENV !== 'production') {
-  Persona.displayName = 'Persona';
-}
+export const Persona: ForwardRefComponent<PersonaProps> = /*#__PURE__*/ composeComponent(
+  'Persona',
+  usePersona,
+  renderPersona,
+);

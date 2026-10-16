@@ -11,11 +11,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * InlineDrawer is stacked with the content and keeps the rest of the page interactive.
  */
 export const InlineDrawer: ForwardRefComponent<InlineDrawerProps> = /*#__PURE__*/ composeComponent(
+  'InlineDrawer',
   useInlineDrawer,
   renderInlineDrawer,
   useDrawerContextValue,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  InlineDrawer.displayName = 'InlineDrawer';
-}

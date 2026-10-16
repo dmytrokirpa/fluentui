@@ -13,10 +13,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * `headerId` on its root.
  */
 export const MenuGroupHeader: ForwardRefComponent<MenuGroupHeaderProps> = /*#__PURE__*/ composeComponent(
+  'MenuGroupHeader',
   useMenuGroupHeader,
   renderMenuGroupHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuGroupHeader.displayName = 'MenuGroupHeader';
-}

@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the content area of an accordion item, revealed when the associated header is toggled open.
  */
 export const AccordionPanel: ForwardRefComponent<AccordionPanelProps> = /*#__PURE__*/ composeComponent(
+  'AccordionPanel',
   useAccordionPanel,
   renderAccordionPanel,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AccordionPanel.displayName = 'AccordionPanel';
-}

@@ -7,10 +7,7 @@ import { renderEmptySwatch } from './renderEmptySwatch';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const EmptySwatch: ForwardRefComponent<EmptySwatchProps> = /*#__PURE__*/ composeComponent(
+  'EmptySwatch',
   useEmptySwatch,
   renderEmptySwatch,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  EmptySwatch.displayName = 'EmptySwatch';
-}

@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A radio group component used inside a Toolbar to group mutually exclusive toggle controls.
  */
 export const ToolbarRadioGroup: ForwardRefComponent<ToolbarRadioGroupProps> = /*#__PURE__*/ composeComponent(
+  'ToolbarRadioGroup',
   useToolbarRadioGroup,
   renderToolbarRadioGroup,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarRadioGroup.displayName = 'ToolbarRadioGroup';
-}

@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavDivider component - a separator used within navigation to divide items.
  */
 export const NavDivider: ForwardRefComponent<NavDividerProps> = /*#__PURE__*/ composeComponent(
+  'NavDivider',
   useNavDivider,
   renderNavDivider,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavDivider.displayName = 'NavDivider';
-}

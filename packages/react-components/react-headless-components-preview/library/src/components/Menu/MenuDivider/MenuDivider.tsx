@@ -12,10 +12,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Renders an `aria-hidden` `role="presentation"` separator inside a MenuList.
  */
 export const MenuDivider: ForwardRefComponent<MenuDividerProps> = /*#__PURE__*/ composeComponent(
+  'MenuDivider',
   useMenuDivider,
   renderMenuDivider,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuDivider.displayName = 'MenuDivider';
-}

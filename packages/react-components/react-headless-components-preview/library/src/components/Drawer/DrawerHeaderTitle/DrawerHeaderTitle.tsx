@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * DrawerHeaderTitle contains the accessible title and optional action for a Drawer.
  */
 export const DrawerHeaderTitle: ForwardRefComponent<DrawerHeaderTitleProps> = /*#__PURE__*/ composeComponent(
+  'DrawerHeaderTitle',
   useDrawerHeaderTitle,
   renderDrawerHeaderTitle,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DrawerHeaderTitle.displayName = 'DrawerHeaderTitle';
-}

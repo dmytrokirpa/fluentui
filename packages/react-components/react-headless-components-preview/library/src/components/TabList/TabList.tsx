@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A tab list component for organizing content.
  */
 export const TabList: ForwardRefComponent<TabListProps> = /*#__PURE__*/ composeComponent(
+  'TabList',
   useTabList,
   renderTabList,
   useTabListContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TabList.displayName = 'TabList';
-}

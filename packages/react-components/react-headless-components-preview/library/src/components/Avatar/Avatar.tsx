@@ -10,8 +10,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * An avatar component that displays an image or icon.
  */
-export const Avatar: ForwardRefComponent<AvatarProps> = /*#__PURE__*/ composeComponent(useAvatar, renderAvatar);
-
-if (process.env.NODE_ENV !== 'production') {
-  Avatar.displayName = 'Avatar';
-}
+export const Avatar: ForwardRefComponent<AvatarProps> = /*#__PURE__*/ composeComponent(
+  'Avatar',
+  useAvatar,
+  renderAvatar,
+);

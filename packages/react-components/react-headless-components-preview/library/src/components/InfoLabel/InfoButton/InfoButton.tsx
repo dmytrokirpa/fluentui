@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * InfoButtons provide a way to display additional information about a form field or an area in the UI.
  */
 export const InfoButton: ForwardRefComponent<InfoButtonProps> = /*#__PURE__*/ composeComponent(
+  'InfoButton',
   useInfoButton,
   renderInfoButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  InfoButton.displayName = 'InfoButton';
-}

@@ -10,10 +10,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * A button that opens a menu, indicated by a chevron icon.
  */
 export const MenuButton: ForwardRefComponent<MenuButtonProps> = /*#__PURE__*/ composeComponent(
+  'MenuButton',
   useMenuButton,
   renderMenuButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuButton.displayName = 'MenuButton';
-}

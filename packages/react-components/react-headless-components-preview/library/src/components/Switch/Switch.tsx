@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A switch component for toggling values.
  */
-export const Switch: ForwardRefComponent<SwitchProps> = /*#__PURE__*/ composeComponent(useSwitch, renderSwitch);
-
-if (process.env.NODE_ENV !== 'production') {
-  Switch.displayName = 'Switch';
-}
+export const Switch: ForwardRefComponent<SwitchProps> = /*#__PURE__*/ composeComponent(
+  'Switch',
+  useSwitch,
+  renderSwitch,
+);

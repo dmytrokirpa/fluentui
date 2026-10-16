@@ -9,8 +9,4 @@ import { composeComponent } from '../../../utils/composeComponent';
 /**
  * A tab  component for organizing content.
  */
-export const Tab: ForwardRefComponent<TabProps> = /*#__PURE__*/ composeComponent(useTab, renderTab);
-
-if (process.env.NODE_ENV !== 'production') {
-  Tab.displayName = 'Tab';
-}
+export const Tab: ForwardRefComponent<TabProps> = /*#__PURE__*/ composeComponent('Tab', useTab, renderTab);

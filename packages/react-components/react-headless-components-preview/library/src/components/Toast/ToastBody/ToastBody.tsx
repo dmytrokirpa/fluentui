@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the body of a toast, which typically contains the main content of the toast message.
  */
 export const ToastBody: ForwardRefComponent<ToastBodyProps> = /*#__PURE__*/ composeComponent(
+  'ToastBody',
   useToastBody,
   renderToastBody,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToastBody.displayName = 'ToastBody';
-}

@@ -7,10 +7,7 @@ import { renderColorSwatch } from './renderColorSwatch';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const ColorSwatch: ForwardRefComponent<ColorSwatchProps> = /*#__PURE__*/ composeComponent(
+  'ColorSwatch',
   useColorSwatch,
   renderColorSwatch,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ColorSwatch.displayName = 'ColorSwatch';
-}

@@ -12,11 +12,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * to display a set of colors or images for the user to choose from.
  */
 export const SwatchPicker: ForwardRefComponent<SwatchPickerProps> = /*#__PURE__*/ composeComponent(
+  'SwatchPicker',
   useSwatchPicker,
   renderSwatchPicker,
   useSwatchPickerContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  SwatchPicker.displayName = 'SwatchPicker';
-}

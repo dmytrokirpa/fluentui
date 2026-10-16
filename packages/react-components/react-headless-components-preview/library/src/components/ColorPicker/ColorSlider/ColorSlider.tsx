@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * A headless slider for selecting a hue, saturation, or value color channel.
  */
 export const ColorSlider: ForwardRefComponent<ColorSliderProps> = /*#__PURE__*/ composeComponent(
+  'ColorSlider',
   useColorSlider,
   renderColorSlider,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ColorSlider.displayName = 'ColorSlider';
-}

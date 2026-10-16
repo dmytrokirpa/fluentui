@@ -13,11 +13,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Composed with `InteractionTagPrimary` and optionally `InteractionTagSecondary` children.
  */
 export const InteractionTag: ForwardRefComponent<InteractionTagProps> = /*#__PURE__*/ composeComponent(
+  'InteractionTag',
   useInteractionTag,
   renderInteractionTag,
   useInteractionTagContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  InteractionTag.displayName = 'InteractionTag';
-}

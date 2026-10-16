@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * `DialogActions` is a `<footer>` container for dialog action buttons (1–3 actions).
  */
 export const DialogActions: ForwardRefComponent<DialogActionsProps> = /*#__PURE__*/ composeComponent(
+  'DialogActions',
   useDialogActions,
   renderDialogActions,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  DialogActions.displayName = 'DialogActions';
-}

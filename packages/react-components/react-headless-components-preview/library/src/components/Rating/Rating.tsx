@@ -12,11 +12,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * A rating component for displaying star ratings.
  */
 export const Rating: ForwardRefComponent<RatingProps> = /*#__PURE__*/ composeComponent(
+  'Rating',
   useRating,
   renderRating,
   useRatingContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Rating.displayName = 'Rating';
-}

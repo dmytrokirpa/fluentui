@@ -14,11 +14,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * so that an optional `MenuGroupHeader` child can wire `aria-labelledby`.
  */
 export const MenuGroup: ForwardRefComponent<MenuGroupProps> = /*#__PURE__*/ composeComponent(
+  'MenuGroup',
   useMenuGroup,
   renderMenuGroup,
   useMenuGroupContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuGroup.displayName = 'MenuGroup';
-}

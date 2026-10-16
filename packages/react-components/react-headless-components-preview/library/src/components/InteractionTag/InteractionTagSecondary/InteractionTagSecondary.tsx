@@ -13,8 +13,4 @@ import { composeComponent } from '../../../utils/composeComponent';
  * handler. Does not render an icon by default - supply one via `children`.
  */
 export const InteractionTagSecondary: ForwardRefComponent<InteractionTagSecondaryProps> =
-  /*#__PURE__*/ composeComponent(useInteractionTagSecondary, renderInteractionTagSecondary);
-
-if (process.env.NODE_ENV !== 'production') {
-  InteractionTagSecondary.displayName = 'InteractionTagSecondary';
-}
+  /*#__PURE__*/ composeComponent('InteractionTagSecondary', useInteractionTagSecondary, renderInteractionTagSecondary);

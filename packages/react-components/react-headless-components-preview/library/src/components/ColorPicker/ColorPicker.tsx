@@ -11,11 +11,8 @@ import { composeComponent } from '../../utils/composeComponent';
  * Coordinates headless color controls and reports their color changes.
  */
 export const ColorPicker: ForwardRefComponent<ColorPickerProps> = /*#__PURE__*/ composeComponent(
+  'ColorPicker',
   useColorPicker,
   renderColorPicker,
   useColorPickerContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ColorPicker.displayName = 'ColorPicker';
-}

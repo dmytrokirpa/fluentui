@@ -12,10 +12,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Set the `current` prop to mark the active page.
  */
 export const BreadcrumbButton: ForwardRefComponent<BreadcrumbButtonProps> = /*#__PURE__*/ composeComponent(
+  'BreadcrumbButton',
   useBreadcrumbButton,
   renderBreadcrumbButton,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  BreadcrumbButton.displayName = 'BreadcrumbButton';
-}

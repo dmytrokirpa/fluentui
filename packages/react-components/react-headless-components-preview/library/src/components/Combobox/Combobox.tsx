@@ -8,11 +8,8 @@ import { useComboboxContextValues } from './useComboboxContextValues';
 import { composeComponent } from '../../utils/composeComponent';
 
 export const Combobox: ForwardRefComponent<ComboboxProps> = /*#__PURE__*/ composeComponent(
+  'Combobox',
   useCombobox,
   renderCombobox,
   useComboboxContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  Combobox.displayName = 'Combobox';
-}

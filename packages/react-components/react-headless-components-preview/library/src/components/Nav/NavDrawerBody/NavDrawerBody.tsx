@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * NavDrawerBody component — the main scrollable content area of a NavDrawer.
  */
 export const NavDrawerBody: ForwardRefComponent<NavDrawerBodyProps> = /*#__PURE__*/ composeComponent(
+  'NavDrawerBody',
   useNavDrawerBody,
   renderNavDrawerBody,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NavDrawerBody.displayName = 'NavDrawerBody';
-}

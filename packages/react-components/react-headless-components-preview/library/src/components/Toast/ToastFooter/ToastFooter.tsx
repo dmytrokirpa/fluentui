@@ -10,10 +10,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * ToastFooter contains action buttons related to the toast message.
  */
 export const ToastFooter: ForwardRefComponent<ToastFooterProps> = /*#__PURE__*/ composeComponent(
+  'ToastFooter',
   useToastFooter,
   renderToastFooter,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  ToastFooter.displayName = 'ToastFooter';
-}

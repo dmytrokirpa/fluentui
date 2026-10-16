@@ -12,10 +12,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * inside an AvatarGroupPopover it is displayed as an overflow item with its name label.
  */
 export const AvatarGroupItem: ForwardRefComponent<AvatarGroupItemProps> = /*#__PURE__*/ composeComponent(
+  'AvatarGroupItem',
   useAvatarGroupItem,
   renderAvatarGroupItem,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AvatarGroupItem.displayName = 'AvatarGroupItem';
-}

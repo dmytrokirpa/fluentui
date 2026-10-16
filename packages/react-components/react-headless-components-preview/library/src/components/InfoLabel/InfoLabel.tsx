@@ -10,10 +10,7 @@ import { composeComponent } from '../../utils/composeComponent';
  * InfoLabel component
  */
 export const InfoLabel: ForwardRefComponent<InfoLabelProps> = /*#__PURE__*/ composeComponent(
+  'InfoLabel',
   useInfoLabel,
   renderInfoLabel,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  InfoLabel.displayName = 'InfoLabel';
-}

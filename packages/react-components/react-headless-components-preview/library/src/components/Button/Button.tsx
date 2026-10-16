@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A button component that can be rendered as another tag or focusable when disabled.
  */
-export const Button: ForwardRefComponent<ButtonProps> = /*#__PURE__*/ composeComponent(useButton, renderButton);
-
-if (process.env.NODE_ENV !== 'production') {
-  Button.displayName = 'Button';
-}
+export const Button: ForwardRefComponent<ButtonProps> = /*#__PURE__*/ composeComponent(
+  'Button',
+  useButton,
+  renderButton,
+);

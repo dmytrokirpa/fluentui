@@ -9,8 +9,8 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A spinner component for loading indicators.
  */
-export const Spinner: ForwardRefComponent<SpinnerProps> = /*#__PURE__*/ composeComponent(useSpinner, renderSpinner);
-
-if (process.env.NODE_ENV !== 'production') {
-  Spinner.displayName = 'Spinner';
-}
+export const Spinner: ForwardRefComponent<SpinnerProps> = /*#__PURE__*/ composeComponent(
+  'Spinner',
+  useSpinner,
+  renderSpinner,
+);

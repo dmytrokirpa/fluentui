@@ -10,8 +10,4 @@ import { composeComponent } from '../../utils/composeComponent';
 /**
  * A link component for navigation.
  */
-export const Link: ForwardRefComponent<LinkProps> = /*#__PURE__*/ composeComponent(useLink, renderLink);
-
-if (process.env.NODE_ENV !== 'production') {
-  Link.displayName = 'Link';
-}
+export const Link: ForwardRefComponent<LinkProps> = /*#__PURE__*/ composeComponent('Link', useLink, renderLink);

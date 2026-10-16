@@ -7,10 +7,7 @@ import { renderTeachingPopoverTitle } from './renderTeachingPopoverTitle';
 import { composeComponent } from '../../../utils/composeComponent';
 
 export const TeachingPopoverTitle: ForwardRefComponent<TeachingPopoverTitleProps> = /*#__PURE__*/ composeComponent(
+  'TeachingPopoverTitle',
   useTeachingPopoverTitle,
   renderTeachingPopoverTitle,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  TeachingPopoverTitle.displayName = 'TeachingPopoverTitle';
-}

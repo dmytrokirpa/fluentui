@@ -11,10 +11,7 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Component to render an image, text and an action in a Card component.
  */
 export const CardHeader: ForwardRefComponent<CardHeaderProps> = /*#__PURE__*/ composeComponent(
+  'CardHeader',
   useCardHeader,
   renderCardHeader,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CardHeader.displayName = 'CardHeader';
-}

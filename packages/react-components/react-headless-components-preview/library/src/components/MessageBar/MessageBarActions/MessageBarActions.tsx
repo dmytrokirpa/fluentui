@@ -10,11 +10,8 @@ import { composeComponent } from '../../../utils/composeComponent';
  * Represents the actions region of a MessageBar.
  */
 export const MessageBarActions: ForwardRefComponent<MessageBarActionsProps> = /*#__PURE__*/ composeComponent(
+  'MessageBarActions',
   useMessageBarActions,
   renderMessageBarActions,
   useMessageBarActionsContextValues,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MessageBarActions.displayName = 'MessageBarActions';
-}
