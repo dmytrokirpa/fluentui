@@ -65,25 +65,7 @@ describe('composeComponent', () => {
     expect(useGetContextValues).toHaveBeenCalledWith(expect.objectContaining({ label: 'ab' }));
   });
 
-  it('applies styles to the state before it is rendered', () => {
-    const useStyles = jest.fn((state: TestState) => {
-      state.root.className = `styled ${state.root.className ?? ''}`.trim();
-    });
-    const Test = composeComponent(
-      'Test',
-      useTest,
-      (state: TestState) => <div {...state.root} data-testid="root" />,
-      undefined,
-      useStyles,
-    );
-
-    const { getByTestId } = render(<Test className="foo" />);
-
-    expect(useStyles).toHaveBeenCalledTimes(1);
-    expect(getByTestId('root').className).toBe('styled foo');
-  });
-
-  it('calls the hooks in order: state, styles, context values, render', () => {
+  it('calls the hooks in order: state, context values, render', () => {
     const calls: string[] = [];
     const useOrderedState = (props: TestProps, ref: React.Ref<HTMLDivElement>) => {
       calls.push('state');
@@ -100,25 +82,20 @@ describe('composeComponent', () => {
         calls.push('contextValues');
         return 'cv';
       },
-      () => {
-        calls.push('styles');
-      },
     );
 
     render(<Test />);
 
-    expect(calls).toEqual(['state', 'styles', 'contextValues', 'render']);
+    expect(calls).toEqual(['state', 'contextValues', 'render']);
   });
 
   it('keeps calling its hooks in a stable order across re-renders', () => {
     const useGetContextValues = jest.fn((state: TestState) => state.label);
-    const useStyles = jest.fn();
     const Test = composeComponent(
       'Test',
       useTest,
       (state: TestState, label: string | undefined) => <div {...state.root}>{label}</div>,
       useGetContextValues,
-      useStyles,
     );
 
     const { rerender, container } = render(<Test label="a" />);
@@ -126,6 +103,5 @@ describe('composeComponent', () => {
 
     expect(container.textContent).toBe('b');
     expect(useGetContextValues).toHaveBeenCalledTimes(2);
-    expect(useStyles).toHaveBeenCalledTimes(2);
   });
 });
