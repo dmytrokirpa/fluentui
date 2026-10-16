@@ -20,6 +20,7 @@ import { useFluent_unstable as useFluent } from '@fluentui/react-shared-contexts
 import type { OnVisibleChangeData, TooltipProps, TooltipState, TooltipTriggerProps } from './Tooltip.types';
 import { resolvePositioningShorthand, usePositioning } from '../../positioning';
 import { toDataAttributeValue } from '../../utils';
+import { useIsFocusAfterPointerElsewhere } from './useIsFocusAfterPointerElsewhere';
 
 /**
  * Whether the element matches `:focus-visible`, i.e. focus was moved by the keyboard, or by a script
@@ -144,6 +145,7 @@ export const useTooltip = (props: TooltipProps): TooltipState => {
   // Used to skip showing the tooltip  in certain situations when the trigger is focused.
   // See comments where this is set for more info.
   const ignoreNextFocusEventRef = React.useRef(false);
+  const isFocusAfterPointerElsewhere = useIsFocusAfterPointerElsewhere();
 
   // Listener for onPointerEnter and onFocus on the trigger element
   const onEnterTrigger = React.useCallback(
@@ -155,8 +157,9 @@ export const useTooltip = (props: TooltipProps): TooltipState => {
 
         // Skip showing the tooltip if focus did not come from keyboard navigation. For example, we don't
         // want to show the tooltip when a dialog is closed with the mouse and focus is programmatically
-        // restored to the trigger button. See https://github.com/microsoft/fluentui/issues/27576
-        if (ignoreFocus || !isFocusVisible(ev.target as Element)) {
+        // restored to the trigger. See https://github.com/microsoft/fluentui/issues/27576
+        // Text inputs always match `:focus-visible`, so the last pointer interaction is checked as well.
+        if (ignoreFocus || isFocusAfterPointerElsewhere(ev.currentTarget) || !isFocusVisible(ev.target as Element)) {
           return;
         }
       }
@@ -167,7 +170,7 @@ export const useTooltip = (props: TooltipProps): TooltipState => {
 
       ev.persist(); // Persist the event since the setVisible call will happen asynchronously
     },
-    [setDelayTimeout, setVisible, state.showDelay],
+    [isFocusAfterPointerElsewhere, setDelayTimeout, setVisible, state.showDelay],
   );
 
   // Listener for onPointerLeave and onBlur on the trigger element

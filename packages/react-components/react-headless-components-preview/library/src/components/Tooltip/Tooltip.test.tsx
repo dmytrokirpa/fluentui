@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { resetIdsForTests } from '@fluentui/react-utilities';
 import { isConformant } from '../../testing/isConformant';
 import type { IsConformantOptions } from '@fluentui/react-conformance';
@@ -191,5 +191,76 @@ describe('Tooltip', () => {
     const target = screen.getByRole('button');
     expect(target).not.toHaveAttribute('aria-description');
     expect(target).toHaveAttribute('aria-describedby', 'test-describedby');
+  });
+
+  describe('show on focus', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const renderWithInputTrigger = () => {
+      const onVisibleChange = jest.fn();
+      render(
+        <>
+          <button>Close dialog</button>
+          <Tooltip content="Tooltip" relationship="description" showDelay={0} onVisibleChange={onVisibleChange}>
+            <input aria-label="trigger" />
+          </Tooltip>
+        </>,
+      );
+
+      const focusTrigger = () => {
+        act(() => {
+          screen.getByRole('textbox').focus();
+          jest.runAllTimers();
+        });
+      };
+
+      return { onVisibleChange, focusTrigger };
+    };
+
+    const mouseDown = (element: Element) => fireEvent.mouseDown(element, { buttons: 1, clientX: 10, clientY: 10 });
+
+    it('does not show when focus is restored to a text input after a pointer interaction elsewhere', () => {
+      const { onVisibleChange, focusTrigger } = renderWithInputTrigger();
+
+      // e.g. a dialog closed with the mouse restores focus to its trigger
+      mouseDown(screen.getByRole('button'));
+      focusTrigger();
+
+      expect(onVisibleChange).not.toHaveBeenCalled();
+    });
+
+    it('shows when a text input is focused with the keyboard after a pointer interaction elsewhere', () => {
+      const { onVisibleChange, focusTrigger } = renderWithInputTrigger();
+
+      mouseDown(screen.getByRole('button'));
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'Tab' });
+      focusTrigger();
+
+      expect(onVisibleChange).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ visible: true }));
+    });
+
+    it('shows when a text input is focused by pressing on it', () => {
+      const { onVisibleChange, focusTrigger } = renderWithInputTrigger();
+
+      mouseDown(screen.getByRole('textbox'));
+      focusTrigger();
+
+      expect(onVisibleChange).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ visible: true }));
+    });
+
+    it('ignores synthetic screen reader mouse events', () => {
+      const { onVisibleChange, focusTrigger } = renderWithInputTrigger();
+
+      fireEvent.mouseDown(screen.getByRole('button'), { buttons: 0 });
+      focusTrigger();
+
+      expect(onVisibleChange).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ visible: true }));
+    });
   });
 });
