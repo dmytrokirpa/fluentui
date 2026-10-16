@@ -4,12 +4,17 @@ import * as React from 'react';
 import type { ForwardRefComponent, JSXElement } from '@fluentui/react-utilities';
 
 /**
- * Composes a headless component from its state hook and render function, with an optional hook that maps the
- * state to context values.
+ * Composes a component from its state hook and render function, with an optional hook that maps the state to
+ * context values and an optional hook that applies styles to the state.
  *
- * Every headless component has the same shape (`state = useX(props, ref)`, `contextValues = useXContextValues(state)`,
- * `renderX(state, contextValues)`). Sharing one `forwardRef` wrapper keeps that boilerplate out of each component,
- * which adds up across the whole library.
+ * Every component has the same shape: `state = useX(props, ref)`, `useXStyles(state)`,
+ * `contextValues = useXContextValues(state)` and `renderX(state, contextValues)`. Sharing the `forwardRef` wrapper
+ * keeps that boilerplate out of each component, which adds up across the whole library. Styled components compose the
+ * headless pieces and add `useStyles`.
+ *
+ * The component function is picked once, when the component is composed, from which of the optional hooks are
+ * provided. A component therefore always calls the same hooks in the same order, and never checks for an optional
+ * hook while rendering.
  *
  * Arguments are positional on purpose: an options object would repeat its property names in every component, and
  * minifiers don't mangle property names.
@@ -20,6 +25,7 @@ import type { ForwardRefComponent, JSXElement } from '@fluentui/react-utilities'
  *   useFoo,
  *   renderFoo,
  *   useFooContextValues,
+ *   useFooStyles,
  * );
  * ```
  *
@@ -28,26 +34,67 @@ import type { ForwardRefComponent, JSXElement } from '@fluentui/react-utilities'
  *
  * @param displayName - display name of the component, always set so it is available in production as well
  * @param useState - state hook of the component
- * @param render - render function of the component
- * @param getContextValues - optional hook mapping the state to the context values passed to `render`. It is
- * either always or never provided for a given component, so it is safe to call as a hook.
+ * @param render - render function of the component. It receives the context values as the second argument when
+ * `useGetContextValues` is provided.
+ * @param useGetContextValues - optional hook mapping the state to the context values passed to `render`. Pass
+ * `undefined` to provide `useStyles` without it.
+ * @param useStyles - optional hook applying styles to the state. Runs right after the state hook.
  *
  * @internal
  */
-export const composeComponent = <Props, State, RefType, ContextValues = undefined>(
+export function composeComponent<Props, State, RefType>(
+  displayName: string,
+  useState: (props: Props, ref: React.Ref<RefType>) => State,
+  render: (state: State) => JSXElement | null,
+): ForwardRefComponent<Props>;
+export function composeComponent<Props, State, RefType, ContextValues>(
   displayName: string,
   useState: (props: Props, ref: React.Ref<RefType>) => State,
   render: (state: State, contextValues: ContextValues) => JSXElement | null,
-  getContextValues?: (state: State) => ContextValues,
-): ForwardRefComponent<Props> => {
-  const Component = React.forwardRef<RefType, Props>((props, ref) => {
-    const state = useState(props as Props, ref);
-    // `getContextValues` is fixed for the lifetime of a component, so hooks are called in a stable order
-    const contextValues = getContextValues?.(state) as ContextValues;
+  useGetContextValues: (state: State) => ContextValues,
+  useStyles?: (state: State) => void,
+): ForwardRefComponent<Props>;
+export function composeComponent<Props, State, RefType>(
+  displayName: string,
+  useState: (props: Props, ref: React.Ref<RefType>) => State,
+  render: (state: State) => JSXElement | null,
+  useGetContextValues: undefined,
+  useStyles: (state: State) => void,
+): ForwardRefComponent<Props>;
+export function composeComponent<Props, State, RefType, ContextValues>(
+  displayName: string,
+  useState: (props: Props, ref: React.Ref<RefType>) => State,
+  render: (state: State, contextValues?: ContextValues) => JSXElement | null,
+  useGetContextValues?: (state: State) => ContextValues,
+  useStyles?: (state: State) => void,
+): ForwardRefComponent<Props> {
+  let Component: ReturnType<typeof React.forwardRef<RefType, Props>>;
 
-    return render(state, contextValues);
-  });
+  if (useGetContextValues && useStyles) {
+    Component = React.forwardRef<RefType, Props>((props, ref) => {
+      const state = useState(props as Props, ref);
+      useStyles(state);
+
+      return render(state, useGetContextValues(state));
+    });
+  } else if (useGetContextValues) {
+    Component = React.forwardRef<RefType, Props>((props, ref) => {
+      const state = useState(props as Props, ref);
+
+      return render(state, useGetContextValues(state));
+    });
+  } else if (useStyles) {
+    Component = React.forwardRef<RefType, Props>((props, ref) => {
+      const state = useState(props as Props, ref);
+      useStyles(state);
+
+      return render(state);
+    });
+  } else {
+    Component = React.forwardRef<RefType, Props>((props, ref) => render(useState(props as Props, ref)));
+  }
+
   Component.displayName = displayName;
 
   return Component as unknown as ForwardRefComponent<Props>;
-};
+}

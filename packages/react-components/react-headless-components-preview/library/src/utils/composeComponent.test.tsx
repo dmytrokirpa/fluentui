@@ -34,33 +34,98 @@ describe('composeComponent', () => {
     expect(ref.current).toBe(container.firstElementChild);
   });
 
-  it('passes the context values derived from the state to the render function', () => {
-    const useContextValues = jest.fn((state: TestState) => ({ doubled: `${state.label}${state.label}` }));
-    const Test = composeComponent(
-      'Test',
-      useTest,
-      (state: TestState, contextValues: { doubled: string }) => <div {...state.root}>{contextValues.doubled}</div>,
-      useContextValues,
-    );
-
-    const { container } = render(<Test label="ab" />);
-
-    expect(container.textContent).toBe('abab');
-    expect(useContextValues).toHaveBeenCalledWith(expect.objectContaining({ label: 'ab' }));
-  });
-
   it('sets the display name', () => {
     const Test = composeComponent('Test', useTest, (state: TestState) => <div {...state.root} />);
 
     expect(Test.displayName).toBe('Test');
   });
 
-  it('calls the render function with undefined context values when no hook is provided', () => {
-    const renderFn = jest.fn((state: TestState, _contextValues: undefined) => <div {...state.root} />);
+  it('calls the render function with the state only when there are no context values', () => {
+    const renderFn = jest.fn((state: TestState) => <div {...state.root} />);
     const Test = composeComponent('Test', useTest, renderFn);
 
     render(<Test />);
 
-    expect(renderFn).toHaveBeenCalledWith(expect.anything(), undefined);
+    expect(renderFn).toHaveBeenCalledTimes(1);
+    expect(renderFn.mock.calls[0]).toHaveLength(1);
+  });
+
+  it('passes the context values derived from the state to the render function', () => {
+    const useGetContextValues = jest.fn((state: TestState) => ({ doubled: `${state.label}${state.label}` }));
+    const Test = composeComponent(
+      'Test',
+      useTest,
+      (state: TestState, contextValues: { doubled: string }) => <div {...state.root}>{contextValues.doubled}</div>,
+      useGetContextValues,
+    );
+
+    const { container } = render(<Test label="ab" />);
+
+    expect(container.textContent).toBe('abab');
+    expect(useGetContextValues).toHaveBeenCalledWith(expect.objectContaining({ label: 'ab' }));
+  });
+
+  it('applies styles to the state before it is rendered', () => {
+    const useStyles = jest.fn((state: TestState) => {
+      state.root.className = `styled ${state.root.className ?? ''}`.trim();
+    });
+    const Test = composeComponent(
+      'Test',
+      useTest,
+      (state: TestState) => <div {...state.root} data-testid="root" />,
+      undefined,
+      useStyles,
+    );
+
+    const { getByTestId } = render(<Test className="foo" />);
+
+    expect(useStyles).toHaveBeenCalledTimes(1);
+    expect(getByTestId('root').className).toBe('styled foo');
+  });
+
+  it('calls the hooks in order: state, styles, context values, render', () => {
+    const calls: string[] = [];
+    const useOrderedState = (props: TestProps, ref: React.Ref<HTMLDivElement>) => {
+      calls.push('state');
+      return useTest(props, ref);
+    };
+    const Test = composeComponent(
+      'Test',
+      useOrderedState,
+      (state: TestState, contextValues: string) => {
+        calls.push('render');
+        return <div {...state.root}>{contextValues}</div>;
+      },
+      () => {
+        calls.push('contextValues');
+        return 'cv';
+      },
+      () => {
+        calls.push('styles');
+      },
+    );
+
+    render(<Test />);
+
+    expect(calls).toEqual(['state', 'styles', 'contextValues', 'render']);
+  });
+
+  it('keeps calling its hooks in a stable order across re-renders', () => {
+    const useGetContextValues = jest.fn((state: TestState) => state.label);
+    const useStyles = jest.fn();
+    const Test = composeComponent(
+      'Test',
+      useTest,
+      (state: TestState, label: string | undefined) => <div {...state.root}>{label}</div>,
+      useGetContextValues,
+      useStyles,
+    );
+
+    const { rerender, container } = render(<Test label="a" />);
+    rerender(<Test label="b" />);
+
+    expect(container.textContent).toBe('b');
+    expect(useGetContextValues).toHaveBeenCalledTimes(2);
+    expect(useStyles).toHaveBeenCalledTimes(2);
   });
 });

@@ -206,8 +206,13 @@ export const ComponentName: ForwardRefComponent<ComponentNameProps> = /*#__PURE_
 );
 ```
 
-For compound roots, pass the context-values hook as the third argument:
+For compound roots, pass the context-values hook as the fourth argument:
 `composeComponent('ComponentName', useComponentName, renderComponentName, useComponentNameContextValues)`.
+
+Styled components built on top of headless ones can add a `useStyles(state): void`
+hook as the fifth argument (pass `undefined` as the fourth if there are no context
+values). It runs right after the state hook. The optional hooks are resolved once
+when the component is composed, never while rendering.
 
 ### Hook
 
