@@ -3,6 +3,8 @@ import { render } from '@testing-library/react';
 import { TreeItemLayout } from './TreeItemLayout';
 import { isConformant } from '../../testing/isConformant';
 import { TreeItemProvider } from '../../contexts';
+import { Tree } from '../Tree';
+import { TreeItem } from '../TreeItem';
 
 const Wrapper: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   <TreeItemProvider
@@ -48,5 +50,24 @@ describe('TreeItemLayout', () => {
   it('renders a default state', () => {
     const result = render(<TreeItemLayout>Default TreeItemLayout</TreeItemLayout>);
     expect(result.container).toMatchSnapshot();
+  });
+
+  it('does not propagate actions visibility props to the DOM', () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const onVisibilityChange = jest.fn();
+    const { getByRole } = render(
+      <Tree aria-label="Tree">
+        <TreeItem itemType="leaf" value="item">
+          <TreeItemLayout actions={{ visible: true, onVisibilityChange, children: 'a' }}>item</TreeItemLayout>
+        </TreeItem>
+      </Tree>,
+    );
+    const actions = getByRole('toolbar');
+    expect(actions.textContent).toBe('a');
+    expect(actions.hasAttribute('visible')).toBe(false);
+    expect(actions.hasAttribute('onVisibilityChange')).toBe(false);
+    // React drops `visible={true}` from the DOM but warns about the unknown attribute
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
   });
 });

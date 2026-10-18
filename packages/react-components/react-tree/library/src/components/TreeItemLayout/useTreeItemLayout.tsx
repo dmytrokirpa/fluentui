@@ -196,7 +196,7 @@ export const useTreeItemLayout_unstable = (
 
   const actionsRefs = useMergedRefs(actionsRef, actionsRefInternal);
   const actions = isActionsVisible
-    ? slot.optional(props.actions, {
+    ? slot.optional(omitActionsVisibilityProps(props.actions), {
         defaultProps: {
           ...arrowNavigationProps,
           role: 'toolbar',
@@ -266,6 +266,17 @@ export const useTreeItemLayout_unstable = (
     selector,
   };
 };
+
+/**
+ * Removes `visible` and `onVisibilityChange` from the actions shorthand, as they should not be propagated to the DOM.
+ */
+function omitActionsVisibilityProps(actions: TreeItemLayoutProps['actions']): TreeItemLayoutProps['actions'] {
+  if (!isResolvedShorthand(actions)) {
+    return actions;
+  }
+  const { visible, onVisibilityChange, ...rest } = actions;
+  return rest;
+}
 
 function assertIsRefObject<Value>(ref?: React.Ref<Value>): asserts ref is React.RefObject<Value> {
   if (process.env.NODE_ENV !== 'production') {
