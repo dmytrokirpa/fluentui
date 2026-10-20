@@ -4,6 +4,17 @@
   "externals": ["react", "react-dom", "react/jsx-runtime", "react/compiler-runtime"],
   "forbiddenPackages": ["tabster", "@griffel/*", "@fluentui/react-icons"],
   "fixtures": {
-    "AllComponents.fixture.js": {}
+    "AllComponents.fixture.js": {},
+    "Calendar.fixture.js": {
+      "forbiddenPackages": [
+        "tabster",
+        "@griffel/*",
+        "@fluentui/react-icons",
+        "@fluentui/react-motion",
+        "@fluentui/react-motion-components-preview",
+        "@fluentui/react-tabster",
+        "@fluentui/react-theme"
+      ]
+    }
   }
 }
