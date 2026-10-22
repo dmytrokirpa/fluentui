@@ -11,3 +11,8 @@
 Headless components expose resolved interaction and structural state through `data-*` attributes. Consumers that wrap these components, including visual-system packages, must preserve the attributes on the slot where headless emits them.
 
 Existing attributes retain their current names and value semantics. Visual axes such as appearance, size, and shape are intentionally not part of the headless contract.
+
+## Calendar tests
+
+[Calendar.test.tsx](./src/components/Calendar/Calendar.test.tsx) covers the assembled Calendar and picker coordination.
+Standalone picker behavior and grid contracts live in [CalendarDay.test.tsx](./src/components/Calendar/CalendarDay/CalendarDay.test.tsx), [CalendarMonth.test.tsx](./src/components/Calendar/CalendarMonth/CalendarMonth.test.tsx), and [CalendarYear.test.tsx](./src/components/Calendar/CalendarYear/CalendarYear.test.tsx), with local fixtures and assertions.

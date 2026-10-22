@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   Calendar,
   CalendarDay,
@@ -6,7 +5,6 @@ import {
   CalendarYear,
 } from '@fluentui/react-headless-components-preview/calendar';
 import descriptionMd from './CalendarDescription.md';
-import styles from './calendar.module.css';
 import { getBrowserSupportNotice } from '../shared/browserSupportNotice';
 
 export { Default } from './CalendarDefault.stories';
@@ -28,11 +26,4 @@ export default {
       },
     },
   },
-  decorators: [
-    (Story: React.ComponentType): React.ReactNode => (
-      <div className={styles.story}>
-        <Story />
-      </div>
-    ),
-  ],
 };
