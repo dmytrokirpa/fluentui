@@ -11,12 +11,21 @@ import styles from './drawer.module.css';
 
 export const Inline = (): React.ReactNode => {
   const [open, setOpen] = React.useState(false);
+  const mainRef = React.useRef<HTMLElement>(null);
   const toggleDrawer = () => setOpen(value => !value);
   const closeDrawer = () => setOpen(false);
 
   return (
     <div className={styles.inlineFrame}>
-      <Drawer className={styles.drawerInline} type="inline" open={open} unmountOnClose={false}>
+      <Drawer
+        aria-labelledby="inline-drawer-title"
+        className={styles.drawerInline}
+        type="inline"
+        open={open}
+        onOpenChange={(_, data) => setOpen(data.open)}
+        returnFocusRef={mainRef}
+        unmountOnClose={false}
+      >
         <DrawerHeader className={styles.drawerHeader}>
           <DrawerHeaderTitle
             action={
@@ -25,7 +34,7 @@ export const Inline = (): React.ReactNode => {
               </button>
             }
             className={`${styles.drawerHeaderTitle} ${styles.drawerHeaderTitleInline}`}
-            heading={{ className: styles.drawerHeadingInline }}
+            heading={{ className: styles.drawerHeadingInline, id: 'inline-drawer-title' }}
           >
             Inline drawer
           </DrawerHeaderTitle>
@@ -35,7 +44,7 @@ export const Inline = (): React.ReactNode => {
         </DrawerBody>
       </Drawer>
 
-      <main className={styles.inlineMain}>
+      <main ref={mainRef} className={styles.inlineMain} tabIndex={-1}>
         <button className={styles.primaryButton} onClick={toggleDrawer}>
           {open ? 'Hide inline drawer' : 'Show inline drawer'}
         </button>

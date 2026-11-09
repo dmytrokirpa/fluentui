@@ -6,13 +6,14 @@
 
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
+import type { DistributiveOmit } from '@fluentui/react-utilities';
 import { DividerBaseProps } from '@fluentui/react-divider';
 import type { DividerBaseState } from '@fluentui/react-divider';
 import type { DrawerFooterState } from '@fluentui/react-drawer';
 import type { DrawerHeaderState } from '@fluentui/react-drawer';
 import type { EventHandler } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
-import { InlineDrawerBaseProps } from '@fluentui/react-drawer';
+import type { InlineDrawerBaseProps } from '@fluentui/react-drawer';
 import { InlineDrawerSlots } from '@fluentui/react-drawer';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { NavCategoryContextValues } from '@fluentui/react-nav';
@@ -324,7 +325,7 @@ export function useNavContextValues(state: NavContextValuesState): NavContextVal
 export const useNavDivider: (props: NavDividerProps, ref: React_2.Ref<HTMLDivElement>) => NavDividerState;
 
 // @public
-export const useNavDrawer: (props: NavDrawerProps, ref: React_2.Ref<HTMLDialogElement | HTMLDivElement>) => NavDrawerState;
+export const useNavDrawer: (props: NavDrawerProps, ref: React_2.Ref<HTMLElement>) => NavDrawerState;
 
 // @public
 export const useNavDrawerBody: (props: NavDrawerBodyProps, ref: React_2.Ref<HTMLElement>) => NavDrawerBodyState;

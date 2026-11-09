@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { isConformant } from '../../testing/isConformant';
 import { Drawer } from './Drawer';
 import { InlineDrawer } from './InlineDrawer';
@@ -123,5 +123,115 @@ describe('InlineDrawer', () => {
     const heading = result.getByRole('heading', { name: 'Inline title' });
 
     expect(heading).not.toHaveAttribute('id', '');
+  });
+
+  it('uses a complementary landmark while preserving an explicit role', () => {
+    const result = render(<InlineDrawer open aria-label="Details" />);
+
+    expect(result.getByRole('complementary', { name: 'Details' })).toBeInTheDocument();
+
+    result.rerender(<InlineDrawer as="aside" open aria-label="Details" />);
+    expect(result.getByRole('complementary', { name: 'Details' }).tagName).toBe('ASIDE');
+
+    result.rerender(<InlineDrawer open role="region" aria-label="Details" />);
+    expect(result.getByRole('region', { name: 'Details' })).toBeInTheDocument();
+  });
+
+  it('hides and makes retained closed content inert, including when initially closed', () => {
+    const result = render(
+      <InlineDrawer unmountOnClose={false}>
+        <button>Drawer action</button>
+      </InlineDrawer>,
+    );
+    const drawer = result.getByText('Drawer action').parentElement;
+
+    expect(drawer).toHaveAttribute('hidden');
+    expect(drawer).toHaveAttribute('inert');
+    expect(drawer).toHaveAttribute('aria-hidden', 'true');
+
+    result.rerender(
+      <InlineDrawer open unmountOnClose={false}>
+        <button>Drawer action</button>
+      </InlineDrawer>,
+    );
+    expect(drawer).not.toHaveAttribute('hidden');
+    expect(drawer).not.toHaveAttribute('inert');
+    expect(drawer).not.toHaveAttribute('aria-hidden');
+  });
+
+  it('requests a controlled close on Escape after calling the user handler', () => {
+    const onKeyDown = jest.fn();
+    const onOpenChange = jest.fn();
+    const onParentKeyDown = jest.fn();
+    const result = render(
+      <div onKeyDown={onParentKeyDown}>
+        <Drawer type="inline" open onKeyDown={onKeyDown} onOpenChange={onOpenChange}>
+          <button>Drawer action</button>
+        </Drawer>
+      </div>,
+    );
+
+    fireEvent.keyDown(result.getByText('Drawer action'), { key: 'Escape' });
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'Escape' }),
+      expect.objectContaining({
+        type: 'escapeKeyDown',
+        open: false,
+        event: expect.objectContaining({ key: 'Escape' }),
+      }),
+    );
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(result.getByRole('complementary')).toBeInTheDocument();
+  });
+
+  it('respects prevented Escape and lets unhandled Escape bubble', () => {
+    const onOpenChange = jest.fn();
+    const onParentKeyDown = jest.fn();
+    const result = render(
+      <div onKeyDown={onParentKeyDown}>
+        <InlineDrawer open onKeyDown={event => event.preventDefault()} onOpenChange={onOpenChange}>
+          <button>Drawer action</button>
+        </InlineDrawer>
+      </div>,
+    );
+
+    fireEvent.keyDown(result.getByText('Drawer action'), { key: 'Escape' });
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+
+    result.rerender(
+      <div onKeyDown={onParentKeyDown}>
+        <InlineDrawer open>
+          <button>Drawer action</button>
+        </InlineDrawer>
+      </div>,
+    );
+    fireEvent.keyDown(result.getByText('Drawer action'), { key: 'Escape' });
+    expect(onParentKeyDown).toHaveBeenCalledTimes(2);
+  });
+
+  it('restores focus to the requested target on close without stealing focus from elsewhere', () => {
+    const returnFocusRef = React.createRef<HTMLButtonElement>();
+    const view = (open: boolean) => (
+      <>
+        <button ref={returnFocusRef}>Return</button>
+        <button>Outside</button>
+        <InlineDrawer open={open} returnFocusRef={returnFocusRef}>
+          <button>Drawer action</button>
+        </InlineDrawer>
+      </>
+    );
+    const result = render(view(true));
+
+    result.getByText('Drawer action').focus();
+    result.rerender(view(false));
+    expect(result.getByText('Return')).toHaveFocus();
+
+    result.rerender(view(true));
+    result.getByText('Outside').focus();
+    result.rerender(view(false));
+    expect(result.getByText('Outside')).toHaveFocus();
   });
 });

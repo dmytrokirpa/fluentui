@@ -6,6 +6,7 @@
 
 import type { ComponentProps } from '@fluentui/react-utilities';
 import type { ComponentState } from '@fluentui/react-utilities';
+import type { DistributiveOmit } from '@fluentui/react-utilities';
 import { DrawerBodyProps } from '@fluentui/react-drawer';
 import { DrawerBodySlots } from '@fluentui/react-drawer';
 import { DrawerBodyState } from '@fluentui/react-drawer';
@@ -25,8 +26,8 @@ import { DrawerHeaderTitleState } from '@fluentui/react-drawer';
 import { DrawerProvider } from '@fluentui/react-drawer';
 import type { EventHandler } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
+import type { InlineDrawerBaseProps } from '@fluentui/react-drawer';
 import type { InlineDrawerBaseState } from '@fluentui/react-drawer';
-import { InlineDrawerBaseProps as InlineDrawerProps } from '@fluentui/react-drawer';
 import { InlineDrawerSlots } from '@fluentui/react-drawer';
 import type { JSXElement } from '@fluentui/react-utilities';
 import type { OverlayDrawerProps as OverlayDrawerProps_2 } from '@fluentui/react-drawer';
@@ -103,11 +104,16 @@ export { DrawerHeaderTitleSlots }
 export { DrawerHeaderTitleState }
 
 // @public (undocumented)
-export type DrawerProps = (ComponentProps<DrawerSlots> & {
+export type DrawerOpenChangeData = DialogOpenChangeData | InlineDrawerOpenChangeData;
+
+// @public (undocumented)
+export type DrawerProps = {
+    onOpenChange?: EventHandler<DrawerOpenChangeData>;
+} & ((ComponentProps<DrawerSlots> & {
     type?: 'overlay';
-} & OverlayDrawerProps) | (ComponentProps<DrawerSlots> & {
+} & DistributiveOmit<OverlayDrawerProps, 'onOpenChange'>) | (ComponentProps<DrawerSlots> & {
     type: 'inline';
-} & InlineDrawerProps);
+} & DistributiveOmit<InlineDrawerProps, 'onOpenChange'>));
 
 export { DrawerProvider }
 
@@ -125,7 +131,18 @@ export type DrawerState = {
 // @public
 export const InlineDrawer: ForwardRefComponent<InlineDrawerProps>;
 
-export { InlineDrawerProps }
+// @public (undocumented)
+export type InlineDrawerOpenChangeData = {
+    type: 'escapeKeyDown';
+    open: false;
+    event: React_2.KeyboardEvent<HTMLElement>;
+};
+
+// @public (undocumented)
+export type InlineDrawerProps = InlineDrawerBaseProps & {
+    onOpenChange?: EventHandler<InlineDrawerOpenChangeData>;
+    returnFocusRef?: React_2.RefObject<HTMLElement | null>;
+};
 
 export { InlineDrawerSlots }
 
@@ -133,7 +150,7 @@ export { InlineDrawerSlots }
 export type InlineDrawerState = InlineDrawerBaseState & {
     root: {
         'data-open'?: string;
-        'data-position'?: InlineDrawerProps['position'];
+        'data-position'?: InlineDrawerBaseProps['position'];
     };
 };
 

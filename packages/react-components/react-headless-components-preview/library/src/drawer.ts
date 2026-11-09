@@ -1,5 +1,5 @@
 export { Drawer, renderDrawer, useDrawer } from './components/Drawer';
-export type { DrawerProps, DrawerSlots, DrawerState } from './components/Drawer';
+export type { DrawerOpenChangeData, DrawerProps, DrawerSlots, DrawerState } from './components/Drawer';
 export {
   DrawerProvider,
   useDrawerContext_unstable as useDrawerContext,
@@ -11,7 +11,12 @@ export { OverlayDrawer, renderOverlayDrawer, useOverlayDrawer } from './componen
 export type { OverlayDrawerProps, OverlayDrawerSlots, OverlayDrawerState } from './components/Drawer';
 
 export { InlineDrawer, renderInlineDrawer, useInlineDrawer } from './components/Drawer';
-export type { InlineDrawerProps, InlineDrawerSlots, InlineDrawerState } from './components/Drawer';
+export type {
+  InlineDrawerOpenChangeData,
+  InlineDrawerProps,
+  InlineDrawerSlots,
+  InlineDrawerState,
+} from './components/Drawer';
 
 export { DrawerBody, renderDrawerBody, useDrawerBody } from './components/Drawer';
 export type { DrawerBodyProps, DrawerBodySlots, DrawerBodyState } from './components/Drawer';

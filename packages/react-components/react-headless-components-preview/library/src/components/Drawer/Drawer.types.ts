@@ -1,11 +1,16 @@
 import type * as React from 'react';
-import type { ComponentProps } from '@fluentui/react-utilities';
-import type { InlineDrawerProps, InlineDrawerSlots } from './InlineDrawer';
+import type { ComponentProps, DistributiveOmit, EventHandler } from '@fluentui/react-utilities';
+import type { DialogOpenChangeData } from '../Dialog';
+import type { InlineDrawerOpenChangeData, InlineDrawerProps, InlineDrawerSlots } from './InlineDrawer';
 import type { OverlayDrawerProps, OverlayDrawerSlots } from './OverlayDrawer';
 
 export type DrawerSlots = Pick<OverlayDrawerSlots, 'root'> | Pick<InlineDrawerSlots, 'root'>;
 
-export type DrawerProps =
+export type DrawerOpenChangeData = DialogOpenChangeData | InlineDrawerOpenChangeData;
+
+export type DrawerProps = {
+  onOpenChange?: EventHandler<DrawerOpenChangeData>;
+} & (
   | (ComponentProps<DrawerSlots> & {
       /**
        * Type of the drawer.
@@ -13,7 +18,7 @@ export type DrawerProps =
        * @default overlay
        */
       type?: 'overlay';
-    } & OverlayDrawerProps)
+    } & DistributiveOmit<OverlayDrawerProps, 'onOpenChange'>)
   | (ComponentProps<DrawerSlots> & {
       /**
        * Type of the drawer.
@@ -22,7 +27,8 @@ export type DrawerProps =
        * - 'inline' - Drawer is stacked with the content.
        */
       type: 'inline';
-    } & InlineDrawerProps);
+    } & DistributiveOmit<InlineDrawerProps, 'onOpenChange'>)
+);
 
 export type DrawerState = {
   components: {

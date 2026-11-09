@@ -118,6 +118,95 @@ describe('Drawer', () => {
   });
 });
 
+describe('InlineDrawer focus lifecycle', () => {
+  const ExampleDrawer = ({ unmountOnClose }: { unmountOnClose: boolean }) => {
+    const [open, setOpen] = React.useState(false);
+    const mainRef = React.useRef<HTMLElement>(null);
+
+    return (
+      <>
+        <main id="main-content" ref={mainRef} tabIndex={-1}>
+          <button id="open-inline" onClick={() => setOpen(true)}>
+            Open
+          </button>
+          <button id="close-outside" onClick={() => setOpen(false)}>
+            Close outside
+          </button>
+        </main>
+        <Drawer
+          id="inline-drawer"
+          type="inline"
+          aria-label="Details"
+          open={open}
+          unmountOnClose={unmountOnClose}
+          onOpenChange={(_, data) => setOpen(data.open)}
+          returnFocusRef={mainRef}
+        >
+          <button disabled>Disabled</button>
+          <button hidden>Hidden</button>
+          <button id="first-inline">First</button>
+          <button id="last-inline">Last</button>
+        </Drawer>
+        <button id="after-inline">After</button>
+      </>
+    );
+  };
+
+  [true, false].forEach(unmountOnClose => {
+    it(`focuses on open and restores on Escape when unmountOnClose is ${unmountOnClose}`, () => {
+      mount(<ExampleDrawer unmountOnClose={unmountOnClose} />);
+
+      if (!unmountOnClose) {
+        cy.get('#inline-drawer').should('have.attr', 'hidden');
+        cy.get('#inline-drawer').should('have.attr', 'inert');
+        cy.get('#close-outside').focus().realPress('Tab');
+        cy.get('#after-inline').should('be.focused');
+      }
+
+      cy.get('#open-inline').realClick();
+      cy.get('#inline-drawer').should('have.attr', 'role', 'complementary').and('have.attr', 'aria-label', 'Details');
+      cy.get('#first-inline').should('be.focused').realPress('Tab');
+      cy.get('#last-inline').should('be.focused').realPress('Tab');
+      cy.get('#after-inline').should('be.focused');
+
+      cy.get('#first-inline').focus().realPress('Escape');
+      cy.get('#main-content').should('be.focused');
+      if (unmountOnClose) {
+        cy.get('#inline-drawer').should('not.exist');
+      } else {
+        cy.get('#inline-drawer').should('have.attr', 'hidden');
+        cy.get('#inline-drawer').should('have.attr', 'inert');
+        cy.get('#inline-drawer').should('have.attr', 'aria-hidden', 'true');
+      }
+
+      cy.get('#open-inline').realClick();
+      cy.get('#first-inline').should('be.focused');
+      cy.get('#close-outside').realClick().should('be.focused');
+    });
+  });
+
+  it('focuses the landmark when it has no focusable children', () => {
+    const Example = () => {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <>
+          <button id="open-empty" onClick={() => setOpen(true)}>
+            Open
+          </button>
+          <Drawer type="inline" id="empty-inline" open={open} onOpenChange={(_, data) => setOpen(data.open)}>
+            <p>Read-only content</p>
+          </Drawer>
+        </>
+      );
+    };
+
+    mount(<Example />);
+    cy.get('#open-empty').realClick();
+    cy.get('#empty-inline').should('be.focused').realPress('Escape');
+    cy.get('#open-empty').should('be.focused');
+  });
+});
+
 describe('OverlayDrawer', () => {
   testDrawerBaseScenarios({ type: 'overlay' });
 

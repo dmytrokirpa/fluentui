@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Add accessible Inline Drawer focus and dismissal behavior.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}
