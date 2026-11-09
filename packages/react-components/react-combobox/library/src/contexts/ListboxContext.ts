@@ -23,6 +23,8 @@ export type ListboxContextValue = Pick<
 > & {
   onOptionClick: (e: React.MouseEvent<HTMLElement>) => void;
   onActiveDescendantChange?: (e: ActiveDescendantChangeEvent) => void;
+  /** Use option/aria-selected semantics for multiselect instead of menuitemcheckbox/aria-checked. */
+  useListboxOptionSemantics?: boolean;
 };
 
 const listboxContextDefaultValue = {
