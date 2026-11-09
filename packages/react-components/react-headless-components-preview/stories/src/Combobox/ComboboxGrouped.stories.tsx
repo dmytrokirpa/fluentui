@@ -20,7 +20,8 @@ export const Grouped = (): React.ReactNode => {
         placeholder="Select an animal"
         clearable
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
-        clearIcon={{ className: styles.clearIcon, children: <DismissRegular /> }}
+        clearButton={{ className: styles.clearIcon }}
+        clearIcon={{ children: <DismissRegular /> }}
       >
         <OptionGroup className={styles.optionGroup} label={{ className: styles.groupLabel, children: 'Land' }}>
           {land.map(option => (

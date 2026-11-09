@@ -8,7 +8,8 @@ import { ActiveDescendantContextValue } from '@fluentui/react-aria';
 import type { BaseComboboxProps } from '@fluentui/react-combobox';
 import type { BaseComboboxState } from '@fluentui/react-combobox';
 import { ComboboxContextValues } from '@fluentui/react-combobox';
-import { ComboboxSlots } from '@fluentui/react-combobox';
+import type { ComboboxSlots as ComboboxSlots_2 } from '@fluentui/react-combobox';
+import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { ListboxContextValue } from '@fluentui/react-combobox';
@@ -28,6 +29,7 @@ import * as React_2 from 'react';
 import { renderListbox_unstable as renderListbox } from '@fluentui/react-combobox';
 import { renderOption_unstable as renderOption } from '@fluentui/react-combobox';
 import { renderOptionGroup_unstable as renderOptionGroup } from '@fluentui/react-combobox';
+import type { Slot } from '@fluentui/react-utilities';
 import { useActiveDescendantContext } from '@fluentui/react-aria';
 import { useListboxContext_unstable as useListboxContext } from '@fluentui/react-combobox';
 import { useListboxContextValues } from '@fluentui/react-combobox';
@@ -42,13 +44,17 @@ export { ComboboxContextValues }
 // @public (undocumented)
 export type ComboboxProps = Omit<BaseComboboxProps, 'inlinePopup' | 'mountNode' | 'positioning'> & {
     positioning?: PositioningShorthand;
+    clearButton?: ComboboxSlots['clearButton'];
 };
 
-export { ComboboxSlots }
+// @public (undocumented)
+export type ComboboxSlots = ComboboxSlots_2 & {
+    clearButton?: Slot<'button'>;
+};
 
 // @public (undocumented)
-export type ComboboxState = BaseComboboxState & {
-    root: {
+export type ComboboxState = Omit<BaseComboboxState, 'components'> & ComponentState<ComboboxSlots> & {
+    root: BaseComboboxState['root'] & {
         'data-open'?: string;
         'data-disabled'?: string;
         'data-placeholder'?: string;

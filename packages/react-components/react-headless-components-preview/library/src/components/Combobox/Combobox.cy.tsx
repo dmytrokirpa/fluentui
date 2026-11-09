@@ -56,39 +56,18 @@ describe('Combobox', () => {
       cy.get('[data-open]').should('not.exist');
     });
 
-    it('toggles on expand icon keyboard activation', () => {
-      mount(<BasicCombobox />);
-
-      cy.get(expandIcon).focus().realPress('Enter');
-      cy.get('[data-open]').should('exist');
-      cy.get(expandIcon).focus().realPress('Space');
-      cy.get('[data-open]').should('not.exist');
-      cy.get(trigger).should('be.focused');
-    });
-
-    it('closes on Escape from the expand icon without bubbling to a parent dialog', () => {
-      const onDialogKeyDown = cy.stub().as('onDialogKeyDown');
+    it('skips the decorative expand icon in the tab order', () => {
       mount(
-        <div role="dialog" onKeyDown={onDialogKeyDown}>
-          <BasicCombobox defaultOpen />
-        </div>,
+        <>
+          <BasicCombobox />
+          <button id="after">After</button>
+        </>,
       );
 
-      cy.get(expandIcon).focus().realPress('Escape');
-      cy.get(listbox).should('not.exist');
-      cy.get(trigger).should('be.focused');
-      cy.get('@onDialogKeyDown').should('not.have.been.called');
-    });
-
-    it('clears focus state when focus leaves from the expand icon', () => {
-      mount(<BasicCombobox />);
-
-      cy.get(trigger).realClick();
-      cy.get(listbox).should('exist');
-      cy.get(expandIcon).focus();
-      cy.get(listbox).should('exist');
+      cy.get(expandIcon).should('have.attr', 'aria-hidden', 'true').and('have.attr', 'tabindex', '-1');
+      cy.get(trigger).focus();
       cy.realPress('Tab');
-      cy.get(listbox).should('not.exist');
+      cy.get('#after').should('be.focused');
     });
 
     (['auto', 'manual'] as const).forEach(popover => {
@@ -160,10 +139,11 @@ describe('Combobox', () => {
       cy.get('@onOpenChange').should('have.been.calledOnce');
     });
 
-    it('removes the visually hidden expand icon from the tab order', () => {
+    it('replaces the expand icon with a clear button', () => {
       mount(<BasicCombobox clearable defaultSelectedOptions={['Cat']} defaultValue="Cat" />);
 
-      cy.get(expandIcon).should('have.attr', 'tabindex', '-1');
+      cy.get(expandIcon).should('not.exist');
+      cy.get('button[aria-label="Clear"]').should('have.attr', 'type', 'button');
     });
 
     it('opens on ArrowDown key', () => {
@@ -289,6 +269,64 @@ describe('Combobox', () => {
       cy.contains(option, 'Cat').realClick();
       cy.get('#clear-icon').realClick();
       cy.get(trigger).should('be.focused');
+    });
+
+    (['Enter', 'Space'] as const).forEach(key => {
+      it(`clears typed text using ${key} on the clear button`, () => {
+        mount(
+          <Combobox id="combobox" clearable freeform expandIcon={{ id: 'expand-icon', children: 'Open' }}>
+            <Option>Cat</Option>
+          </Combobox>,
+        );
+        cy.get(trigger).realClick().realType('Unmatched');
+        cy.get(expandIcon).should('not.exist');
+        cy.realPress('Tab');
+        cy.get('button[aria-label="Clear"]').should('be.focused');
+        cy.realPress(key);
+        cy.get(trigger).should('have.value', '').and('be.focused');
+        cy.get(expandIcon).should('exist');
+      });
+    });
+
+    it('keeps the clear action focusable for a closed non-freeform value', () => {
+      mount(
+        <Combobox id="combobox" clearable defaultValue="Unmatched">
+          <Option>Cat</Option>
+        </Combobox>,
+      );
+      cy.get(trigger).focus().should('have.value', 'Unmatched');
+      cy.realPress('Tab');
+      cy.get('button[aria-label="Clear"]').should('be.focused');
+      cy.realPress('Space');
+      cy.get(trigger).should('have.value', '').and('be.focused');
+    });
+
+    it('clears a controlled value and selection with the keyboard', () => {
+      const Example = () => {
+        const [value, setValue] = React.useState('Cat');
+        const [selectedOptions, setSelectedOptions] = React.useState(['Cat']);
+
+        return (
+          <Combobox
+            id="combobox"
+            clearable
+            value={value}
+            selectedOptions={selectedOptions}
+            clearButton={{ onClick: () => setValue('') }}
+            onOptionSelect={(_, data) => setSelectedOptions(data.selectedOptions)}
+          >
+            <Option>Cat</Option>
+          </Combobox>
+        );
+      };
+
+      mount(<Example />);
+      cy.get(trigger).focus();
+      cy.realPress('Tab');
+      cy.get('button[aria-label="Clear"]').should('be.focused');
+      cy.realPress('Enter');
+      cy.get(trigger).should('have.value', '').and('be.focused');
+      cy.get('button[aria-label="Clear"]').should('not.exist');
     });
   });
 

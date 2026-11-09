@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { isConformant } from '../../testing/isConformant';
 import { Combobox } from './Combobox';
 import { Option } from '../Dropdown/Option';
@@ -65,5 +65,95 @@ describe('Combobox', () => {
     expect(options[0]).not.toHaveAttribute('data-disabled');
     expect(options[1]).toHaveAttribute('data-disabled');
     expect(options[2]).not.toHaveAttribute('data-disabled');
+  });
+
+  it('uses a named clear button instead of the expand icon for typed text', () => {
+    const { container, getByRole } = render(
+      <Combobox
+        clearable
+        freeform
+        defaultValue="Unmatched"
+        clearIcon={{ children: 'X' }}
+        expandIcon={{ id: 'expand-icon' }}
+      />,
+    );
+    const input = getByRole('combobox');
+    const clear = getByRole('button', { name: 'Clear' });
+
+    expect(clear).toHaveAttribute('type', 'button');
+    expect(clear).toHaveTextContent('X');
+    expect(container.querySelector('#expand-icon')).not.toBeInTheDocument();
+    fireEvent.click(clear);
+    expect(input).toHaveValue('');
+    expect(input).toHaveFocus();
+    expect(container.querySelector('#expand-icon')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('#expand-icon')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('clears multiple selections and a query without dismissing the popup', () => {
+    const onOptionSelect = jest.fn();
+    const { getByRole } = render(
+      <Combobox clearable multiselect defaultOpen defaultSelectedOptions={['Cat']} onOptionSelect={onOptionSelect}>
+        <Option>Cat</Option>
+        <Option>Dog</Option>
+      </Combobox>,
+    );
+    const input = getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'query' } });
+    fireEvent.click(getByRole('button', { name: 'Clear' }));
+
+    expect(input).toHaveValue('');
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+    expect(onOptionSelect).toHaveBeenLastCalledWith(expect.anything(), {
+      optionValue: undefined,
+      optionText: undefined,
+      selectedOptions: [],
+    });
+  });
+
+  it('lets a controlled value respond to the clear button', () => {
+    const Controlled = () => {
+      const [value, setValue] = React.useState('query');
+      return <Combobox clearable value={value} clearButton={{ onClick: () => setValue('') }} />;
+    };
+    const { getByRole, queryByRole } = render(<Controlled />);
+
+    fireEvent.click(getByRole('button', { name: 'Clear' }));
+    expect(getByRole('combobox')).toHaveValue('');
+    expect(queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+  });
+
+  it('accepts custom clear button content and an accessible name', () => {
+    const { getByRole } = render(
+      <Combobox
+        clearable
+        value="query"
+        clearIcon={null}
+        clearButton={{ 'aria-label': 'Reset choice', children: 'Reset' }}
+      />,
+    );
+    expect(getByRole('button', { name: 'Reset choice' })).toHaveTextContent('Reset');
+  });
+
+  it.each([{ disabled: true }, { input: { disabled: true } }, { readOnly: true }])(
+    'does not expose a clear action when %o',
+    props => {
+      const { queryByRole } = render(<Combobox clearable value="query" {...props} />);
+      expect(queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+    },
+  );
+
+  it('honors an explicitly omitted clear icon', () => {
+    const { queryByRole } = render(<Combobox clearable value="query" clearIcon={null} />);
+    expect(queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+  });
+
+  it('lets a consumer cancel clearing', () => {
+    const { getByRole } = render(
+      <Combobox clearable value="query" clearButton={{ onClick: event => event.preventDefault() }} />,
+    );
+    fireEvent.click(getByRole('button', { name: 'Clear' }));
+    expect(getByRole('combobox')).toHaveValue('query');
   });
 });

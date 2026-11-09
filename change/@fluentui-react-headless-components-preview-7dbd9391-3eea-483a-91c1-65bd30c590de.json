@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Make the Combobox clear action accessible and support clearing typed and multiple values.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

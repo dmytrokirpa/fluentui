@@ -26,11 +26,13 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     // For multiselect, editable should be false to display comma-separated values in the trigger
     // For single-select, editable is true to allow filtering
     baseStateExtras: p => ({ editable: !p.multiselect }),
+    supportsMultiselectClear: true,
   });
 
   const { appearance: _appearance, size: _size, ...baseState } = internalState;
-  const { clearable, clearSelection, disabled, hasFocus, multiselect, open, selectedOptions } = baseState;
+  const { clearable, clearSelection, disabled, hasFocus, open, selectedOptions } = baseState;
   const expandIconRef = React.useRef<HTMLSpanElement>(null);
+  const clearButtonRef = React.useRef<HTMLButtonElement>(null);
 
   const triggerSlot = useInputTriggerSlot(mergedProps.input ?? {}, useMergedRefs(triggerRef, activeParentRef, ref), {
     state: internalState,
@@ -42,15 +44,31 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
       ...triggerNativeProps,
     },
     activeDescendantController,
-    shouldCloseOnBlur: event => !expandIconRef.current || event.relatedTarget !== expandIconRef.current,
+    shouldCloseOnBlur: event =>
+      !event.relatedTarget ||
+      (event.relatedTarget !== expandIconRef.current && event.relatedTarget !== clearButtonRef.current),
   });
 
-  const showClearIcon = selectedOptions.length > 0 && !disabled && clearable && !multiselect;
+  const showClearIcon =
+    !!clearable &&
+    (!!triggerSlot.value || selectedOptions.length > 0) &&
+    !disabled &&
+    !triggerSlot.disabled &&
+    !triggerSlot.readOnly &&
+    mergedProps.clearButton !== null &&
+    (mergedProps.clearIcon !== null || mergedProps.clearButton !== undefined);
   const placeholderVisible = !baseState.value && !!mergedProps.placeholder;
 
   const state: ComboboxState = {
     ...baseState,
-    components: { root: 'div', input: 'input', expandIcon: 'span', clearIcon: 'span', listbox: Listbox },
+    components: {
+      root: 'div',
+      input: 'input',
+      expandIcon: 'span',
+      clearIcon: 'span',
+      clearButton: 'button',
+      listbox: Listbox,
+    },
     root: {
       ...rootSlot,
       'data-open': toDataAttributeValue(open),
@@ -66,6 +84,13 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
       elementType: 'span',
       renderByDefault: true,
     }),
+    clearButton: showClearIcon
+      ? slot.optional(mergedProps.clearButton, {
+          defaultProps: { type: 'button', 'aria-label': 'Clear' },
+          elementType: 'button',
+          renderByDefault: true,
+        })
+      : undefined,
     expandIcon: useComboboxExpandIconSlot(mergedProps.expandIcon, {
       disabled,
       hideFromTabOrder: showClearIcon,
@@ -128,6 +153,12 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
 
   if (state.expandIcon) {
     state.expandIcon.ref = expandIconSlotRef;
+    state.expandIcon.role = undefined;
+    state.expandIcon['aria-hidden'] = true;
+    state.expandIcon['aria-label'] = undefined;
+    state.expandIcon['aria-labelledby'] = undefined;
+    state.expandIcon['aria-expanded'] = undefined;
+    state.expandIcon.tabIndex = -1;
     state.expandIcon.onMouseDown = onExpandIconMouseDown;
     state.expandIcon.onClick = onExpandIconClick;
     state.expandIcon.onKeyDown = onExpandIconKeyDown;
@@ -142,27 +173,33 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     }
   });
 
-  const onClearIconMouseDown = useEventCallback(
-    mergeCallbacks(state.clearIcon?.onMouseDown, (ev: React.MouseEvent<HTMLSpanElement>) => {
+  const onClearButtonMouseDown = useEventCallback(
+    mergeCallbacks(state.clearButton?.onMouseDown, (ev: React.MouseEvent<HTMLButtonElement>) => {
       ev.preventDefault();
     }),
   );
-  const onClearIconClick = useEventCallback(
+  const onClearButtonClick = useEventCallback(
     // eslint-disable-next-line react-hooks/refs
-    mergeCallbacks(state.clearIcon?.onClick, (ev: React.MouseEvent<HTMLSpanElement>) => {
-      clearSelection(ev);
-      triggerRef.current?.focus();
+    mergeCallbacks(state.clearButton?.onClick, (ev: React.MouseEvent<HTMLButtonElement>) => {
+      if (
+        !disabled &&
+        !triggerSlot.disabled &&
+        !triggerSlot.readOnly &&
+        !state.clearButton?.disabled &&
+        !ev.defaultPrevented
+      ) {
+        internalState.setValue('');
+        clearSelection(ev);
+        triggerRef.current?.focus();
+      }
     }),
   );
+  const clearButtonSlotRef = useMergedRefs(state.clearButton?.ref, clearButtonRef);
 
-  if (state.clearIcon) {
-    state.clearIcon.onMouseDown = onClearIconMouseDown;
-    state.clearIcon.onClick = onClearIconClick;
-  }
-
-  // Heads up! We don't support "clearable" in multiselect mode, so we should never display a slot
-  if (multiselect) {
-    state.clearIcon = undefined;
+  if (state.clearButton) {
+    state.clearButton.ref = clearButtonSlotRef;
+    state.clearButton.onMouseDown = onClearButtonMouseDown;
+    state.clearButton.onClick = onClearButtonClick;
   }
 
   return state;

@@ -54,6 +54,8 @@ export type UseListboxPopupStateOptions<TProps extends ListboxPopupBaseProps> = 
    * For example, Dropdown forces `freeform: false`; Combobox derives `editable` from `multiselect`.
    */
   baseStateExtras?: (mergedProps: TProps) => ComboboxBaseStateExtras;
+  /** Whether the caller supports the clearable and multiselect combination. */
+  supportsMultiselectClear?: boolean;
   /**
    * Extra default props for the root slot. For example, Dropdown places its children on the root
    * (the option list); Combobox does not.
@@ -86,7 +88,8 @@ export function useListboxPopupState<TProps extends ListboxPopupBaseProps, TTrig
   initialProps: TProps,
   options: UseListboxPopupStateOptions<TProps>,
 ): UseListboxPopupStateReturn<TProps, TTrigger> {
-  const { primarySlotTagName, fieldControlOptions, baseStateExtras, rootDefaultProps } = options;
+  const { primarySlotTagName, fieldControlOptions, baseStateExtras, rootDefaultProps, supportsMultiselectClear } =
+    options;
 
   const positioningOptions = resolvePositioningShorthand(initialProps.positioning);
   const { targetRef: comboboxTargetRef, containerRef: comboboxPopupRef } = usePositioning(positioningOptions);
@@ -139,13 +142,13 @@ export function useListboxPopupState<TProps extends ListboxPopupBaseProps, TTrig
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks -- "process.env" does not change in runtime
     React.useEffect(() => {
-      if (clearable && multiselect) {
+      if (clearable && multiselect && !supportsMultiselectClear) {
         // eslint-disable-next-line no-console
         console.error(
           `[@fluentui/react-headless-components-preview] "clearable" prop is not supported in multiselect mode.`,
         );
       }
-    }, [clearable, multiselect]);
+    }, [clearable, multiselect, supportsMultiselectClear]);
   }
 
   return {

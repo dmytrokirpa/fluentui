@@ -30,7 +30,8 @@ export const Controlled = (): React.ReactNode => {
         selectedOptions={selectedOptions}
         onOptionSelect={onOptionSelect}
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
-        clearIcon={{ className: styles.clearIcon, children: <DismissRegular /> }}
+        clearButton={{ className: styles.clearIcon }}
+        clearIcon={{ children: <DismissRegular /> }}
       >
         {options.map(option => (
           <Option

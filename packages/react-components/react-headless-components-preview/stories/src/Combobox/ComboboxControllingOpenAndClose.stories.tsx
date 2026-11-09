@@ -30,7 +30,8 @@ export const ControllingOpenAndClose = (): React.ReactNode => {
         open={open}
         onOpenChange={handleOpenChange}
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
-        clearIcon={{ className: styles.clearIcon, children: <DismissRegular /> }}
+        clearButton={{ className: styles.clearIcon }}
+        clearIcon={{ children: <DismissRegular /> }}
       >
         {options.map(option => (
           <Option
