@@ -14,6 +14,7 @@ export const renderCombobox = (state: ComboboxState, contextValues: ComboboxCont
     <state.root>
       <ActiveDescendantContextProvider value={contextValues.activeDescendant}>
         <ListboxProvider value={contextValues.listbox}>
+          {state.selectionDisplay && <state.selectionDisplay />}
           <state.input />
           {state.clearButton ? (
             <state.clearButton>

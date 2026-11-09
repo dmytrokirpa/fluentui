@@ -11,6 +11,8 @@ export type { ComboboxContextValues, ComboboxOpenChangeData, ComboboxOpenEvents 
 export type ComboboxSlots = BaseComboboxSlots & {
   /** Clear button containing the clear icon. Supply a localized accessible label. */
   clearButton?: Slot<'button'>;
+  /** Displays selected values separately from the editable input in multiselect mode. */
+  selectionDisplay?: Slot<'span'>;
 };
 
 export type ComboboxProps = Omit<BaseComboboxProps, 'inlinePopup' | 'mountNode' | 'positioning'> & {
@@ -21,10 +23,20 @@ export type ComboboxProps = Omit<BaseComboboxProps, 'inlinePopup' | 'mountNode' 
    */
   value?: string;
   /**
+   * Resolves the text for a selected value, including values whose options are not mounted.
+   * When omitted, the option's last known text is used, falling back to its value.
+   */
+  getSelectedOptionText?: (value: string) => string | undefined;
+  /**
    * Clear button shown in place of the expand icon when there is a value to clear.
    * When controlling `value`, update it in this slot's `onClick` or in `onOptionSelect`.
    */
   clearButton?: ComboboxSlots['clearButton'];
+  /**
+   * Multiselect summary. Override its children to render a localized summary or tokens.
+   * Its id is added to the input's `aria-describedby`.
+   */
+  selectionDisplay?: ComboboxSlots['selectionDisplay'];
 };
 
 export type ComboboxState = Omit<BaseComboboxState, 'components'> &

@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Keep multiselect Combobox queries separate from selected labels.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

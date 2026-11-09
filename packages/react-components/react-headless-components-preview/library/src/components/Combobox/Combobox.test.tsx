@@ -112,6 +112,92 @@ describe('Combobox', () => {
     });
   });
 
+  it('keeps selected option text in a separate description when the option is filtered out', () => {
+    const renderCombobox = (showCat: boolean) => (
+      <>
+        <span id="hint">Choose pets</span>
+        <Combobox
+          aria-describedby="hint"
+          defaultOpen
+          multiselect
+          defaultSelectedOptions={['cat-id']}
+          selectionDisplay={{ id: 'selection' }}
+        >
+          {showCat && <Option value="cat-id">Cat</Option>}
+          <Option value="dog-id">Dog</Option>
+        </Combobox>
+      </>
+    );
+    const { container, getByRole, rerender } = render(renderCombobox(true));
+    const input = getByRole('combobox');
+
+    expect(input).toHaveValue('');
+    expect(input).toHaveAttribute('aria-describedby', 'hint selection');
+    expect(container.querySelector('#selection')).toHaveTextContent('Cat');
+    fireEvent.change(input, { target: { value: 'Dog' } });
+    rerender(renderCombobox(false));
+    expect(input).toHaveValue('Dog');
+    expect(container.querySelector('#selection')).toHaveTextContent('Cat');
+  });
+
+  it('resolves controlled selected labels even when their options are not mounted', () => {
+    const labels: Record<string, string> = { 'cat-id': 'Cat', 'dog-id': 'Dog' };
+    const { container, getByRole, rerender } = render(
+      <Combobox
+        multiselect
+        selectedOptions={['cat-id']}
+        value="query"
+        getSelectedOptionText={value => labels[value]}
+      />,
+    );
+    const input = getByRole('combobox');
+
+    expect(input).toHaveValue('query');
+    const selection = container.querySelector(`[id="${input.getAttribute('aria-describedby')}"]`);
+    expect(selection).toHaveTextContent('Cat');
+    rerender(
+      <Combobox
+        multiselect
+        selectedOptions={['cat-id', 'dog-id']}
+        value="query"
+        getSelectedOptionText={value => labels[value]}
+      />,
+    );
+    expect(input).toHaveValue('query');
+    expect(selection).toHaveTextContent('Cat, Dog');
+  });
+
+  it('updates the selection display when options are deselected or cleared', () => {
+    const { getByRole, container } = render(
+      <Combobox clearable defaultOpen multiselect selectionDisplay={{ id: 'selection' }}>
+        <Option value="cat-id">Cat</Option>
+        <Option value="dog-id">Dog</Option>
+      </Combobox>,
+    );
+    const selection = container.querySelector('#selection');
+
+    fireEvent.click(getByRole('option', { name: 'Cat' }));
+    fireEvent.click(getByRole('option', { name: 'Dog' }));
+    expect(selection).toHaveTextContent('Cat, Dog');
+    fireEvent.click(getByRole('option', { name: 'Cat' }));
+    expect(selection).toHaveTextContent('Dog');
+    fireEvent.click(getByRole('button', { name: 'Clear' }));
+    expect(selection).toBeEmptyDOMElement();
+  });
+
+  it('allows a localized custom selection summary', () => {
+    const { getByRole, getByText } = render(
+      <Combobox
+        multiselect
+        selectedOptions={['cat-id', 'dog-id']}
+        selectionDisplay={{ id: 'summary', children: '2 animals selected' }}
+      />,
+    );
+
+    expect(getByText('2 animals selected')).toHaveAttribute('id', 'summary');
+    expect(getByRole('combobox')).toHaveAttribute('aria-describedby', 'summary');
+  });
+
   it('lets a controlled value respond to the clear button', () => {
     const Controlled = () => {
       const [value, setValue] = React.useState('query');

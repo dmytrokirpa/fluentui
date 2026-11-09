@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { mergeCallbacks, useEventCallback, useMergedRefs, slot } from '@fluentui/react-utilities';
+import { mergeCallbacks, useEventCallback, useId, useMergedRefs, slot } from '@fluentui/react-utilities';
 import { useComboboxExpandIconSlot, useInputTriggerSlot } from '@fluentui/react-combobox';
 import type { ComboboxProps, ComboboxState } from './Combobox.types';
 import { Listbox } from '../Dropdown/Listbox';
@@ -24,25 +24,48 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
   } = useListboxPopupState<ComboboxProps, HTMLInputElement>(props, {
     primarySlotTagName: 'input',
     fieldControlOptions: { supportsLabelFor: true, supportsRequired: true },
-    // For multiselect, editable should be false to display comma-separated values in the trigger
-    // For single-select, editable is true to allow filtering
-    baseStateExtras: p => ({ editable: !p.multiselect, initialFocus }),
+    baseStateExtras: () => ({ editable: true, initialFocus }),
     supportsMultiselectClear: true,
   });
 
   const { appearance: _appearance, size: _size, ...baseState } = internalState;
-  const { clearable, clearSelection, disabled, hasFocus, open, selectedOptions } = baseState;
+  const { clearable, clearSelection, disabled, getOptionsMatchingValue, hasFocus, multiselect, open, selectedOptions } =
+    baseState;
   const expandIconRef = React.useRef<HTMLSpanElement>(null);
   const clearButtonRef = React.useRef<HTMLButtonElement>(null);
   const pendingEditRef = React.useRef<{ committedValue: string }>(undefined);
   const preservePendingOnCloseRef = React.useRef(false);
+  const [selectedOptionTexts, setSelectedOptionTexts] = React.useState(() => new Map<string, string>());
 
   const selectOption = useEventCallback((...args: Parameters<typeof internalState.selectOption>) => {
-    if (!args[1].disabled && !internalState.multiselect) {
-      pendingEditRef.current = undefined;
+    const option = args[1];
+    if (!option.disabled) {
+      if (multiselect && !selectedOptions.includes(option.value)) {
+        setSelectedOptionTexts(previous => new Map(previous).set(option.value, option.text));
+      } else if (!multiselect) {
+        pendingEditRef.current = undefined;
+      }
     }
     internalState.selectOption(...args);
   });
+
+  React.useEffect(() => {
+    if (!multiselect) {
+      return;
+    }
+
+    const mountedOptions = getOptionsMatchingValue(value => selectedOptions.includes(value));
+    // Keep selected labels after the option collection unregisters filtered or closed options.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedOptionTexts(previous => {
+      const next = new Map(Array.from(previous).filter(([value]) => selectedOptions.includes(value)));
+      mountedOptions.forEach(option => next.set(option.value, option.text));
+      if (next.size === previous.size && Array.from(next).every(([value, text]) => previous.get(value) === text)) {
+        return previous;
+      }
+      return next;
+    });
+  }, [getOptionsMatchingValue, mergedProps.children, multiselect, open, selectedOptions]);
 
   const finishPendingEdit = useEventCallback(
     (event?: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
@@ -200,6 +223,26 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     onKeyDown: onInputKeyDown,
   } as typeof baseTriggerSlot;
 
+  const selectionDisplayId = useId(
+    'fluent-combobox-selection',
+    slot.resolveShorthand(mergedProps.selectionDisplay)?.id,
+  );
+  const selectionDisplay = multiselect
+    ? slot.optional(mergedProps.selectionDisplay, {
+        elementType: 'span',
+        renderByDefault: true,
+        defaultProps: {
+          id: selectionDisplayId,
+          'aria-live': 'polite',
+          children: selectedOptions
+            .map(value => mergedProps.getSelectedOptionText?.(value) ?? selectedOptionTexts.get(value) ?? value)
+            .join(', '),
+        },
+      })
+    : undefined;
+  triggerSlot['aria-describedby'] =
+    [triggerSlot['aria-describedby'], selectionDisplay?.id].filter(Boolean).join(' ') || undefined;
+
   const showClearIcon =
     !!clearable &&
     (!!triggerSlot.value || selectedOptions.length > 0) &&
@@ -219,6 +262,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
       expandIcon: 'span',
       clearIcon: 'span',
       clearButton: 'button',
+      selectionDisplay: 'span',
       listbox: Listbox,
     },
     root: {
@@ -230,6 +274,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
       'data-clearable': toDataAttributeValue(showClearIcon),
     },
     input: triggerSlot,
+    selectionDisplay,
     listbox: open || hasFocus ? listbox : undefined,
     clearIcon: slot.optional(mergedProps.clearIcon, {
       defaultProps: { 'aria-hidden': 'true' },

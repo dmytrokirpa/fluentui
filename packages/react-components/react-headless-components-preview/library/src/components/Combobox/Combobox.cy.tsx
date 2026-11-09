@@ -688,19 +688,68 @@ describe('Combobox', () => {
       cy.get(trigger).should('have.focus').and('have.attr', 'aria-expanded', 'true');
     });
 
-    it('shows comma-separated values in trigger for multiple selections', () => {
+    it('shows selected labels separately from the editable query', () => {
       mount(
-        <Combobox id="combobox" multiselect placeholder="Select animals">
-          <Option>Cat</Option>
-          <Option>Dog</Option>
+        <Combobox id="combobox" multiselect placeholder="Select animals" selectionDisplay={{ id: 'selection' }}>
+          <Option value="cat-id">Cat</Option>
+          <Option value="dog-id">Dog</Option>
           <Option>Fish</Option>
         </Combobox>,
       );
       cy.get(trigger).realClick();
       cy.contains(option, 'Cat').realClick();
       cy.contains(option, 'Dog').realClick();
-      cy.get(trigger).invoke('val').should('include', 'Cat');
-      cy.get(trigger).invoke('val').should('include', 'Dog');
+      cy.get(trigger).should('have.value', '').and('have.attr', 'aria-describedby', 'selection');
+      cy.get('#selection').should('have.text', 'Cat, Dog');
+      cy.get(trigger).realType('Fish');
+      cy.get(trigger).should('have.value', 'Fish');
+      cy.get('#selection').should('have.text', 'Cat, Dog');
+      cy.get(listbox).should('be.visible');
+    });
+
+    it('retains controlled selection labels when filtering unmounts selected options', () => {
+      const options = [
+        { value: 'cat-id', text: 'Cat' },
+        { value: 'dog-id', text: 'Dog' },
+      ];
+      const Example = () => {
+        const [query, setQuery] = React.useState('');
+        const [selectedOptions, setSelectedOptions] = React.useState(['cat-id']);
+        return (
+          <Combobox
+            id="combobox"
+            multiselect
+            value={query}
+            selectedOptions={selectedOptions}
+            selectionDisplay={{ id: 'selection' }}
+            getSelectedOptionText={value => options.find(item => item.value === value)?.text}
+            onChange={event => setQuery(event.target.value)}
+            onOptionSelect={(_event, data) => {
+              setSelectedOptions(data.selectedOptions);
+              setQuery('');
+            }}
+          >
+            {options
+              .filter(item => item.text.toLowerCase().includes(query.toLowerCase()))
+              .map(item => (
+                <Option key={item.value} value={item.value}>
+                  {item.text}
+                </Option>
+              ))}
+          </Combobox>
+        );
+      };
+
+      mount(<Example />);
+      cy.get('#selection').should('have.text', 'Cat');
+      cy.get(trigger).realClick().realType('Dog');
+      cy.contains(option, 'Cat').should('not.exist');
+      cy.get('#selection').should('have.text', 'Cat');
+      cy.contains(option, 'Dog').realClick();
+      cy.get(trigger).should('have.value', '').and('have.focus').and('have.attr', 'aria-expanded', 'true');
+      cy.get('#selection').should('have.text', 'Cat, Dog');
+      cy.contains(option, 'Cat').should('have.attr', 'aria-selected', 'true');
+      cy.contains(option, 'Dog').should('have.attr', 'aria-selected', 'true');
     });
 
     it('deselects an already-selected option on second click', () => {

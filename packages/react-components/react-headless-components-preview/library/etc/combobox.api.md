@@ -44,12 +44,15 @@ export { ComboboxContextValues }
 export type ComboboxProps = Omit<BaseComboboxProps, 'inlinePopup' | 'mountNode' | 'positioning'> & {
     positioning?: PositioningShorthand;
     value?: string;
+    getSelectedOptionText?: (value: string) => string | undefined;
     clearButton?: ComboboxSlots['clearButton'];
+    selectionDisplay?: ComboboxSlots['selectionDisplay'];
 };
 
 // @public (undocumented)
 export type ComboboxSlots = ComboboxSlots_2 & {
     clearButton?: Slot<'button'>;
+    selectionDisplay?: Slot<'span'>;
 };
 
 // @public (undocumented)

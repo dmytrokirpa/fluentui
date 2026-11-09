@@ -5,6 +5,8 @@ import styles from './combobox.module.css';
 
 export const Multiselect = (): React.ReactNode => {
   const options = ['Cat', 'Dog', 'Ferret', 'Fish', 'Hamster', 'Snake'];
+  const [query, setQuery] = React.useState('');
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
 
   return (
     <div className={styles.demo}>
@@ -17,19 +19,31 @@ export const Multiselect = (): React.ReactNode => {
         listbox={{ className: styles.listbox }}
         id="combobox-multiselect"
         multiselect
+        value={query}
+        selectedOptions={selectedOptions}
+        onChange={event => setQuery(event.target.value)}
+        onOptionSelect={(_event, data) => {
+          setSelectedOptions(data.selectedOptions);
+          setQuery('');
+        }}
+        getSelectedOptionText={value => options.find(option => option.toLowerCase() === value)}
+        selectionDisplay={{ className: styles.selectionDisplay }}
         placeholder="Select animals"
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
       >
-        {options.map(option => (
-          <Option
-            className={styles.option}
-            key={option}
-            checkIcon={{ className: styles.checkIcon, children: <CheckmarkRegular /> }}
-            disabled={option === 'Ferret'}
-          >
-            {option}
-          </Option>
-        ))}
+        {options
+          .filter(option => option.toLowerCase().includes(query.toLowerCase()))
+          .map(option => (
+            <Option
+              className={styles.option}
+              key={option}
+              value={option.toLowerCase()}
+              checkIcon={{ className: styles.checkIcon, children: <CheckmarkRegular /> }}
+              disabled={option === 'Ferret'}
+            >
+              {option}
+            </Option>
+          ))}
       </Combobox>
     </div>
   );
@@ -38,7 +52,9 @@ export const Multiselect = (): React.ReactNode => {
 Multiselect.parameters = {
   docs: {
     description: {
-      story: 'Combobox supports multiselect. Selected options are shown as a comma-separated list in the input.',
+      story:
+        'The selection summary is separate from the editable filter. Resolve selected labels from the full ' +
+        'option collection so they remain available when filtering hides an option.',
     },
   },
 };

@@ -51,6 +51,11 @@
   cursor: not-allowed;
 }
 
+.selectionDisplay {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 .root:has(input:disabled) {
   opacity: 0.5;
   pointer-events: none;
