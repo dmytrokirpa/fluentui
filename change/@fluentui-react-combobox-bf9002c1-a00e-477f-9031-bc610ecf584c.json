@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Support listbox option semantics for multiselect contexts.",
+  "packageName": "@fluentui/react-combobox",
+  "email": "dmytrokirpa@microsoft.com"
+}

@@ -81,6 +81,7 @@ export const useOptionBase_unstable = (props: OptionProps, ref: React.Ref<HTMLEl
   // context values
   const { controller: activeDescendantController } = useActiveDescendantContext();
   const multiselect = useListboxContext_unstable(ctx => ctx.multiselect);
+  const useListboxOptionSemantics = useListboxContext_unstable(ctx => ctx.useListboxOptionSemantics);
   const registerOption = useListboxContext_unstable(ctx => ctx.registerOption);
   const selected = useListboxContext_unstable(ctx => {
     const selectedOptions = ctx.selectedOptions;
@@ -112,9 +113,10 @@ export const useOptionBase_unstable = (props: OptionProps, ref: React.Ref<HTMLEl
     }
   }, [id, optionData, registerOption]);
 
-  const semanticProps = multiselect
-    ? { role: 'menuitemcheckbox', 'aria-checked': selected }
-    : { role: 'option', 'aria-selected': selected };
+  const semanticProps =
+    multiselect && !useListboxOptionSemantics
+      ? { role: 'menuitemcheckbox', 'aria-checked': selected }
+      : { role: 'option', 'aria-selected': selected };
 
   return {
     components: {
