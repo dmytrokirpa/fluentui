@@ -9,8 +9,6 @@ import type { DropdownProps } from '.';
 const trigger = '#dropdown';
 const listbox = '[role="listbox"]';
 const option = '[role="option"]';
-const multiselectPopup = '[role="menu"]';
-const multiselectOption = '[role="menuitemcheckbox"]';
 const group = '[role="group"]';
 const groupLabel = '[role="presentation"]';
 
@@ -224,11 +222,19 @@ describe('Dropdown', () => {
         <Dropdown id="dropdown" multiselect placeholder="Select animals">
           <Option>Cat</Option>
           <Option>Dog</Option>
+          <Option disabled>Ferret</Option>
         </Dropdown>,
       );
       cy.get(trigger).realClick();
-      cy.contains(multiselectOption, 'Cat').realClick();
-      cy.get(multiselectPopup).should('exist');
+      cy.contains(option, 'Cat').should('have.attr', 'aria-selected', 'false');
+      cy.contains(option, 'Cat').realClick();
+      cy.get(listbox).should('have.attr', 'aria-multiselectable', 'true');
+      cy.contains(option, 'Cat').should('have.attr', 'aria-selected', 'true');
+      cy.get(trigger).should('have.focus').and('have.attr', 'aria-expanded', 'true');
+      cy.get(trigger).realPress('Enter');
+      cy.contains(option, 'Cat').should('have.attr', 'aria-selected', 'false');
+      cy.contains(option, 'Ferret').realClick().should('have.attr', 'aria-selected', 'false');
+      cy.get(trigger).should('have.focus').and('have.attr', 'aria-expanded', 'true');
     });
 
     it('shows comma-separated values in trigger for multiple selections', () => {
@@ -240,8 +246,8 @@ describe('Dropdown', () => {
         </Dropdown>,
       );
       cy.get(trigger).realClick();
-      cy.contains(multiselectOption, 'Cat').realClick();
-      cy.contains(multiselectOption, 'Dog').realClick();
+      cy.contains(option, 'Cat').realClick();
+      cy.contains(option, 'Dog').realClick();
       cy.get(trigger).should('contain.text', 'Cat');
       cy.get(trigger).should('contain.text', 'Dog');
     });
@@ -254,8 +260,8 @@ describe('Dropdown', () => {
         </Dropdown>,
       );
       cy.get(trigger).realClick();
-      cy.contains(multiselectOption, 'Cat').realClick();
-      cy.contains(multiselectOption, 'Cat').realClick(); // deselect
+      cy.contains(option, 'Cat').realClick();
+      cy.contains(option, 'Cat').realClick(); // deselect
       cy.get(trigger).should('not.contain.text', 'Cat');
     });
   });

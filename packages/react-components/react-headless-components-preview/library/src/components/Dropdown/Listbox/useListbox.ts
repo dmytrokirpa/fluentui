@@ -11,9 +11,16 @@ import type { ListboxProps, ListboxState } from './Listbox.types';
  */
 export const useListbox = (props: ListboxProps, ref: React.Ref<HTMLElement>): ListboxState => {
   const state = useListbox_unstable(props, ref);
+  const role = props.role ?? 'listbox';
 
   return {
     ...state,
-    root: { popover: 'auto', ...state.root },
+    root: {
+      popover: 'auto',
+      ...state.root,
+      role,
+      'aria-multiselectable':
+        state.root['aria-multiselectable'] ?? (state.multiselect && role === 'listbox' ? true : undefined),
+    },
   };
 };
