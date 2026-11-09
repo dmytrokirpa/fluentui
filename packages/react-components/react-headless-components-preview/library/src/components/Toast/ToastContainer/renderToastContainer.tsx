@@ -15,6 +15,10 @@ export const renderToastContainer = (
 ): JSXElement => {
   assertSlots<ToastContainerSlots>(state);
 
+  if (!state.visible) {
+    return <></>;
+  }
+
   return (
     <ToastContainerContextProvider value={contextValues.toast}>
       <state.root />

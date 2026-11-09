@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { resetIdsForTests } from '@fluentui/react-utilities';
 import { isConformant } from '../../../testing/isConformant';
 import type { ToastContainerProps } from './ToastContainer.types';
@@ -88,5 +88,31 @@ describe('ToastContainer', () => {
     );
 
     expect(container.querySelector(`.${className}`)).not.toBeNull();
+  });
+
+  it('dismisses the active toast on Escape and respects a prevented key event', () => {
+    const close = jest.fn();
+    const onKeyDown = jest.fn();
+    const result = render(
+      <ToastContainer {...defaultToastContainerProps} close={close} data={{ root: { onKeyDown } }}>
+        Toast
+      </ToastContainer>,
+    );
+
+    fireEvent.keyDown(result.getByRole('listitem'), { key: 'Escape' });
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
+
+    result.rerender(
+      <ToastContainer
+        {...defaultToastContainerProps}
+        close={close}
+        data={{ root: { onKeyDown: (event: React.KeyboardEvent) => event.preventDefault() } }}
+      >
+        Toast
+      </ToastContainer>,
+    );
+    fireEvent.keyDown(result.getByRole('listitem'), { key: 'Escape' });
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

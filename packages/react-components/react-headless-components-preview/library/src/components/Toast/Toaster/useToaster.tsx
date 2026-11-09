@@ -7,6 +7,7 @@ import type { ToasterProps, ToasterState } from './Toaster.types';
 import type { ExtractSlotProps, Slot } from '@fluentui/react-utilities';
 import {
   getIntrinsicElementProps,
+  isHTMLElement,
   slot,
   useEventCallback,
   useIsomorphicLayoutEffect,
@@ -26,7 +27,7 @@ export const useToaster = (props: ToasterProps): ToasterState => {
     position,
     timeout,
     pauseOnWindowBlur,
-    pauseOnHover,
+    pauseOnHover = true,
     priority,
     offset,
     shortcuts,
@@ -51,37 +52,54 @@ export const useToaster = (props: ToasterProps): ToasterState => {
         : undefined,
     [shortcuts],
   );
-  const { toastsToRender, isToastVisible, playAllToasts, tryRestoreFocus, closeAllToasts } =
-    useToasterState<HTMLDivElement>({
-      toasterId,
-      position,
-      timeout,
-      pauseOnWindowBlur,
-      pauseOnHover,
-      priority,
-      shortcuts: toasterShortcuts,
-      limit,
-    });
+  const { toastsToRender, isToastVisible, playAllToasts, tryRestoreFocus } = useToasterState<HTMLDivElement>({
+    toasterId,
+    position,
+    timeout,
+    pauseOnWindowBlur,
+    pauseOnHover,
+    priority,
+    shortcuts: toasterShortcuts,
+    limit,
+  });
   useIsomorphicLayoutEffect(() => {
     playAllToastsRef.current = playAllToasts;
   }, [playAllToasts]);
 
   const announceRef = React.useRef<ToastAnnounce>(() => null);
   const announce = React.useCallback<ToastAnnounce>((message, options) => announceRef.current(message, options), []);
-  const { dir } = useFluent();
+  const { dir, targetDocument } = useFluent();
+  const focusBeforeToaster = React.useRef<HTMLElement | null>(null);
 
-  const { onKeyDown: onKeyDownProp, ...rootProps } = slot.always(
-    getIntrinsicElementProps<ExtractSlotProps<Slot<'div'>>>('div', rest),
-    {
-      elementType: 'div',
-    },
-  );
-  const onKeyDown = useEventCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === Escape) {
-      e.preventDefault();
-      closeAllToasts();
+  const {
+    onFocus: onFocusProp,
+    onKeyDown: onKeyDownProp,
+    ...rootProps
+  } = slot.always(getIntrinsicElementProps<ExtractSlotProps<Slot<'div'>>>('div', rest), {
+    elementType: 'div',
+  });
+  const onFocus = useEventCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    const previous = e.relatedTarget;
+    if (isHTMLElement(previous) && !previous.closest('[data-toaster-position]')) {
+      focusBeforeToaster.current = previous;
     }
+    onFocusProp?.(e);
+  });
+  const onKeyDown = useEventCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     onKeyDownProp?.(e);
+    if (e.key === Escape && e.isDefaultPrevented()) {
+      e.stopPropagation();
+    }
+  });
+  const restoreFocus = useEventCallback(() => {
+    if (targetDocument?.activeElement && targetDocument.activeElement !== targetDocument.body) {
+      return;
+    }
+
+    tryRestoreFocus();
+    if (targetDocument?.activeElement === targetDocument?.body && focusBeforeToaster.current?.isConnected) {
+      focusBeforeToaster.current.focus();
+    }
   });
 
   const usePositionSlot = (toastPosition: ToastPosition) => {
@@ -98,7 +116,7 @@ export const useToaster = (props: ToasterProps): ToasterState => {
         children: toastsToRender.get(toastPosition)?.map(toast => (
           <ToastContainer
             {...toast}
-            tryRestoreFocus={tryRestoreFocus}
+            tryRestoreFocus={restoreFocus}
             intent={toast.intent}
             announce={announceToast}
             key={toast.toastId}
@@ -108,6 +126,7 @@ export const useToaster = (props: ToasterProps): ToasterState => {
           </ToastContainer>
         )),
         focusgroup: 'toolbar block itemcontrols',
+        onFocus,
         onKeyDown,
         popover: 'manual' as const,
         'data-toaster-position': toastPosition,

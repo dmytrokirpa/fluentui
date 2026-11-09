@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Fix toast pause, queue, and scoped dismissal behavior.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

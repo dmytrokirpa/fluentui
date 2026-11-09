@@ -11,7 +11,7 @@ import {
   useMergedRefs,
 } from '@fluentui/react-utilities';
 import { useFluent_unstable } from '@fluentui/react-shared-contexts';
-import { Delete } from '@fluentui/keyboard-keys';
+import { Delete, Escape } from '@fluentui/keyboard-keys';
 import type { ToastPoliteness, ToastStatus } from '@fluentui/react-toast';
 import type { ToastContainerProps, ToastContainerState } from './ToastContainer.types';
 import { usePausableTimer } from './usePausableTimer';
@@ -38,7 +38,7 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
     timeout = -1,
     intent = 'info',
     politeness,
-    pauseOnHover,
+    pauseOnHover = true,
     pauseOnWindowBlur,
     imperativeRef,
     tryRestoreFocus,
@@ -57,6 +57,7 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
   const hoverPauseRef = React.useRef(false);
   const windowBlurPauseRef = React.useRef(false);
   const focusedToastBeforeClose = React.useRef(false);
+  const wasVisible = React.useRef(false);
 
   const close = useEventCallback(() => {
     const activeElement = targetDocument?.activeElement;
@@ -70,7 +71,7 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
   const reportStatus = useEventCallback((status: ToastStatus) => onStatusChange?.(null, { status, ...props }));
   const pause = useEventCallback(() => setRunning(false));
   const play = useEventCallback(() => {
-    if (imperativePauseRef.current || hoverPauseRef.current || windowBlurPauseRef.current) {
+    if (!visible || imperativePauseRef.current || hoverPauseRef.current || windowBlurPauseRef.current) {
       return;
     }
 
@@ -161,13 +162,14 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
       stack.removeEventListener('focusin', onFocusIn);
       stack.removeEventListener('focusout', onFocusOut);
     };
-  }, [pause, targetDocument]);
+  }, [pause, targetDocument, visible]);
 
   React.useEffect(() => {
     if (!visible) {
       return;
     }
 
+    wasVisible.current = true;
     play();
     reportStatus('visible');
   }, [visible, play, reportStatus, updateId]);
@@ -175,7 +177,8 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
   usePausableTimer({ timeout, running, onTimeout: close, resetKey: updateId });
 
   React.useEffect(() => {
-    if (!visible) {
+    if (!visible && wasVisible.current) {
+      wasVisible.current = false;
       reportStatus('dismissed');
       remove();
     }
@@ -217,12 +220,12 @@ export const useToastContainer = (props: ToastContainerProps, ref: React.Ref<HTM
   });
 
   const onKeyDown = useEventCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === Delete) {
+    userRootSlot?.onKeyDown?.(e);
+
+    if (!e.isDefaultPrevented() && (e.key === Delete || e.key === Escape)) {
       e.preventDefault();
       close();
     }
-
-    userRootSlot?.onKeyDown?.(e);
   });
 
   return {

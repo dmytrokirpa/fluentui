@@ -192,7 +192,7 @@ describe('Toast (headless)', () => {
           <Toast>
             <ToastTitle>This is a toast</ToastTitle>
           </Toast>,
-          { timeout: 3000, pauseOnHover: true },
+          { timeout: 3000 },
         );
 
       return (
@@ -206,7 +206,71 @@ describe('Toast (headless)', () => {
     };
 
     mount(<Example />);
-    cy.get('#make').click().get(TOAST_CONTAINER).trigger('mouseenter').wait(700).get(TOAST_CONTAINER).should('exist');
+    cy.get('#make').click();
+    cy.wait(1000);
+    cy.get(TOAST_CONTAINER).realHover().wait(3200).should('exist');
+    cy.get('#make').realHover().wait(500);
+    cy.get(TOAST_CONTAINER).should('exist');
+    cy.get(TOAST_CONTAINER, { timeout: 2100 }).should('not.exist');
+  });
+
+  it('should respect toaster and per-toast hover pause overrides', () => {
+    const Example = () => {
+      const { dispatchToast } = useToastController();
+      const makeDefault = () => dispatchToast(<Toast>Default</Toast>, { timeout: 1200, root: { id: 'default' } });
+      const makeOverride = () =>
+        dispatchToast(<Toast>Override</Toast>, {
+          timeout: 1200,
+          pauseOnHover: true,
+          root: { id: 'override' },
+        });
+
+      return (
+        <>
+          <button id="make-default" onClick={makeDefault}>
+            Make default
+          </button>
+          <button id="make-override" onClick={makeOverride}>
+            Make override
+          </button>
+          <Toaster pauseOnHover={false} />
+        </>
+      );
+    };
+
+    mount(<Example />);
+    cy.get('#make-default').click();
+    cy.get('#default').realHover().wait(1500);
+    cy.get('#default').should('not.exist');
+    cy.get('#make-override').click();
+    cy.get('#override').realHover().wait(1500).should('exist');
+    cy.get('#make-default').realHover();
+    cy.get('#override').should('not.exist');
+  });
+
+  it('should preserve remaining auto-dismiss time while the toaster is focused', () => {
+    const Example = () => {
+      const { dispatchToast } = useToastController();
+      const makeToast = () => dispatchToast(<Toast>Toast</Toast>, { timeout: 3000 });
+
+      return (
+        <>
+          <button id="make" onClick={makeToast}>
+            Make toast
+          </button>
+          <Toaster />
+        </>
+      );
+    };
+
+    mount(<Example />);
+    cy.get('#make').click().wait(1000);
+    cy.get(TOAST_CONTAINER).focus();
+    cy.get('#make').realHover().wait(3200);
+    cy.get(TOAST_CONTAINER).should('exist');
+    cy.get('#make').focus().wait(500);
+    cy.get(TOAST_CONTAINER).should('exist');
+    cy.get(TOAST_CONTAINER, { timeout: 2100 }).should('not.exist');
   });
 
   it('should pause all toasts while focus is in the toaster', () => {
@@ -240,7 +304,7 @@ describe('Toast (headless)', () => {
     mount(<Example />);
     cy.get('#make').click().get(TOAST_CONTAINER).first().focus().wait(700);
     cy.get(TOAST_CONTAINER).should('have.length', 2);
-    cy.get('#make').focus().wait(700);
+    cy.get('#make').focus().realHover().wait(700);
     cy.get(TOAST_CONTAINER).should('not.exist');
   });
 
@@ -278,9 +342,9 @@ describe('Toast (headless)', () => {
     mount(<Example />);
     cy.get('#make').click();
     cy.get(TOAST_CONTAINER).focus();
-    cy.get('#dispatch-second').click().wait(700);
+    cy.get('#dispatch-second').realClick().wait(700);
     cy.get(TOAST_CONTAINER).should('have.length', 2);
-    cy.get('#make').focus().wait(700);
+    cy.get('#make').focus().realHover().wait(700);
     cy.get(TOAST_CONTAINER).should('not.exist');
   });
 
@@ -456,7 +520,7 @@ describe('Toast (headless)', () => {
     cy.get('#make').should('be.focused');
   });
 
-  it('should dismiss all toasts with Escape and restore focus', () => {
+  it('should dismiss only the focused toast with Escape and restore direct focus', () => {
     const Example = () => {
       const { dispatchToast } = useToastController();
       const makeToast = () => {
@@ -473,7 +537,7 @@ describe('Toast (headless)', () => {
           <button id="make" onClick={makeToast}>
             Make toast
           </button>
-          <Toaster shortcuts={{ focus: e => e.ctrlKey && e.key === 'm' }} />
+          <Toaster />
         </>
       );
     };
@@ -481,9 +545,86 @@ describe('Toast (headless)', () => {
     mount(<Example />);
     cy.get('#make').click().click().click();
     cy.get(TOAST_CONTAINER).should('have.length', 3);
-    cy.get('body').type('{ctrl+m}');
+    cy.get(TOAST_CONTAINER).last().focus();
+    cy.focused().should('have.attr', 'role', 'listitem').realPress('Escape');
+    cy.get(TOAST_CONTAINER).should('have.length', 2);
+    cy.focused().should('have.attr', 'role', 'listitem').realPress('Escape');
+    cy.get(TOAST_CONTAINER).should('have.length', 1);
     cy.focused().should('have.attr', 'role', 'listitem').realPress('Escape');
     cy.get(TOAST_CONTAINER).should('not.exist');
     cy.get('#make').should('be.focused');
+  });
+
+  it('should respect prevented Escape and not propagate a handled Escape to an ancestor', () => {
+    const outerKeyDown = cy.stub().as('outerKeyDown');
+    const toasterKeyDown = cy.stub().as('toasterKeyDown');
+    const toastKeyDown = cy.stub().as('toastKeyDown');
+    const Example = () => {
+      const { dispatchToast } = useToastController();
+      const makeToast = () => {
+        dispatchToast(<Toast>Protected</Toast>, {
+          timeout: -1,
+          root: {
+            id: 'protected',
+            onKeyDown: event => {
+              toastKeyDown();
+              event.preventDefault();
+            },
+          },
+        });
+        dispatchToast(<Toast>Dismissible</Toast>, { timeout: -1, root: { id: 'dismissible' } });
+      };
+
+      return (
+        <div onKeyDown={outerKeyDown}>
+          <button id="make" onClick={makeToast}>
+            Make toasts
+          </button>
+          <Toaster onKeyDown={toasterKeyDown} />
+        </div>
+      );
+    };
+
+    mount(<Example />);
+    cy.get('#make').click();
+    cy.get('#protected').focus().realPress('Escape');
+    cy.get('@toastKeyDown').should('have.been.calledOnce');
+    cy.get('@toasterKeyDown').should('have.been.calledOnce');
+    cy.get('#protected').should('exist');
+    cy.get('@outerKeyDown').should('not.have.been.called');
+    cy.get('#dismissible').focus().realPress('Escape');
+    cy.get('#dismissible').should('not.exist');
+    cy.get('#protected').should('exist');
+    cy.get('@toasterKeyDown').should('have.been.calledTwice');
+    cy.get('@outerKeyDown').should('not.have.been.called');
+  });
+
+  it('should start a queued toast timer only when it becomes visible', () => {
+    const Example = () => {
+      const { dispatchToast } = useToastController();
+      const makeToast = () => {
+        dispatchToast(<Toast>First</Toast>, { timeout: -1, root: { id: 'first' } });
+        dispatchToast(<Toast>Queued</Toast>, { timeout: 1200, root: { id: 'queued' } });
+      };
+
+      return (
+        <>
+          <button id="make" onClick={makeToast}>
+            Make toasts
+          </button>
+          <Toaster limit={1} />
+        </>
+      );
+    };
+
+    mount(<Example />);
+    cy.get('#make').click().wait(1500);
+    cy.get('#queued').should('not.exist');
+    cy.get('#first').focus().realPress('Escape');
+    cy.get('#queued').should('be.focused');
+    cy.get('#make').focus();
+    cy.wait(300);
+    cy.get('#queued').should('exist');
+    cy.get('#queued').should('not.exist');
   });
 });
