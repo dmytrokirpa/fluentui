@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { SearchBox } from '@fluentui/react-headless-components-preview/search-box';
-import { SearchRegular } from '@fluentui/react-icons';
+import { DismissRegular, SearchRegular } from '@fluentui/react-icons';
 
 // SearchBox reuses the input CSS module per the story authoring guide.
 import styles from '../Input/input.module.css';
 export const Default = (): React.ReactNode => (
   <div className={styles.demo}>
     <SearchBox
+      aria-label="Search"
       placeholder="Search…"
       className={styles.wrap}
       contentBefore={{
@@ -14,6 +15,10 @@ export const Default = (): React.ReactNode => (
         children: <SearchRegular className={styles.affixIcon} aria-hidden />,
       }}
       input={{ className: styles.input }}
+      dismiss={{
+        'aria-label': 'Clear search',
+        children: <DismissRegular className={styles.affixIcon} aria-hidden />,
+      }}
     />
   </div>
 );

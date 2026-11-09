@@ -4,24 +4,35 @@
 
 ```ts
 
+import type { ComponentState } from '@fluentui/react-utilities';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
-import type * as React_2 from 'react';
-import { renderSearchBox_unstable as renderSearchBox } from '@fluentui/react-search';
+import type { InputOnChangeData } from '@fluentui/react-input';
+import type { JSXElement } from '@fluentui/react-utilities';
+import * as React_2 from 'react';
+import type { SearchBoxBaseProps } from '@fluentui/react-search';
 import type { SearchBoxBaseState } from '@fluentui/react-search';
-import { SearchBoxBaseProps as SearchBoxProps } from '@fluentui/react-search';
-import { SearchBoxSlots } from '@fluentui/react-search';
+import type { SearchBoxSlots as SearchBoxSlots_2 } from '@fluentui/react-search';
+import type { Slot } from '@fluentui/react-utilities';
 
-export { renderSearchBox }
+// @public (undocumented)
+export const renderSearchBox: (state: SearchBoxState) => JSXElement;
 
 // @public
 export const SearchBox: ForwardRefComponent<SearchBoxProps>;
 
-export { SearchBoxProps }
+// @public (undocumented)
+export type SearchBoxProps = Omit<SearchBoxBaseProps, 'dismiss' | 'onChange'> & {
+    dismiss?: SearchBoxSlots['dismiss'];
+    onChange?: (event: React_2.ChangeEvent<HTMLInputElement> | React_2.MouseEvent<HTMLButtonElement> | React_2.KeyboardEvent<HTMLInputElement>, data: InputOnChangeData) => void;
+};
 
-export { SearchBoxSlots }
+// @public (undocumented)
+export type SearchBoxSlots = Omit<SearchBoxSlots_2, 'dismiss'> & {
+    dismiss?: Slot<'button'>;
+};
 
 // @public
-export type SearchBoxState = SearchBoxBaseState & {
+export type SearchBoxState = Omit<SearchBoxBaseState, 'components' | 'dismiss'> & ComponentState<SearchBoxSlots> & {
     root: {
         'data-disabled'?: string;
         'data-focused'?: string;

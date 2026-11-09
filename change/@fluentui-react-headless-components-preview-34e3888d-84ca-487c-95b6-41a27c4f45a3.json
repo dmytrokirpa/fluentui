@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Make SearchBox clearing keyboard accessible with a native button.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}
