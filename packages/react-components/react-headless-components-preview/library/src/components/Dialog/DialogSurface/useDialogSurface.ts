@@ -80,7 +80,9 @@ export const useDialogSurface = (props: DialogSurfaceProps, ref: React.Ref<HTMLD
   const handleKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLDialogElement>) => {
     props.onKeyDown?.(event);
     if (event.key === 'Escape' && !event.isDefaultPrevented()) {
-      requestOpenChange({ type: 'escapeKeyDown', open: false, event });
+      if (modalType !== 'alert') {
+        requestOpenChange({ type: 'escapeKeyDown', open: false, event });
+      }
       // Stop propagation to avoid closing parent dialogs simultaneously.
       event.stopPropagation();
       return;

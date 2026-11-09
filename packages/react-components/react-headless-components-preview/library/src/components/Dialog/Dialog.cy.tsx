@@ -198,12 +198,34 @@ describe('Dialog', () => {
 
   modalTypes.forEach(modalType => {
     describe(`modalType = ${modalType}`, () => {
-      it('should close with escape keydown', () => {
-        mount(<BasicDialog modalType={modalType} />);
-        cy.get(dialogTriggerOpenSelector).realClick();
-        cy.focused().realType('{esc}');
-        cy.get(dialogSurfaceSelector).should('not.exist');
-      });
+      if (modalType === 'alert') {
+        it('stays open on Escape and backdrop click, then closes by explicit action', () => {
+          const onOpenChange = cy.stub().as('onOpenChange');
+          mount(
+            <BasicDialog
+              modalType="alert"
+              onOpenChange={onOpenChange}
+              surfaceProps={{ style: { width: 200, height: 100 } }}
+            />,
+          );
+          cy.get(dialogTriggerOpenSelector).realClick();
+          cy.get('@onOpenChange').invoke('resetHistory');
+          cy.focused().realType('{esc}');
+          cy.get(dialogSurfaceSelector).should('exist').realClick({ x: -10, y: -10 });
+          cy.get(dialogSurfaceSelector).should('exist');
+          cy.get('@onOpenChange').should('not.have.been.called');
+          cy.get(dialogTriggerCloseSelector).realClick();
+          cy.get(dialogSurfaceSelector).should('not.exist');
+          cy.get(dialogTriggerOpenSelector).should('be.focused');
+        });
+      } else {
+        it('should close with escape keydown', () => {
+          mount(<BasicDialog modalType={modalType} />);
+          cy.get(dialogTriggerOpenSelector).realClick();
+          cy.focused().realType('{esc}');
+          cy.get(dialogSurfaceSelector).should('not.exist');
+        });
+      }
 
       if (modalType === 'non-modal') {
         it('should close with escape keydown and return focus to trigger', () => {

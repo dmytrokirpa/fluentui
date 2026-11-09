@@ -166,6 +166,43 @@ describe('OverlayDrawer', () => {
       cy.get('#focus-target').focus().realType('{esc}');
       cy.get(drawerSelector).should('not.exist');
     });
+
+    it('keeps an Alert drawer open on Escape until an explicit action closes it', () => {
+      const onOpenChange = cy.stub().as('onOpenChange');
+      const ExampleDrawer = () => {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <>
+            <button id="open-alert-drawer" onClick={() => setOpen(true)}>
+              Open
+            </button>
+            <Drawer
+              id="drawer"
+              className={overlayDrawerClassName}
+              open={open}
+              modalType="alert"
+              onOpenChange={(_, data) => {
+                onOpenChange(data);
+                setOpen(data.open);
+              }}
+            >
+              <button id="confirm-alert-drawer" onClick={() => setOpen(false)}>
+                Confirm
+              </button>
+            </Drawer>
+          </>
+        );
+      };
+
+      mount(<ExampleDrawer />);
+      cy.get('#open-alert-drawer').realClick();
+      cy.get('#confirm-alert-drawer').should('have.focus').realType('{esc}');
+      cy.get(drawerSelector).should('have.attr', 'role', 'alertdialog');
+      cy.get('@onOpenChange').should('not.have.been.called');
+      cy.get('#confirm-alert-drawer').realClick();
+      cy.get(drawerSelector).should('not.exist');
+      cy.get('#open-alert-drawer').should('have.focus');
+    });
   });
 });
 

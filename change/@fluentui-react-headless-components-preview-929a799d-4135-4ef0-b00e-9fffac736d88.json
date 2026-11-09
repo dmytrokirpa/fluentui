@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Keep Alert dialogs and overlay drawers open on Escape.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

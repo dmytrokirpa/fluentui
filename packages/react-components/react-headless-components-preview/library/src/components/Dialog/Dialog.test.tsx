@@ -148,6 +148,40 @@ describe('Dialog', () => {
     );
   });
 
+  it('does not request an Alert close on Escape or propagate it to a parent', () => {
+    const onOpenChange = jest.fn();
+    const onKeyDown = jest.fn();
+    const onParentKeyDown = jest.fn();
+    const { getByRole, getByText } = render(
+      <div onKeyDown={onParentKeyDown}>
+        <Dialog defaultOpen modalType="alert" onOpenChange={onOpenChange}>
+          <DialogSurface aria-label="Alert" onKeyDown={onKeyDown}>
+            <DialogTrigger>
+              <button>Confirm</button>
+            </DialogTrigger>
+          </DialogSurface>
+        </Dialog>
+      </div>,
+    );
+    const surface = getByRole('alertdialog');
+
+    fireEvent.keyDown(getByText('Confirm'), { key: 'Escape' });
+    const cancelEvent = new Event('cancel', { cancelable: true });
+    fireEvent(surface, cancelEvent);
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+    expect(cancelEvent.defaultPrevented).toBe(true);
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(surface).toBeInTheDocument();
+
+    fireEvent.click(getByText('Confirm'));
+    expect(onOpenChange).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ type: 'triggerClick', open: false }),
+    );
+  });
+
   it('returns focus to the element focused before opening a non-modal dialog, even if focus moved outside', () => {
     const Example = ({ open }: { open: boolean }) => (
       <>
