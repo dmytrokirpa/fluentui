@@ -1,9 +1,10 @@
 'use client';
 
 import type * as React from 'react';
-import { getIntrinsicElementProps, mergeCallbacks, slot, useEventCallback } from '@fluentui/react-utilities';
-import { useNavContext_unstable, useNavCategoryContext_unstable, type OnNavItemSelectData } from '@fluentui/react-nav';
+import { getIntrinsicElementProps, mergeCallbacks, slot, useEventCallback, useId } from '@fluentui/react-utilities';
+import { useNavContext_unstable, type OnNavItemSelectData } from '@fluentui/react-nav';
 
+import { useHeadlessNavCategoryContext } from '../navCategoryContext';
 import type { NavCategoryItemProps, NavCategoryItemState } from './NavCategoryItem.types';
 import { toDataAttributeValue } from '../../../utils';
 
@@ -19,11 +20,11 @@ export const useNavCategoryItem = (
   props: NavCategoryItemProps,
   ref: React.Ref<HTMLButtonElement>,
 ): NavCategoryItemState => {
-  const { onClick, expandIcon, icon } = props;
+  const { onClick, expandIcon, icon, currentPageDescription, ...buttonProps } = props;
 
-  const { open, value } = useNavCategoryContext_unstable();
+  const { open, value, groupId, items } = useHeadlessNavCategoryContext();
 
-  const { onRequestNavCategoryItemToggle, selectedCategoryValue } = useNavContext_unstable();
+  const { onRequestNavCategoryItemToggle, selectedCategoryValue, selectedValue } = useNavContext_unstable();
 
   const onNavCategoryItemClick = useEventCallback(
     mergeCallbacks(onClick, event =>
@@ -32,18 +33,32 @@ export const useNavCategoryItem = (
     ),
   );
 
-  const selected = selectedCategoryValue === value && !open;
-  const validAriaCurrent: 'page' | 'false' = selected ? 'page' : 'false';
+  const currentItemId = selectedValue === undefined ? undefined : items?.get(selectedValue);
+  const selected =
+    !open &&
+    (!!currentItemId ||
+      (selectedCategoryValue === value && (selectedValue === undefined || !items || items.size === 0)));
+  const descriptionId = useId('fluent-nav-current-page');
+  const description =
+    selected && currentPageDescription ? { id: descriptionId, text: currentPageDescription } : undefined;
+  const describedBy =
+    [buttonProps['aria-describedby'], description?.id ?? (selected ? currentItemId : undefined)]
+      .filter(Boolean)
+      .join(' ') || undefined;
 
   const state: NavCategoryItemState = {
     open,
     value,
     selected,
+    currentPageDescription: description,
     root: slot.always(
       getIntrinsicElementProps('button', {
+        type: 'button',
         ref,
-        ...props,
-        'aria-current': validAriaCurrent,
+        ...buttonProps,
+        'aria-current': undefined,
+        'aria-controls': buttonProps['aria-controls'] ?? groupId,
+        'aria-describedby': describedBy,
         'aria-expanded': open,
         onClick: onNavCategoryItemClick,
       }),

@@ -8,14 +8,10 @@ import type { NavSubItemGroupState, NavSubItemGroupSlots } from './NavSubItemGro
 /**
  * Render the final JSX of NavSubItemGroup
  *
- * Headless version — renders children only when open, without motion.
+ * Headless version — keeps collapsed children hidden and unfocusable, without motion.
  */
 export const renderNavSubItemGroup = (state: NavSubItemGroupState): JSXElement | null => {
   assertSlots<NavSubItemGroupSlots>(state);
-
-  if (!state.open) {
-    return null;
-  }
 
   return <state.root />;
 };

@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Fix Nav category disclosure and current-page accessibility.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

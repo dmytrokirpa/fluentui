@@ -17,7 +17,7 @@ import { InlineDrawerSlots } from '@fluentui/react-drawer';
 import type { JSXElement } from '@fluentui/react-utilities';
 import { NavCategoryContextValues } from '@fluentui/react-nav';
 import { NavCategoryItemProvider } from '@fluentui/react-nav';
-import { NavCategoryProps } from '@fluentui/react-nav';
+import type { NavCategoryProps as NavCategoryProps_2 } from '@fluentui/react-nav';
 import { NavCategoryProvider } from '@fluentui/react-nav';
 import { NavCategoryState } from '@fluentui/react-nav';
 import { NavContextValue } from '@fluentui/react-nav';
@@ -52,9 +52,7 @@ import { renderDrawerBody_unstable as renderNavDrawerBody } from '@fluentui/reac
 import { renderDrawerFooter_unstable as renderNavDrawerFooter } from '@fluentui/react-drawer';
 import { renderDrawerHeader_unstable as renderNavDrawerHeader } from '@fluentui/react-drawer';
 import type { Slot } from '@fluentui/react-utilities';
-import { useNavCategory_unstable as useNavCategory } from '@fluentui/react-nav';
 import { useNavCategoryContext_unstable as useNavCategoryContext } from '@fluentui/react-nav';
-import { useNavCategoryContextValues_unstable as useNavCategoryContextValues } from '@fluentui/react-nav';
 import { useNavCategoryItemContext_unstable as useNavCategoryItemContext } from '@fluentui/react-nav';
 import { useNavContext_unstable as useNavContext } from '@fluentui/react-nav';
 
@@ -87,7 +85,9 @@ export type NavCategoryItemContextValues = {
 };
 
 // @public
-export type NavCategoryItemProps = ComponentProps<NavCategoryItemSlots>;
+export type NavCategoryItemProps = ComponentProps<NavCategoryItemSlots> & {
+    currentPageDescription?: string;
+};
 
 export { NavCategoryItemProvider }
 
@@ -101,6 +101,10 @@ export type NavCategoryItemSlots = {
 // @public
 export type NavCategoryItemState = ComponentState<NavCategoryItemSlots> & NavCategoryItemContextValue & {
     selected: boolean;
+    currentPageDescription?: {
+        id: string;
+        text: string;
+    };
     root: {
         'data-disabled'?: string;
         'data-expanded'?: string;
@@ -108,7 +112,10 @@ export type NavCategoryItemState = ComponentState<NavCategoryItemSlots> & NavCat
     };
 };
 
-export { NavCategoryProps }
+// @public (undocumented)
+export type NavCategoryProps = NavCategoryProps_2 & {
+    groupId?: string;
+};
 
 export { NavCategoryProvider }
 
@@ -301,11 +308,13 @@ export const renderNavSubItemGroup: (state: NavSubItemGroupState) => JSXElement 
 // @public (undocumented)
 export const useNav: (props: NavProps, ref: React_2.Ref<HTMLDivElement>) => NavState;
 
-export { useNavCategory }
+// @public (undocumented)
+export const useNavCategory: (props: NavCategoryProps, ref: React_2.Ref<HTMLDivElement>) => NavCategoryState;
 
 export { useNavCategoryContext }
 
-export { useNavCategoryContextValues }
+// @public (undocumented)
+export function useNavCategoryContextValues(state: NavCategoryState): NavCategoryContextValues;
 
 // @public
 export const useNavCategoryItem: (props: NavCategoryItemProps, ref: React_2.Ref<HTMLButtonElement>) => NavCategoryItemState;

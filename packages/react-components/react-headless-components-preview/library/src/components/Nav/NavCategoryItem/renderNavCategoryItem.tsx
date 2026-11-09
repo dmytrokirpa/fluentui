@@ -21,6 +21,11 @@ export const renderNavCategoryItem = (
         {state.icon && <state.icon />}
         {state.root.children}
         {state.expandIcon && <state.expandIcon />}
+        {state.currentPageDescription && (
+          <span hidden id={state.currentPageDescription.id}>
+            {state.currentPageDescription.text}
+          </span>
+        )}
       </state.root>
     </NavCategoryItemProvider>
   );

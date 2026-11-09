@@ -13,50 +13,77 @@ import { ChevronDownFilled } from '@fluentui/react-icons';
 
 import styles from './nav.module.css';
 
-export const WithCategories = (): React.ReactNode => (
-  <Nav defaultSelectedValue="overview" defaultOpenCategories={['components']} className={styles.nav}>
-    <NavSectionHeader className={styles.sectionHeader}>Documentation</NavSectionHeader>
-    <NavItem value="overview" className={styles.navItem}>
-      Overview
-    </NavItem>
+export const WithCategories = (): React.ReactNode => {
+  const [selectedValue, setSelectedValue] = React.useState('overview');
+  const labels: Record<string, string> = {
+    button: 'Button',
+    input: 'Input',
+    dialog: 'Dialog',
+    useState: 'useState',
+    useEffect: 'useEffect',
+  };
+  const currentPageDescription = labels[selectedValue] ? `Contains current page: ${labels[selectedValue]}` : undefined;
 
-    <NavDivider className={styles.divider} />
+  return (
+    <Nav
+      selectedValue={selectedValue}
+      onNavItemSelect={(_, data) => setSelectedValue(data.value)}
+      defaultOpenCategories={['components']}
+      className={styles.nav}
+    >
+      <NavSectionHeader className={styles.sectionHeader}>Documentation</NavSectionHeader>
+      <NavItem value="overview" className={styles.navItem}>
+        Overview
+      </NavItem>
 
-    <NavCategory value="components">
-      <NavCategoryItem
-        className={styles.navCategoryItem}
-        expandIcon={{ children: <ChevronDownFilled />, className: styles.expandIcon }}
-      >
-        Components
-      </NavCategoryItem>
-      <NavSubItemGroup>
-        <NavSubItem value="button" className={styles.navSubItem}>
-          Button
-        </NavSubItem>
-        <NavSubItem value="input" className={styles.navSubItem}>
-          Input
-        </NavSubItem>
-        <NavSubItem value="dialog" className={styles.navSubItem}>
-          Dialog
-        </NavSubItem>
-      </NavSubItemGroup>
-    </NavCategory>
+      <NavDivider className={styles.divider} />
 
-    <NavCategory value="hooks">
-      <NavCategoryItem
-        className={styles.navCategoryItem}
-        expandIcon={{ children: <ChevronDownFilled />, className: styles.expandIcon }}
-      >
-        Hooks
-      </NavCategoryItem>
-      <NavSubItemGroup>
-        <NavSubItem value="useState" className={styles.navSubItem}>
-          useState
-        </NavSubItem>
-        <NavSubItem value="useEffect" className={styles.navSubItem}>
-          useEffect
-        </NavSubItem>
-      </NavSubItemGroup>
-    </NavCategory>
-  </Nav>
-);
+      <NavCategory value="components">
+        <NavCategoryItem
+          className={styles.navCategoryItem}
+          currentPageDescription={currentPageDescription}
+          expandIcon={{ children: <ChevronDownFilled />, className: styles.expandIcon }}
+        >
+          Components
+        </NavCategoryItem>
+        <NavSubItemGroup>
+          <NavSubItem value="button" className={styles.navSubItem}>
+            Button
+          </NavSubItem>
+          <NavSubItem value="input" className={styles.navSubItem}>
+            Input
+          </NavSubItem>
+          <NavSubItem value="dialog" className={styles.navSubItem}>
+            Dialog
+          </NavSubItem>
+        </NavSubItemGroup>
+      </NavCategory>
+
+      <NavCategory value="hooks">
+        <NavCategoryItem
+          className={styles.navCategoryItem}
+          currentPageDescription={currentPageDescription}
+          expandIcon={{ children: <ChevronDownFilled />, className: styles.expandIcon }}
+        >
+          Hooks
+        </NavCategoryItem>
+        <NavSubItemGroup>
+          <NavSubItem value="useState" className={styles.navSubItem}>
+            useState
+          </NavSubItem>
+          <NavSubItem value="useEffect" className={styles.navSubItem}>
+            useEffect
+          </NavSubItem>
+        </NavSubItemGroup>
+      </NavCategory>
+    </Nav>
+  );
+};
+
+WithCategories.parameters = {
+  docs: {
+    description: {
+      story: 'Supply a localized current-page description for a collapsed category containing the current destination.',
+    },
+  },
+};

@@ -107,7 +107,7 @@ describe('Nav', () => {
 
     // Initially closed
     expect(result.getByText('Category 1')).toHaveAttribute('aria-expanded', 'false');
-    expect(result.queryByText('Sub Item 1')).not.toBeInTheDocument();
+    expect(result.getByText('Sub Item 1')).not.toBeVisible();
 
     // Click to open
     fireEvent.click(result.getByText('Category 1'));
@@ -118,7 +118,7 @@ describe('Nav', () => {
     // Click to close
     fireEvent.click(result.getByText('Category 1'));
     expect(result.getByText('Category 1')).toHaveAttribute('aria-expanded', 'false');
-    expect(result.queryByText('Sub Item 1')).not.toBeInTheDocument();
+    expect(result.getByText('Sub Item 1')).not.toBeVisible();
   });
 
   it('supports multiple={false} to close other categories', () => {
@@ -144,7 +144,7 @@ describe('Nav', () => {
 
     // Open cat2 → cat1 should close
     fireEvent.click(result.getByText('Category 2'));
-    expect(result.queryByText('Sub Item 1')).not.toBeInTheDocument();
+    expect(result.getByText('Sub Item 1')).not.toBeVisible();
     expect(result.getByText('Sub Item 2')).toBeInTheDocument();
   });
 

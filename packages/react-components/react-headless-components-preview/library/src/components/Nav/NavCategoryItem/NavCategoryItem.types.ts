@@ -29,7 +29,14 @@ export type NavCategoryItemSlots = {
 /**
  * NavCategoryItem Props
  */
-export type NavCategoryItemProps = ComponentProps<NavCategoryItemSlots>;
+export type NavCategoryItemProps = ComponentProps<NavCategoryItemSlots> & {
+  /**
+   * Localized description naming the current destination when this category is collapsed,
+   * for example "Contains current page: Settings". Supply this to communicate that the
+   * hidden destination is current; without it, only the destination's text is referenced.
+   */
+  currentPageDescription?: string;
+};
 
 /**
  * State used in rendering NavCategoryItem
@@ -40,6 +47,10 @@ export type NavCategoryItemState = ComponentState<NavCategoryItemSlots> &
      * If this navCategoryItem is selected
      */
     selected: boolean;
+    currentPageDescription?: {
+      id: string;
+      text: string;
+    };
     root: {
       'data-disabled'?: string;
       'data-expanded'?: string;
