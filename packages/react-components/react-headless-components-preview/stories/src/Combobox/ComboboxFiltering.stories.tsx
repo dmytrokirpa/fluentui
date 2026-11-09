@@ -8,6 +8,7 @@ const options = ['Cat', 'Caterpillar', 'Corgi', 'Chupacabra', 'Dog', 'Ferret', '
 
 export const Filtering = (): React.ReactNode => {
   const [query, setQuery] = React.useState('');
+  const [committedValue, setCommittedValue] = React.useState('');
 
   const children = useComboboxFilter({
     query,
@@ -30,7 +31,9 @@ export const Filtering = (): React.ReactNode => {
   });
 
   const onOptionSelect: ComboboxProps['onOptionSelect'] = (_event, data) => {
-    setQuery(data.optionText ?? '');
+    const nextValue = data.optionText ?? '';
+    setCommittedValue(nextValue);
+    setQuery(nextValue);
   };
 
   return (
@@ -46,6 +49,12 @@ export const Filtering = (): React.ReactNode => {
         placeholder="Select an animal"
         value={query}
         onChange={event => setQuery(event.target.value)}
+        onBlur={() => setQuery(committedValue)}
+        onKeyDown={event => {
+          if (event.key === 'Escape' && event.currentTarget.getAttribute('aria-expanded') === 'false') {
+            setQuery(committedValue);
+          }
+        }}
         onOptionSelect={onOptionSelect}
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
       >
@@ -58,7 +67,9 @@ export const Filtering = (): React.ReactNode => {
 Filtering.parameters = {
   docs: {
     description: {
-      story: 'The `useComboboxFilter` hook filters options by the typed query and renders headless options.',
+      story:
+        'The `useComboboxFilter` hook filters options by the typed query. The controlled value is restored ' +
+        'to the last selection on blur or a second Escape.',
     },
   },
 };

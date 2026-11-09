@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Preserve committed Combobox selections while editing and restore unmatched values.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}

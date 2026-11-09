@@ -476,6 +476,127 @@ describe('Combobox', () => {
     });
   });
 
+  describe('committed and pending values', () => {
+    (['blur', 'Enter'] as const).forEach(action => {
+      it(`restores the committed option on ${action} after an unmatched edit`, () => {
+        const onOptionSelect = cy.stub().as('onOptionSelect');
+        mount(
+          <>
+            <BasicCombobox defaultSelectedOptions={['Cat']} defaultValue="Cat" onOptionSelect={onOptionSelect} />
+            <button id="after">After</button>
+          </>,
+        );
+        cy.get(trigger)
+          .focus()
+          .then($input => ($input[0] as HTMLInputElement).select())
+          .realType('Zebra');
+        cy.get('@onOptionSelect').should('not.have.been.called');
+        cy.realPress(action === 'blur' ? 'Tab' : 'Enter');
+        cy.get(trigger).should('have.value', 'Cat');
+        cy.get('@onOptionSelect').should('not.have.been.called');
+      });
+    });
+
+    it('reverts an unmatched edit to empty when there was no selection', () => {
+      mount(
+        <>
+          <BasicCombobox />
+          <button id="after">After</button>
+        </>,
+      );
+      cy.get(trigger).focus().realType('Zebra');
+      cy.realPress('Tab');
+      cy.get(trigger).should('have.value', '');
+    });
+
+    it('keeps the query on the first Escape and restores the committed option on the second', () => {
+      const onOptionSelect = cy.stub().as('onOptionSelect');
+      mount(<BasicCombobox defaultSelectedOptions={['Cat']} defaultValue="Cat" onOptionSelect={onOptionSelect} />);
+      cy.get(trigger)
+        .focus()
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Zebra');
+      cy.realPress('Escape');
+      cy.get(listbox).should('not.exist');
+      cy.get(trigger).should('have.value', 'Zebra');
+      cy.realPress('Escape');
+      cy.get(trigger).should('have.value', 'Cat');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+    });
+
+    it('restores a committed label even when filtering removes its option', () => {
+      const Filtering = () => {
+        const [query, setQuery] = React.useState('');
+        return (
+          <>
+            <Combobox
+              id="combobox"
+              defaultSelectedOptions={['Cat']}
+              defaultValue="Cat"
+              onChange={event => setQuery(event.target.value)}
+            >
+              {['Cat', 'Dog']
+                .filter(name => name.toLowerCase().includes(query.toLowerCase()))
+                .map(name => (
+                  <Option key={name}>{name}</Option>
+                ))}
+            </Combobox>
+            <button id="after">After</button>
+          </>
+        );
+      };
+      mount(<Filtering />);
+      cy.get(trigger)
+        .focus()
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Zebra');
+      cy.realPress('Tab');
+      cy.get(trigger).should('have.value', 'Cat');
+    });
+
+    it('lets a controlled consumer restore the selection on blur and a second Escape', () => {
+      const onOptionSelect = cy.stub().as('onOptionSelect');
+      const Controlled = () => {
+        const [value, setValue] = React.useState('Cat');
+        return (
+          <>
+            <BasicCombobox
+              selectedOptions={['Cat']}
+              value={value}
+              onChange={event => setValue(event.target.value)}
+              onBlur={() => setValue('Cat')}
+              onKeyDown={event => {
+                if (event.key === 'Escape' && event.currentTarget.getAttribute('aria-expanded') === 'false') {
+                  setValue('Cat');
+                }
+              }}
+              onOptionSelect={onOptionSelect}
+            />
+            <button id="after">After</button>
+          </>
+        );
+      };
+      mount(<Controlled />);
+      cy.get(trigger)
+        .focus()
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Zebra');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+      cy.get(trigger).should('have.value', 'Zebra');
+      cy.realPress('Escape');
+      cy.get(trigger).should('have.value', 'Zebra');
+      cy.realPress('Escape');
+      cy.get(trigger).should('have.value', 'Cat');
+      cy.get(trigger)
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Zebra');
+      cy.get(trigger).should('not.have.attr', 'aria-activedescendant');
+      cy.realPress('Tab');
+      cy.get(trigger).should('have.value', 'Cat');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+    });
+  });
+
   describe('freeform', () => {
     it('preserves typed value that does not match any option', () => {
       mount(
@@ -499,6 +620,50 @@ describe('Combobox', () => {
       cy.get(trigger).realClick().realType('Cat');
       cy.contains(option, 'Cat').realClick();
       cy.get(trigger).should('have.value', 'Cat');
+    });
+
+    it('reverts a pending freeform edit on a second Escape', () => {
+      const onOptionSelect = cy.stub().as('onOptionSelect');
+      mount(
+        <BasicCombobox freeform defaultSelectedOptions={['Cat']} defaultValue="Cat" onOptionSelect={onOptionSelect} />,
+      );
+      cy.get(trigger)
+        .focus()
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Unicorn');
+      cy.realPress('Escape');
+      cy.get(trigger).should('have.value', 'Unicorn');
+      cy.realPress('Escape');
+      cy.get(trigger).should('have.value', 'Cat');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+    });
+
+    (['blur', 'Enter'] as const).forEach(action => {
+      it(`commits unmatched text on ${action} and clears the old option`, () => {
+        const onOptionSelect = cy.stub().as('onOptionSelect');
+        mount(
+          <>
+            <BasicCombobox
+              freeform
+              defaultSelectedOptions={['Cat']}
+              defaultValue="Cat"
+              onOptionSelect={onOptionSelect}
+            />
+            <button id="after">After</button>
+          </>,
+        );
+        cy.get(trigger)
+          .focus()
+          .then($input => ($input[0] as HTMLInputElement).select())
+          .realType('Unicorn');
+        cy.get('@onOptionSelect').should('not.have.been.called');
+        cy.realPress(action === 'blur' ? 'Tab' : 'Enter');
+        cy.get(trigger).should('have.value', 'Unicorn');
+        cy.get('@onOptionSelect')
+          .should('have.been.calledOnce')
+          .its('firstCall.args.1.selectedOptions')
+          .should('deep.equal', []);
+      });
     });
   });
 

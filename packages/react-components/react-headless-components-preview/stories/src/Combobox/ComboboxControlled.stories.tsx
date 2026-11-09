@@ -28,6 +28,13 @@ export const Controlled = (): React.ReactNode => {
         clearable
         value={value}
         selectedOptions={selectedOptions}
+        onChange={event => setValue(event.target.value)}
+        onBlur={() => setValue(selectedOptions[0] ?? '')}
+        onKeyDown={event => {
+          if (event.key === 'Escape' && event.currentTarget.getAttribute('aria-expanded') === 'false') {
+            setValue(selectedOptions[0] ?? '');
+          }
+        }}
         onOptionSelect={onOptionSelect}
         expandIcon={{ className: styles.expandIcon, children: <ChevronDownRegular /> }}
         clearButton={{ className: styles.clearIcon }}
@@ -52,7 +59,7 @@ Controlled.parameters = {
     description: {
       story:
         'Selection and displayed value can be fully controlled via `value`, `selectedOptions`, and `onOptionSelect`. ' +
-        'When using controlled selection, `value` must be kept in sync with the selected option text.',
+        'The consumer updates the query as the user types and restores the selected label on blur or a second Escape.',
     },
   },
 };

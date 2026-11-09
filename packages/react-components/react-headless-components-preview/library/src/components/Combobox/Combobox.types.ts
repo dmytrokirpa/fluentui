@@ -16,6 +16,11 @@ export type ComboboxSlots = BaseComboboxSlots & {
 export type ComboboxProps = Omit<BaseComboboxProps, 'inlinePopup' | 'mountNode' | 'positioning'> & {
   positioning?: PositioningShorthand;
   /**
+   * Controlled input value. The consumer must update it for typing, selection, clearing, and
+   * reverting an unmatched edit on blur or a second Escape.
+   */
+  value?: string;
+  /**
    * Clear button shown in place of the expand icon when there is a value to clear.
    * When controlling `value`, update it in this slot's `onClick` or in `onOptionSelect`.
    */

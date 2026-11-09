@@ -124,6 +124,49 @@ describe('Combobox', () => {
     expect(queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
   });
 
+  it('does not restore an edit after the clear button is activated', () => {
+    const onOptionSelect = jest.fn();
+    const { getByRole } = render(
+      <Combobox clearable defaultValue="Cat" defaultSelectedOptions={['Cat']} onOptionSelect={onOptionSelect}>
+        <Option>Cat</Option>
+      </Combobox>,
+    );
+    const input = getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'Unmatched' } });
+    fireEvent.click(getByRole('button', { name: 'Clear' }));
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue('');
+    expect(onOptionSelect).toHaveBeenCalledTimes(1);
+    expect(onOptionSelect).toHaveBeenLastCalledWith(expect.anything(), {
+      optionValue: undefined,
+      optionText: undefined,
+      selectedOptions: [],
+    });
+  });
+
+  it('commits a freeform edit on blur, not with a stale event when closed programmatically', () => {
+    const onOptionSelect = jest.fn();
+    const props = {
+      freeform: true,
+      defaultValue: 'Cat',
+      defaultSelectedOptions: ['Cat'],
+      onOptionSelect,
+      children: <Option>Cat</Option>,
+    };
+    const { getByRole, rerender } = render(<Combobox {...props} open />);
+    const input = getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'Unmatched' } });
+    rerender(<Combobox {...props} open={false} />);
+    expect(onOptionSelect).not.toHaveBeenCalled();
+
+    fireEvent.blur(input);
+    expect(onOptionSelect).toHaveBeenCalledTimes(1);
+    expect(onOptionSelect.mock.calls[0][0].type).toBe('blur');
+    expect(onOptionSelect.mock.calls[0][1].selectedOptions).toEqual([]);
+    expect(input).toHaveValue('Unmatched');
+  });
+
   it('accepts custom clear button content and an accessible name', () => {
     const { getByRole } = render(
       <Combobox

@@ -34,12 +34,41 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
   const { clearable, clearSelection, disabled, hasFocus, open, selectedOptions } = baseState;
   const expandIconRef = React.useRef<HTMLSpanElement>(null);
   const clearButtonRef = React.useRef<HTMLButtonElement>(null);
+  const pendingEditRef = React.useRef<{ committedValue: string }>(undefined);
+  const preservePendingOnCloseRef = React.useRef(false);
+
+  const selectOption = useEventCallback((...args: Parameters<typeof internalState.selectOption>) => {
+    if (!args[1].disabled && !internalState.multiselect) {
+      pendingEditRef.current = undefined;
+    }
+    internalState.selectOption(...args);
+  });
+
+  const finishPendingEdit = useEventCallback(
+    (event?: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+      const pendingEdit = pendingEditRef.current;
+      if (!pendingEdit || (freeform && !event)) {
+        return;
+      }
+
+      pendingEditRef.current = undefined;
+      if (!freeform) {
+        internalState.setValue(pendingEdit.committedValue);
+      } else if (event && selectedOptions.length && internalState.value !== pendingEdit.committedValue) {
+        clearSelection(event);
+      }
+    },
+  );
 
   const baseTriggerSlot = useInputTriggerSlot(
     mergedProps.input ?? {},
     useMergedRefs(triggerRef, activeParentRef, ref),
     {
-      state: internalState,
+      state: {
+        ...internalState,
+        selectOption,
+        clearSelection: () => undefined,
+      },
       freeform,
       defaultProps: {
         type: 'text',
@@ -62,8 +91,42 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     }
   }, [open]);
 
+  React.useEffect(() => {
+    if (!open) {
+      if (!preservePendingOnCloseRef.current) {
+        finishPendingEdit();
+      }
+      preservePendingOnCloseRef.current = false;
+    }
+  }, [finishPendingEdit, open]);
+
   const onTriggerKeyDown = baseTriggerSlot.onKeyDown;
   const onUserKeyDown = slot.resolveShorthand(mergedProps.input ?? {}).onKeyDown ?? triggerNativeProps.onKeyDown;
+  const onUserBlur = slot.resolveShorthand(mergedProps.input ?? {}).onBlur ?? triggerNativeProps.onBlur;
+  const onInputChange = useEventCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!internalState.multiselect) {
+      pendingEditRef.current = {
+        committedValue: pendingEditRef.current?.committedValue ?? internalState.value ?? '',
+      };
+    }
+    baseTriggerSlot.onChange?.(event);
+    if (!activeDescendantController.active()) {
+      setInitialFocus('none');
+    }
+  });
+  const onInputBlur = useEventCallback((event: React.FocusEvent<HTMLInputElement>) => {
+    const shouldClose =
+      !event.relatedTarget ||
+      (event.relatedTarget !== expandIconRef.current && event.relatedTarget !== clearButtonRef.current);
+    if (shouldClose) {
+      internalState.setOpen(event, false);
+      internalState.setHasFocus(false);
+    }
+    onUserBlur?.(event);
+    if (shouldClose) {
+      finishPendingEdit(event);
+    }
+  });
   const onInputKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Home' || event.key === 'End') {
       onUserKeyDown?.(event);
@@ -72,6 +135,22 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
 
     if (!open && event.key === 'Enter') {
       event.preventDefault();
+      finishPendingEdit(event);
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (event.key === 'Escape' && pendingEditRef.current) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (open) {
+        preservePendingOnCloseRef.current = true;
+        internalState.setOpen(event, false);
+        internalState.setValue(internalState.value);
+      } else {
+        internalState.setValue(pendingEditRef.current.committedValue);
+        pendingEditRef.current = undefined;
+      }
       onUserKeyDown?.(event);
       return;
     }
@@ -79,6 +158,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     if (event.altKey && event.key === 'ArrowUp') {
       event.preventDefault();
       if (open) {
+        preservePendingOnCloseRef.current = true;
         internalState.setOpen(event, false);
         internalState.setValue(internalState.value);
       }
@@ -87,6 +167,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     }
 
     if (event.shiftKey && event.key === 'Tab' && open) {
+      preservePendingOnCloseRef.current = true;
       internalState.setOpen(event, false);
       onUserKeyDown?.(event);
       return;
@@ -104,9 +185,20 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
       setInitialFocus('last');
     }
 
+    if (open && event.key === 'Enter' && !activeDescendantController.active()) {
+      onTriggerKeyDown?.(event);
+      finishPendingEdit(event);
+      return;
+    }
+
     onTriggerKeyDown?.(event);
   });
-  const triggerSlot = { ...baseTriggerSlot, onKeyDown: onInputKeyDown } as typeof baseTriggerSlot;
+  const triggerSlot = {
+    ...baseTriggerSlot,
+    onChange: onInputChange,
+    onBlur: onInputBlur,
+    onKeyDown: onInputKeyDown,
+  } as typeof baseTriggerSlot;
 
   const showClearIcon =
     !!clearable &&
@@ -120,6 +212,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
 
   const state: ComboboxState = {
     ...baseState,
+    selectOption,
     components: {
       root: 'div',
       input: 'input',
@@ -247,6 +340,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
         !state.clearButton?.disabled &&
         !ev.defaultPrevented
       ) {
+        pendingEditRef.current = undefined;
         internalState.setValue('');
         clearSelection(ev);
         triggerRef.current?.focus();
