@@ -32,7 +32,6 @@ import { renderOptionGroup_unstable as renderOptionGroup } from '@fluentui/react
 import type { Slot } from '@fluentui/react-utilities';
 import { useActiveDescendantContext } from '@fluentui/react-aria';
 import { useListboxContext_unstable as useListboxContext } from '@fluentui/react-combobox';
-import { useListboxContextValues } from '@fluentui/react-combobox';
 
 export { ActiveDescendantContextValue }
 
@@ -136,7 +135,8 @@ export const useListbox: (props: ListboxProps, ref: React_2.Ref<HTMLElement>) =>
 
 export { useListboxContext }
 
-export { useListboxContextValues }
+// @public (undocumented)
+export const useListboxContextValues: (state: ListboxState) => ListboxContextValues;
 
 // @public
 export const useOption: (props: OptionProps, ref: React_2.Ref<HTMLElement>) => OptionState;
