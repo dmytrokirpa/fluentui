@@ -89,10 +89,10 @@ export const useProgressBarBase_unstable = (
     { elementType: 'div' },
   );
   if (field && (field.validationMessageId || field.hintId)) {
-    // Prepend the field's validation message and/or hint to the user's aria-describedby
-    root['aria-describedby'] = [field?.validationMessageId, field?.hintId, root['aria-describedby']]
-      .filter(Boolean)
-      .join(' ');
+    const messageIds = field.hintBeforeValidationMessage
+      ? [field.hintId, field.validationMessageId]
+      : [field.validationMessageId, field.hintId];
+    root['aria-describedby'] = [...messageIds, root['aria-describedby']].filter(Boolean).join(' ');
   }
   const bar = slot.always(props.bar, { elementType: 'div' });
 

@@ -80,7 +80,16 @@ export function getFieldControlProps<Props extends FieldControlProps>(
   // Create a copy of props so we don't modify the original
   props = { ...props } as Props;
 
-  const { generatedControlId, hintId, labelFor, labelId, required, validationMessageId, validationState } = context;
+  const {
+    generatedControlId,
+    hintBeforeValidationMessage,
+    hintId,
+    labelFor,
+    labelId,
+    required,
+    validationMessageId,
+    validationState,
+  } = context;
 
   if (generatedControlId) {
     props.id ??= generatedControlId;
@@ -97,7 +106,8 @@ export function getFieldControlProps<Props extends FieldControlProps>(
   // For reference: https://github.com/microsoft/fluentui/pull/25580#discussion_r1017259933
   if (validationMessageId || hintId) {
     // NOTE: Not using ??= since we're merging and overriding the user-provided value.
-    props['aria-describedby'] = [validationMessageId, hintId, props?.['aria-describedby']].filter(Boolean).join(' ');
+    const messageIds = hintBeforeValidationMessage ? [hintId, validationMessageId] : [validationMessageId, hintId];
+    props['aria-describedby'] = [...messageIds, props?.['aria-describedby']].filter(Boolean).join(' ');
   }
 
   if (validationState === 'error') {

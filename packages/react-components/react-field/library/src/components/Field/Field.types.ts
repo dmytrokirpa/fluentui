@@ -109,6 +109,11 @@ export type FieldState = ComponentState<Required<FieldSlots>> &
      * The ID generated for the control inside the field, and the default value of label.htmlFor prop.
      */
     generatedControlId: string;
+
+    /**
+     * Whether the hint precedes the validation message in the DOM and control description.
+     */
+    hintBeforeValidationMessage?: boolean;
   };
 
 export type FieldBaseProps = DistributiveOmit<FieldProps, 'orientation' | 'size'>;
@@ -125,6 +130,8 @@ export type FieldContextValue = Readonly<
     validationMessageId?: string;
     /** The hint's id prop. Undefined if there is no hint. */
     hintId?: string;
+    /** Whether the hint precedes the validation message in the control description. */
+    hintBeforeValidationMessage?: boolean;
   }
 >;
 

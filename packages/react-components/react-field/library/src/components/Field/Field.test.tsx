@@ -165,6 +165,7 @@ describe('Field', () => {
     const validationMessage = result.getByText('Test validation message');
 
     expect(input.getAttribute('aria-describedby')).toBe(validationMessage.id + ' ' + hint.id);
+    expect(validationMessage.nextElementSibling).toBe(hint);
   });
 
   it('sets aria-describedby to the validationMessage + hint + user aria-describedby', () => {

@@ -22,6 +22,7 @@ export const renderField_unstable = (state: FieldBaseState, contextValues: Field
       <state.root>
         {state.label && <state.label />}
         {children}
+        {state.hintBeforeValidationMessage && state.hint && <state.hint />}
         {state.validationMessage && (
           <state.validationMessage>
             {state.validationMessageIcon && <state.validationMessageIcon />}
@@ -29,7 +30,7 @@ export const renderField_unstable = (state: FieldBaseState, contextValues: Field
           </state.validationMessage>
         )}
 
-        {state.hint && <state.hint />}
+        {!state.hintBeforeValidationMessage && state.hint && <state.hint />}
       </state.root>
     </FieldContextProvider>
   );

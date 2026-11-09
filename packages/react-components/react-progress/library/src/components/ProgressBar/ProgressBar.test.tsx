@@ -106,4 +106,18 @@ describe('ProgressBar', () => {
     expect(progressbar.getAttribute('aria-labelledby')).toEqual(label.id);
     expect(progressbar.getAttribute('aria-describedby')).toEqual(message.id + ' test-describedby');
   });
+
+  it('preserves the styled Field description order', () => {
+    const result = render(
+      <Field label="Test label" hint="Test hint" validationMessage="Test error message">
+        <ProgressBar aria-describedby="test-describedby" />
+      </Field>,
+    );
+
+    const progressbar = result.getByRole('progressbar');
+    const hint = result.getByText('Test hint');
+    const message = result.getByText('Test error message');
+
+    expect(progressbar.getAttribute('aria-describedby')).toEqual(`${message.id} ${hint.id} test-describedby`);
+  });
 });

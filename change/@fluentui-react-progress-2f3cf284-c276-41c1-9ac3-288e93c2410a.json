@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Respect the surrounding field's hint and validation description order.",
+  "packageName": "@fluentui/react-progress",
+  "email": "dmytrokirpa@microsoft.com"
+}

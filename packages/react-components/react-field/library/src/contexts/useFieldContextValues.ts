@@ -8,7 +8,7 @@ import type { FieldContextValue, FieldContextValues, FieldState } from '../Field
  * Get the context values used when rendering Field.
  */
 export const useFieldContextValues_unstable = (state: FieldState): FieldContextValues => {
-  const { generatedControlId, orientation, required, size, validationState } = state;
+  const { generatedControlId, hintBeforeValidationMessage, orientation, required, size, validationState } = state;
   const labelFor = state.label?.htmlFor;
   const labelId = state.label?.id;
   const validationMessageId = state.validationMessage?.id;
@@ -17,6 +17,7 @@ export const useFieldContextValues_unstable = (state: FieldState): FieldContextV
   const field: FieldContextValue = React.useMemo(
     () => ({
       generatedControlId,
+      hintBeforeValidationMessage,
       hintId,
       labelFor,
       labelId,
@@ -26,7 +27,18 @@ export const useFieldContextValues_unstable = (state: FieldState): FieldContextV
       validationMessageId,
       validationState,
     }),
-    [generatedControlId, hintId, labelFor, labelId, orientation, required, size, validationMessageId, validationState],
+    [
+      generatedControlId,
+      hintBeforeValidationMessage,
+      hintId,
+      labelFor,
+      labelId,
+      orientation,
+      required,
+      size,
+      validationMessageId,
+      validationState,
+    ],
   );
 
   return { field };

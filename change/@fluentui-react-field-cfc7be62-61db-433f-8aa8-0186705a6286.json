@@ -1,0 +1,6 @@
+{
+  "type": "minor",
+  "comment": "Support hint-first field rendering and description order in the base state.",
+  "packageName": "@fluentui/react-field",
+  "email": "dmytrokirpa@microsoft.com"
+}

@@ -32,6 +32,7 @@ export const FieldContextProvider: React_2.Provider<Readonly<Pick<FieldState, "r
     labelId?: string;
     validationMessageId?: string;
     hintId?: string;
+    hintBeforeValidationMessage?: boolean;
 }> | undefined>;
 
 // @public (undocumented)
@@ -40,6 +41,7 @@ export type FieldContextValue = Readonly<Pick<FieldState, 'generatedControlId' |
     labelId?: string;
     validationMessageId?: string;
     hintId?: string;
+    hintBeforeValidationMessage?: boolean;
 }>;
 
 // @public (undocumented)
@@ -78,6 +80,7 @@ export type FieldSlots = {
 // @public
 export type FieldState = ComponentState<Required<FieldSlots>> & Required<Pick<FieldProps, 'orientation' | 'required' | 'size' | 'validationState'>> & Pick<FieldProps, 'children'> & {
     generatedControlId: string;
+    hintBeforeValidationMessage?: boolean;
 };
 
 // @public

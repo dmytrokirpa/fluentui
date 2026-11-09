@@ -4,10 +4,10 @@
 
 ```ts
 
+import type { FieldBaseProps } from '@fluentui/react-field';
 import type { FieldBaseState } from '@fluentui/react-field';
 import { FieldContextValue } from '@fluentui/react-field';
 import { FieldContextValues } from '@fluentui/react-field';
-import { FieldBaseProps as FieldProps } from '@fluentui/react-field';
 import { FieldSlots } from '@fluentui/react-field';
 import type { ForwardRefComponent } from '@fluentui/react-utilities';
 import type * as React_2 from 'react';
@@ -22,7 +22,10 @@ export { FieldContextValue }
 
 export { FieldContextValues }
 
-export { FieldProps }
+// @public (undocumented)
+export type FieldProps = Omit<FieldBaseProps, 'validationState'> & {
+    validationState?: FieldBaseProps['validationState'];
+};
 
 export { FieldSlots }
 

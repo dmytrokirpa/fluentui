@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Render field hints before validation messages and use polite announcements by default.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}
