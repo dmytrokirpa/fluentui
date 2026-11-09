@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Respect explicit announcement politeness and announce content without a MessageBarBody.",
+  "packageName": "@fluentui/react-message-bar",
+  "email": "dmytrokirpa@microsoft.com"
+}

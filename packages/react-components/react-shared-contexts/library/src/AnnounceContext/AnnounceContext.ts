@@ -40,3 +40,12 @@ export const AnnounceProvider = AnnounceContext.Provider;
 export function useAnnounce(): AnnounceContextValue {
   return React.useContext(AnnounceContext) ?? { announce: () => undefined };
 }
+
+/**
+ * Returns whether an announcement provider is available.
+ *
+ * @internal
+ */
+export function useHasAnnounceProvider_unstable(): boolean {
+  return React.useContext(AnnounceContext) !== undefined;
+}

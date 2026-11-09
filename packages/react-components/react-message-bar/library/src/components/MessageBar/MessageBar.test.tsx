@@ -74,6 +74,25 @@ describe('MessageBar', () => {
     });
   });
 
+  it.each([
+    ['info', 'assertive'],
+    ['error', 'polite'],
+  ] as const)('honors %s intent with an explicit %s announcement', (intent, politeness) => {
+    const announce = jest.fn();
+    render(
+      <AnnounceProvider value={{ announce }}>
+        <MessageBar intent={intent} politeness={politeness}>
+          <MessageBarBody>Message</MessageBarBody>
+        </MessageBar>
+      </AnnounceProvider>,
+    );
+
+    expect(announce).toHaveBeenCalledWith('Message', {
+      alert: politeness === 'assertive',
+      polite: politeness === 'polite',
+    });
+  });
+
   it('should announce actions', () => {
     const announce = jest.fn();
     render(
@@ -92,6 +111,17 @@ describe('MessageBar', () => {
 
     expect(announce).toHaveBeenCalledTimes(1);
     expect(announce).toHaveBeenCalledWith('TitleBody,Action 1Action 2', expect.anything());
+  });
+
+  it('announces message content without a MessageBarBody', () => {
+    const announce = jest.fn();
+    render(
+      <AnnounceProvider value={{ announce }}>
+        <MessageBar>Message</MessageBar>
+      </AnnounceProvider>,
+    );
+
+    expect(announce).toHaveBeenCalledWith('Message', { polite: true, alert: false });
   });
 
   describe('should not flicker during reflow', () => {

@@ -41,6 +41,7 @@ export {
   useAnnounce,
   /** @deprecated Use useAnnounce instead. */
   useAnnounce as useAnnounce_unstable,
+  useHasAnnounceProvider_unstable,
 } from './AnnounceContext';
 export type {
   AnnounceContextValue,

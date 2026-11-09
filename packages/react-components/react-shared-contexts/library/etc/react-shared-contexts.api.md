@@ -685,6 +685,9 @@ export const useCustomStyleHook_unstable: (hook: keyof CustomStyleHooksContextVa
 // @public (undocumented)
 export function useFluent_unstable(): ProviderContextValue_unstable;
 
+// @internal
+export function useHasAnnounceProvider_unstable(): boolean;
+
 // Warning: (ae-incompatible-release-tags) The symbol "useOverrides" is marked as @public, but its signature references "OverridesContextValue_unstable" which is marked as @internal
 //
 // @public (undocumented)

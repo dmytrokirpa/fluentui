@@ -20,7 +20,7 @@ export const useMessageBarBase_unstable = (
   ref: React.Ref<HTMLDivElement>,
 ): MessageBarBaseState => {
   const { layout = 'auto', intent = 'info', politeness } = props;
-  const computedPoliteness = politeness ?? intent === 'info' ? 'polite' : 'assertive';
+  const computedPoliteness = politeness ?? (intent === 'info' ? 'polite' : 'assertive');
   const autoReflow = layout === 'auto';
   const { ref: reflowRef, reflowing } = useMessageBarReflow(autoReflow);
   const computedLayout = autoReflow ? (reflowing ? 'multiline' : 'singleline') : layout;
@@ -30,12 +30,13 @@ export const useMessageBarBase_unstable = (
 
   const actionsRef = React.useRef<HTMLDivElement | null>(null);
   const bodyRef = React.useRef<HTMLDivElement | null>(null);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
   const { announce } = useAnnounce();
   const titleId = useId();
 
   React.useEffect(() => {
-    const bodyMessage = bodyRef.current?.textContent;
-    const actionsMessage = actionsRef.current?.textContent;
+    const bodyMessage = bodyRef.current?.textContent ?? rootRef.current?.textContent;
+    const actionsMessage = bodyRef.current ? actionsRef.current?.textContent : undefined;
 
     const message = [bodyMessage, actionsMessage].filter(Boolean).join(',');
     announce(message, { polite: computedPoliteness === 'polite', alert: computedPoliteness === 'assertive' });
@@ -49,7 +50,7 @@ export const useMessageBarBase_unstable = (
     },
     root: slot.always(
       getIntrinsicElementProps('div', {
-        ref: useMergedRefs(ref, reflowRef, nodeRef),
+        ref: useMergedRefs(ref, reflowRef, nodeRef, rootRef),
         role: 'group',
         'aria-labelledby': titleId,
         ...props,

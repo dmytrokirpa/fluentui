@@ -1,17 +1,27 @@
 'use client';
 
-import type * as React from 'react';
+import * as React from 'react';
 import { useMessageBarBase_unstable, useMessageBarContextValue_unstable } from '@fluentui/react-message-bar';
+import { useMergedRefs } from '@fluentui/react-utilities';
 
 import type { MessageBarProps, MessageBarState, MessageBarContextValues } from './MessageBar.types';
 import { toDataAttributeValue } from '../../utils';
+import { useMessageBarAnnouncement } from './useMessageBarAnnouncement';
 
 /**
  * Returns the state for a MessageBar component, given its props and ref.
  * The returned state can be modified with hooks before being passed to `renderMessageBar`.
  */
 export const useMessageBar = (props: MessageBarProps, ref: React.Ref<HTMLDivElement>): MessageBarState => {
-  const state: MessageBarState = useMessageBarBase_unstable(props, ref);
+  const politeness =
+    props.politeness ?? (props.intent === 'warning' || props.intent === 'error' ? 'assertive' : 'polite');
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const state: MessageBarState = useMessageBarBase_unstable({ ...props, politeness }, useMergedRefs(ref, rootRef));
+  const hasOwnLiveRegion =
+    props.role === 'alert' ||
+    props.role === 'status' ||
+    (props['aria-live'] !== undefined && props['aria-live'] !== 'off');
+  useMessageBarAnnouncement(state, rootRef, politeness, hasOwnLiveRegion);
 
   // eslint-disable-next-line react-hooks/immutability
   state.root['data-layout'] = state.layout;

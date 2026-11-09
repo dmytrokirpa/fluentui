@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Make MessageBar announcements available without a provider and apply intent-based priorities.",
+  "packageName": "@fluentui/react-headless-components-preview",
+  "email": "dmytrokirpa@microsoft.com"
+}
