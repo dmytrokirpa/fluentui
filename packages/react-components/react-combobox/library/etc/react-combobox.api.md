@@ -286,6 +286,7 @@ export const useComboboxBaseState: (props: ComboboxBaseProps & {
     editable?: boolean;
     disabled?: boolean;
     freeform?: boolean;
+    initialFocus?: "first" | "last" | "none";
     activeDescendantController: ActiveDescendantImperativeRef;
 }) => ComboboxBaseState;
 

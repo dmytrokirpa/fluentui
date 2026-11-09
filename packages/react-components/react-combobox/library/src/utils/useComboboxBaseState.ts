@@ -21,6 +21,8 @@ export const useComboboxBaseState = (
     editable?: boolean;
     disabled?: boolean;
     freeform?: boolean;
+    /** Controls initial activation; a selected option takes precedence over first/last. */
+    initialFocus?: 'first' | 'last' | 'none';
     activeDescendantController: ActiveDescendantImperativeRef;
   },
 ): ComboboxBaseState => {
@@ -38,6 +40,7 @@ export const useComboboxBaseState = (
     activeDescendantController,
     freeform = false,
     disabled = false,
+    initialFocus = 'first',
     onActiveOptionChange = null,
   } = props;
 
@@ -154,28 +157,31 @@ export const useComboboxBaseState = (
 
   // update active option based on change in open state
   React.useEffect(() => {
-    if (open) {
+    if (open && initialFocus !== 'none') {
       // if it is single-select and there is a selected option, start at the selected option
-      if (!multiselect && selectedOptions.length > 0) {
-        const selectedOption = getOptionsMatchingValue(v => v === selectedOptions[0]).pop();
-        if (selectedOption?.id) {
-          activeDescendantController.focus(selectedOption.id);
-        }
+      const selectedOption =
+        !multiselect && selectedOptions.length > 0
+          ? getOptionsMatchingValue(v => v === selectedOptions[0]).pop()
+          : undefined;
+      if (selectedOption?.id) {
+        activeDescendantController.focus(selectedOption.id);
+      } else if (initialFocus === 'last' && !disableAutoFocus) {
+        activeDescendantController.last();
       }
-    } else {
+    } else if (!open) {
       activeDescendantController.blur();
     }
     // this should only be run in response to changes in the open state
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeDescendantController]);
+  }, [open, activeDescendantController, initialFocus]);
 
   // Fallback focus when children are updated in an open popover results in no item being focused
   React.useEffect(() => {
-    if (open && !disableAutoFocus && !activeDescendantController.active()) {
+    if (open && initialFocus !== 'none' && !disableAutoFocus && !activeDescendantController.active()) {
       activeDescendantController.first();
     }
     // this should only be run in response to changes in the open state or children
-  }, [open, children, disableAutoFocus, activeDescendantController, getOptionById]);
+  }, [open, children, disableAutoFocus, activeDescendantController, getOptionById, initialFocus]);
 
   const onActiveDescendantChange = useEventCallback((event: ActiveDescendantChangeEvent) => {
     const previousOption = event.detail.previousId ? optionCollection.getOptionById(event.detail.previousId) : null;

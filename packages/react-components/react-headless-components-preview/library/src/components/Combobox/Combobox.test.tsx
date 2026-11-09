@@ -156,4 +156,21 @@ describe('Combobox', () => {
     fireEvent.click(getByRole('button', { name: 'Clear' }));
     expect(getByRole('combobox')).toHaveValue('query');
   });
+
+  it.each(['Home', 'End'])('preserves native %s handling and notifies the input slot', key => {
+    const onKeyDown = jest.fn();
+    const { getByRole } = render(<Combobox defaultOpen input={{ onKeyDown }} />);
+
+    expect(fireEvent.keyDown(getByRole('combobox'), { key })).toBe(true);
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('notifies a top-level key handler for an intercepted key', () => {
+    const onKeyDown = jest.fn();
+    const { getByRole } = render(<Combobox onKeyDown={onKeyDown} />);
+
+    fireEvent.keyDown(getByRole('combobox'), { key: 'ArrowDown', altKey: true });
+    fireEvent.keyDown(getByRole('combobox'), { key: 'ArrowUp', altKey: true });
+    expect(onKeyDown).toHaveBeenCalledTimes(2);
+  });
 });

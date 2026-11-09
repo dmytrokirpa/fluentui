@@ -218,21 +218,129 @@ describe('Combobox', () => {
       cy.get(trigger).should('have.value', 'Cat');
     });
 
-    it('Home key jumps to first option', () => {
-      mount(<BasicCombobox />);
+    it('uses Home and End for the input caret without changing the active option', () => {
+      mount(<BasicCombobox value="Existing text" />);
       cy.get(trigger).focus().realPress('ArrowDown');
       cy.realPress('ArrowDown'); // Dog
+      cy.get(trigger).then($input => {
+        ($input[0] as HTMLInputElement).setSelectionRange(4, 4);
+      });
       cy.realPress('Home');
-      cy.realPress('Enter');
-      cy.get(trigger).should('have.value', 'Cat');
+      cy.get(trigger).should('have.prop', 'selectionStart', 0);
+      cy.realPress('End');
+      cy.get(trigger).should('have.prop', 'selectionStart', 'Existing text'.length);
+      cy.get(trigger)
+        .invoke('attr', 'aria-activedescendant')
+        .then(id => cy.contains(option, 'Dog').should('have.attr', 'id', id));
     });
 
-    it('End key jumps to last option', () => {
+    it('opens at the last option with ArrowUp when there is no selection', () => {
       mount(<BasicCombobox />);
-      cy.get(trigger).focus().realPress('ArrowDown');
-      cy.realPress('End');
+      cy.get(trigger).focus().realPress('ArrowUp');
       cy.realPress('Enter');
       cy.get(trigger).should('have.value', 'Hamster');
+    });
+
+    it('opens at the selected option with ArrowUp', () => {
+      mount(<BasicCombobox defaultSelectedOptions={['Dog']} defaultValue="Dog" />);
+      cy.get(trigger).focus().realPress('ArrowUp');
+      cy.get(trigger)
+        .invoke('attr', 'aria-activedescendant')
+        .then(id => cy.contains(option, 'Dog').should('have.attr', 'id', id));
+    });
+
+    it('does not open or submit a form on Enter when closed', () => {
+      const onSubmit = cy.stub().as('onSubmit');
+      mount(
+        <form onSubmit={onSubmit}>
+          <BasicCombobox />
+        </form>,
+      );
+      cy.get(trigger).focus().realPress('Enter');
+      cy.get(listbox).should('not.exist');
+      cy.get('@onSubmit').should('not.have.been.called');
+    });
+
+    [undefined, 'Dog'].forEach(selected => {
+      it(`opens without an active option on Alt+ArrowDown${selected ? ' with a selection' : ''}`, () => {
+        const onActiveOptionChange = cy.stub().as('onActiveOptionChange');
+        mount(
+          <BasicCombobox
+            defaultSelectedOptions={selected ? [selected] : undefined}
+            defaultValue={selected}
+            onActiveOptionChange={onActiveOptionChange}
+          />,
+        );
+        cy.get(trigger).focus().realPress(['Alt', 'ArrowDown']);
+        cy.get(listbox).should('be.visible');
+        cy.get(trigger).should('not.have.attr', 'aria-activedescendant');
+        cy.get('@onActiveOptionChange').should('not.have.been.called');
+        cy.realPress('ArrowDown');
+        cy.get(trigger).should('have.attr', 'aria-activedescendant');
+      });
+    });
+
+    [false, true].forEach(freeform => {
+      it(`closes on Alt+ArrowUp without selecting or discarding ${freeform ? 'freeform' : 'filtering'} text`, () => {
+        const onOptionSelect = cy.stub().as('onOptionSelect');
+        mount(<BasicCombobox freeform={freeform} onOptionSelect={onOptionSelect} />);
+        cy.get(trigger).focus().realType('Ca');
+        cy.get(listbox).should('be.visible');
+        cy.realPress(['Alt', 'ArrowUp']);
+        cy.get(listbox).should('not.exist');
+        cy.get(trigger).should('have.value', 'Ca').and('be.focused');
+        cy.get('@onOptionSelect').should('not.have.been.called');
+      });
+    });
+
+    it('closes on Shift+Tab without selecting the active option', () => {
+      const onOptionSelect = cy.stub().as('onOptionSelect');
+      mount(
+        <>
+          <button id="before">Before</button>
+          <BasicCombobox onOptionSelect={onOptionSelect} />
+        </>,
+      );
+      cy.get(trigger).focus().realPress('ArrowDown');
+      cy.realPress('ArrowDown');
+      cy.realPress(['Shift', 'Tab']);
+      cy.get('#before').should('be.focused');
+      cy.get(listbox).should('not.exist');
+      cy.get(trigger).should('have.value', '');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+    });
+
+    it('keeps the previous selection on Shift+Tab even when the query matches another option', () => {
+      const onOptionSelect = cy.stub().as('onOptionSelect');
+      mount(
+        <>
+          <button id="before">Before</button>
+          <BasicCombobox defaultSelectedOptions={['Cat']} defaultValue="Cat" onOptionSelect={onOptionSelect} />
+        </>,
+      );
+      cy.get(trigger)
+        .focus()
+        .then($input => ($input[0] as HTMLInputElement).select())
+        .realType('Dog');
+      cy.realPress(['Shift', 'Tab']);
+      cy.get('#before').should('be.focused');
+      cy.get(trigger).should('have.value', 'Cat');
+      cy.get('@onOptionSelect').should('not.have.been.called');
+    });
+
+    it('commits the active option on forward Tab', () => {
+      mount(
+        <>
+          <BasicCombobox />
+          <button id="after">After</button>
+        </>,
+      );
+      cy.get(trigger).focus().realPress('ArrowDown');
+      cy.realPress('ArrowDown');
+      cy.realPress('Tab');
+      cy.get('#after').should('be.focused');
+      cy.get(trigger).should('have.value', 'Dog');
+      cy.get(listbox).should('not.exist');
     });
 
     it('Escape closes without changing selection', () => {

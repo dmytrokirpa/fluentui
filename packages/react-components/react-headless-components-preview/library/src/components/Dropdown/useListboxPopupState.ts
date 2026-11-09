@@ -42,6 +42,7 @@ export type ListboxPopupBaseProps = ComboboxBaseProps &
 type ComboboxBaseStateExtras = Partial<ComboboxBaseProps> & {
   freeform?: boolean;
   editable?: boolean;
+  initialFocus?: 'first' | 'last' | 'none';
 };
 
 export type UseListboxPopupStateOptions<TProps extends ListboxPopupBaseProps> = {

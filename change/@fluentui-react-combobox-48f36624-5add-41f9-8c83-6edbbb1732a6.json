@@ -1,0 +1,6 @@
+{
+  "type": "patch",
+  "comment": "Support opt-in initial activation for editable pickers.",
+  "packageName": "@fluentui/react-combobox",
+  "email": "dmytrokirpa@microsoft.com"
+}

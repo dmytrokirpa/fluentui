@@ -10,6 +10,7 @@ import { useListboxPopupState } from '../Dropdown/useListboxPopupState';
 
 export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElement>): ComboboxState => {
   const { freeform } = props;
+  const [initialFocus, setInitialFocus] = React.useState<'first' | 'last' | 'none'>('first');
 
   const {
     props: mergedProps,
@@ -25,7 +26,7 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
     fieldControlOptions: { supportsLabelFor: true, supportsRequired: true },
     // For multiselect, editable should be false to display comma-separated values in the trigger
     // For single-select, editable is true to allow filtering
-    baseStateExtras: p => ({ editable: !p.multiselect }),
+    baseStateExtras: p => ({ editable: !p.multiselect, initialFocus }),
     supportsMultiselectClear: true,
   });
 
@@ -34,20 +35,78 @@ export const useCombobox = (props: ComboboxProps, ref: React.Ref<HTMLInputElemen
   const expandIconRef = React.useRef<HTMLSpanElement>(null);
   const clearButtonRef = React.useRef<HTMLButtonElement>(null);
 
-  const triggerSlot = useInputTriggerSlot(mergedProps.input ?? {}, useMergedRefs(triggerRef, activeParentRef, ref), {
-    state: internalState,
-    freeform,
-    defaultProps: {
-      type: 'text',
-      value: baseState.value ?? '',
-      'aria-controls': open ? listbox?.id : undefined,
-      ...triggerNativeProps,
+  const baseTriggerSlot = useInputTriggerSlot(
+    mergedProps.input ?? {},
+    useMergedRefs(triggerRef, activeParentRef, ref),
+    {
+      state: internalState,
+      freeform,
+      defaultProps: {
+        type: 'text',
+        value: baseState.value ?? '',
+        'aria-controls': open ? listbox?.id : undefined,
+        ...triggerNativeProps,
+      },
+      activeDescendantController,
+      shouldCloseOnBlur: event =>
+        !event.relatedTarget ||
+        (event.relatedTarget !== expandIconRef.current && event.relatedTarget !== clearButtonRef.current),
     },
-    activeDescendantController,
-    shouldCloseOnBlur: event =>
-      !event.relatedTarget ||
-      (event.relatedTarget !== expandIconRef.current && event.relatedTarget !== clearButtonRef.current),
+  );
+
+  React.useEffect(() => {
+    if (!open) {
+      // The opening intent applies only to the current popup lifecycle.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setInitialFocus('first');
+    }
+  }, [open]);
+
+  const onTriggerKeyDown = baseTriggerSlot.onKeyDown;
+  const onUserKeyDown = slot.resolveShorthand(mergedProps.input ?? {}).onKeyDown ?? triggerNativeProps.onKeyDown;
+  const onInputKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Home' || event.key === 'End') {
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (!open && event.key === 'Enter') {
+      event.preventDefault();
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (event.altKey && event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (open) {
+        internalState.setOpen(event, false);
+        internalState.setValue(internalState.value);
+      }
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'Tab' && open) {
+      internalState.setOpen(event, false);
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (event.altKey && event.key === 'ArrowDown' && open) {
+      event.preventDefault();
+      onUserKeyDown?.(event);
+      return;
+    }
+
+    if (!open && event.key === 'ArrowDown') {
+      setInitialFocus(event.altKey ? 'none' : 'first');
+    } else if (!open && event.key === 'ArrowUp') {
+      setInitialFocus('last');
+    }
+
+    onTriggerKeyDown?.(event);
   });
+  const triggerSlot = { ...baseTriggerSlot, onKeyDown: onInputKeyDown } as typeof baseTriggerSlot;
 
   const showClearIcon =
     !!clearable &&
