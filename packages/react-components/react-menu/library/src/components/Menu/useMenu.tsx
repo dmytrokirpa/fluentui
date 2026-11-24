@@ -20,6 +20,7 @@ import {
   useTimeout,
   useFirstMount,
   useMergedRefs,
+  getTriggerChild,
 } from '@fluentui/react-utilities';
 import { useFluent_unstable as useFluent } from '@fluentui/react-shared-contexts';
 import { useFocusFinders } from '@fluentui/react-tabster';
@@ -100,8 +101,20 @@ export const useMenuBase_unstable = (
     safeZone,
   } = props;
 
+  const children = React.Children.toArray(props.children) as React.ReactElement[];
+
+  let menuTrigger: React.ReactElement | undefined = undefined;
+  let menuPopover: React.ReactElement | undefined = undefined;
+  if (children.length === 2) {
+    menuTrigger = children[0];
+    menuPopover = children[1];
+  } else if (children.length === 1) {
+    menuPopover = children[0];
+  }
+
+  const triggerId = useId('menu', getTriggerChild<{ id?: string }>(menuTrigger?.props.children)?.props.id);
+
   const { targetDocument } = useFluent();
-  const triggerId = useId('menu');
   const [contextTarget, setContextTarget] = usePositioningMouseTarget();
 
   const resolvedPositioning = resolvePositioningShorthand(props.positioning);
@@ -119,8 +132,6 @@ export const useMenuBase_unstable = (
     onPositioningEnd: handlePositionEnd,
   } as const;
 
-  const children = React.Children.toArray(props.children) as React.ReactElement[];
-
   if (process.env.NODE_ENV !== 'production') {
     if (children.length === 0) {
       // eslint-disable-next-line no-console
@@ -131,15 +142,6 @@ export const useMenuBase_unstable = (
       // eslint-disable-next-line no-console
       console.warn('Menu must contain at most two children');
     }
-  }
-
-  let menuTrigger: React.ReactElement | undefined = undefined;
-  let menuPopover: React.ReactElement | undefined = undefined;
-  if (children.length === 2) {
-    menuTrigger = children[0];
-    menuPopover = children[1];
-  } else if (children.length === 1) {
-    menuPopover = children[0];
   }
 
   const { targetRef, containerRef } = usePositioning(positioningOptions);
